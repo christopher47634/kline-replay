@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0f14;
+  --color-card: #141a22;
+  --color-line: #232b36;
+  --color-ink: #e6e8eb;
+  --color-sub: #8b95a3;
+  --color-up: #ff4d4f;
+  --color-down: #3fb950;
+  --color-gold: #f5b400;
+  --font-sans: var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: var(--font-jb), ui-monospace, "Cascadia Mono", monospace;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.fade-in {
+  animation: fade-in 200ms ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.future-mask {
+  background-image: repeating-linear-gradient(135deg, rgba(139, 149, 163, 0.14) 0 6px, transparent 6px 12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { animation: none; }
+}
