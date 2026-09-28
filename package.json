@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "cli": "tsx scripts/play_cli.ts",
+    "data:fetch": "python scripts/fetch_prices.py 2015 2020",
+    "data:build": "python scripts/build_script.py 2015 && python scripts/build_script.py 2020"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
