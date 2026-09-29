@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { decodeGame } from "@/game/encode";
 import { everLiquidated, playAll, rank, totalReturn } from "@/game/engine";
@@ -7,17 +9,28 @@ import { getScript } from "@/lib/scripts";
 
 export const runtime = "nodejs";
 
-/** Subset a Google font to exactly the glyphs on the card, so CJK renders without shipping a font file. */
-async function loadFont(text: string): Promise<ArrayBuffer | null> {
-  try {
-    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&text=${encodeURIComponent(text)}`;
-    const css = await (await fetch(cssUrl, { signal: AbortSignal.timeout(3000) })).text();
-    const url = css.match(/src: url\((.+?)\) format/)?.[1];
-    if (!url) return null;
-    return await (await fetch(url, { signal: AbortSignal.timeout(3000) })).arrayBuffer();
-  } catch {
-    return null;
+/** Bundled Noto Sans SC Black subset (scripts/build_og_font.py): no network needed at request time. */
+let fontCache: Promise<ArrayBuffer | null> | null = null;
+async function readFont(): Promise<Buffer> {
+  const rel = "src/app/api/og/NotoSansSC-Black-subset.ttf";
+  // cwd is the project root under `next start` / Vercel; the second path is relative to the compiled route.
+  for (const path of [join(process.cwd(), rel), join(__dirname, "../../../../..", rel)]) {
+    try {
+      return await readFile(path);
+    } catch {
+      /* try the next location */
+    }
   }
+  throw new Error("OG font subset not found");
+}
+function loadFont(): Promise<ArrayBuffer | null> {
+  fontCache ??= readFont()
+    .then((b) => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer)
+    .catch((e) => {
+      console.error("[og] font load failed", e);
+      return null;
+    });
+  return fontCache;
 }
 
 const ASCII_ONLY = /[^\x20-\x7e−]/g;
@@ -47,7 +60,7 @@ export async function GET(request: Request) {
     squares = h.map((r) => (r.liquidated ? "#A855F7" : r.pnl >= 0 ? "#FF4D4F" : "#3FB950"));
   }
 
-  const font = await loadFont(`${head}${badge}${persona}穿越K线0123456789+−.%·`);
+  const font = await loadFont();
   const fonts = font ? [{ name: "NotoSC", data: font, weight: 900 as const, style: "normal" as const }] : [];
   // Without the CJK font, drop Chinese text rather than render tofu.
   const t = (x: string) => (font ? x : x.replace(ASCII_ONLY, "").trim());

@@ -46,6 +46,27 @@ test("plays a full 2015 game, shares it, and plays the music", async ({ page, co
   const progress = await page.evaluate(() => (window as unknown as { __klineMusic?: { position: number } }).__klineMusic?.position ?? 0);
   expect(progress).toBeGreaterThan(0);
   expect(errors).toEqual([]);
+
+  // 6. shared music link opens the modal with a big play button and no autoplay
+  const shared = await context.newPage();
+  await shared.goto(`${link}&play=1`);
+  await expect(shared.getByRole("dialog", { name: "听听你的 2015" })).toBeVisible();
+  await expect(shared.getByRole("button", { name: "点击播放" })).toBeVisible();
+  expect(await shared.evaluate(() => (window as unknown as { __klineMusic?: { playing: boolean } }).__klineMusic?.playing)).toBe(false);
+  await shared.close();
+
+  // 7. mute switch persists
+  await page.getByRole("button", { name: "关闭" }).click();
+  await page.getByRole("button", { name: "静音" }).click();
+  expect(await page.evaluate(() => localStorage.getItem("kline:muted"))).toBe("1");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "取消静音" })).toBeVisible();
+  await page.getByRole("button", { name: "取消静音" }).click();
+
+  // 8. OG image renders (bundled font, no network needed)
+  const og = await page.request.get(`/api/og?s=${new URL(link).searchParams.get("s")}`);
+  expect(og.status()).toBe(200);
+  expect(og.headers()["content-type"]).toContain("image/png");
 });
 
 test("invalid result link shows an error state", async ({ page }) => {
