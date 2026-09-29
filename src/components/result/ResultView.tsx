@@ -18,18 +18,18 @@ import { MusicModal } from "./MusicModal";
 import { PersonaCard, PersonaPoster } from "./PersonaCard";
 import { ReturnChart } from "./ReturnChart";
 
-export function ResultView({ code, boardOn }: { code: string; boardOn: boolean }) {
+export function ResultView({ code, boardOn, openMusic = false }: { code: string; boardOn: boolean; openMusic?: boolean }) {
   const decoded = useMemo(() => decodeGame(code), [code]);
   const script = decoded.ok ? getScript(decoded.scriptId) : null;
   if (!decoded.ok || !script) return <InvalidLink reason={decoded.ok ? "剧本不存在" : decoded.error} />;
-  return <Result code={code} scriptId={script.id} allocs={decoded.allocs} boardOn={boardOn} />;
+  return <Result code={code} scriptId={script.id} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} />;
 }
 
-function Result({ code, scriptId, allocs, boardOn }: { code: string; scriptId: string; allocs: Allocation[]; boardOn: boolean }) {
+function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; scriptId: string; allocs: Allocation[]; boardOn: boolean; openMusic: boolean }) {
   const script = getScript(scriptId)!;
   const router = useRouter();
   const poster = useRef<HTMLDivElement>(null);
-  const [music, setMusic] = useState(false);
+  const [music, setMusic] = useState(openMusic);
   const [toast, setToast] = useState<string | null>(null);
 
   // Everything is recomputed from the URL: nothing else is trusted.
@@ -64,7 +64,11 @@ function Result({ code, scriptId, allocs, boardOn }: { code: string; scriptId: s
   };
 
   const [origin, setOrigin] = useState(process.env.NEXT_PUBLIC_SITE_URL ?? "");
-  useEffect(() => setOrigin(window.location.origin), []);
+  const [mounted, setMounted] = useState(false); // the music modal portals to document.body: client only
+  useEffect(() => {
+    setOrigin(window.location.origin);
+    setMounted(true);
+  }, []);
   const link = `${origin}/result?s=${code}`;
   const text = shareText({ script, history: r.history, ret: r.ret, rankLabel: r.rank.label, personaTitle: r.persona.title, quote: r.quote, origin });
 
@@ -109,7 +113,7 @@ function Result({ code, scriptId, allocs, boardOn }: { code: string; scriptId: s
       {r.busted && <p className="mt-3 text-up font-medium">爆仓结局：第 {r.history.length} 个月账户归零，游戏提前结束。</p>}
 
       <section aria-label="收益对比" className="mt-8 rounded-2xl bg-card border border-line p-4 md:p-6">
-        <ReturnChart b={r.b} startCash={script.startCash} />
+        <ReturnChart b={r.b} startCash={script.startCash} history={r.history} />
         <ul className="mt-4 grid gap-1.5 text-sm md:text-base md:grid-cols-3">
           {cmp("满仓大盘", r.marketRet)}
           {cmp("全程现金", r.cashRet)}
@@ -187,7 +191,14 @@ function Result({ code, scriptId, allocs, boardOn }: { code: string; scriptId: s
         </div>
       </div>
 
-      {music && <MusicModal script={script} daily={r.daily} history={r.history} onClose={() => setMusic(false)} />}
+      {music && mounted && <MusicModal
+          script={script}
+          daily={r.daily}
+          history={r.history}
+          onClose={() => setMusic(false)}
+          bigPlay={openMusic}
+          onCopyLink={async () => flash((await copyText(`${link}&play=1`)) ? "音乐链接已复制" : "复制失败")}
+        />}
 
       {toast && (
         <div role="status" className="fixed left-1/2 -translate-x-1/2 bottom-8 z-50 rounded-full bg-ink text-bg px-5 py-2 text-sm font-medium fade-in">

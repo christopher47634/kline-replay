@@ -14,7 +14,22 @@ declare global {
   }
 }
 
-export function MusicModal({ script, daily, history, onClose }: { script: Script; daily: DailyPoint[]; history: RoundRecord[]; onClose: () => void }) {
+export function MusicModal({
+  script,
+  daily,
+  history,
+  onClose,
+  bigPlay = false,
+  onCopyLink,
+}: {
+  script: Script;
+  daily: DailyPoint[];
+  history: RoundRecord[];
+  onClose: () => void;
+  /** Opened from a shared music link: show a big play button (audio never starts by itself). */
+  bigPlay?: boolean;
+  onCopyLink?: () => void;
+}) {
   const comp = useMemo(() => compose(daily, history, script.startCash), [daily, history, script.startCash]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -145,7 +160,7 @@ export function MusicModal({ script, daily, history, onClose }: { script: Script
   // Portal: an animated ancestor (fade-in transform) would otherwise trap position: fixed.
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={`听听你的 ${script.id}`} className="fixed inset-0 z-50 bg-bg flex flex-col" data-progress={pos}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+      <div className="flex items-center justify-between pl-4 pr-14 py-3 border-b border-line">
         <h2 className="font-bold">
           听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
         </h2>
@@ -155,6 +170,16 @@ export function MusicModal({ script, daily, history, onClose }: { script: Script
       </div>
       <div ref={boxRef} className="relative flex-1 min-h-0 overflow-hidden grid place-items-center p-2 md:p-6" onClick={() => needTap && void play()}>
         <canvas ref={canvasRef} className="rounded-xl border border-line max-w-full" />
+        {bigPlay && !playing && pos === 0 && !ended && !needTap && (
+          <button
+            type="button"
+            onClick={() => void play()}
+            aria-label="点击播放"
+            className="absolute inset-0 m-auto w-24 h-24 rounded-full bg-up text-white text-4xl grid place-items-center shadow-lg hover:bg-[#ff6b6d]"
+          >
+            ▶
+          </button>
+        )}
         {needTap && (
           <p className="absolute inset-x-0 bottom-6 text-center text-sm text-gold" role="alert">
             音频未能启动：点击屏幕任意位置开始
@@ -183,6 +208,7 @@ export function MusicModal({ script, daily, history, onClose }: { script: Script
           <CtlBtn onClick={toggleRate} aria-label="切换速度">
             <span className="num">{rate}x</span>
           </CtlBtn>
+          {onCopyLink && <CtlBtn onClick={onCopyLink}>复制音乐链接</CtlBtn>}
           <span className="num text-xs text-sub ml-auto">
             {secs(pos)}s / {secs(total)}s · 第 {Math.min(pos, total)} / {total} 个交易日
           </span>

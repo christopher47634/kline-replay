@@ -6,7 +6,7 @@ import { boardEnabled } from "@/lib/board";
 import { pct } from "@/lib/format";
 import { getScript } from "@/lib/scripts";
 
-type Props = { searchParams: Promise<{ s?: string }> };
+type Props = { searchParams: Promise<{ s?: string; play?: string }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const s = (await searchParams).s ?? "";
@@ -25,6 +25,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function ResultPage({ searchParams }: Props) {
-  const s = (await searchParams).s ?? "";
-  return <ResultView code={s} boardOn={boardEnabled()} />;
+  const sp = await searchParams;
+  return <ResultView code={sp.s ?? ""} boardOn={boardEnabled()} openMusic={sp.play === "1"} />;
 }
