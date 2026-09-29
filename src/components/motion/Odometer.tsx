@@ -61,7 +61,8 @@ export function Odometer({
     <span
       role="text"
       aria-label={target}
-      className={`inline-flex items-baseline leading-none ${className ?? ""}`}
+      className={`inline-flex items-center align-middle ${className ?? ""}`}
+      style={{ lineHeight: 1.15 }}
       data-odometer={target}
       data-testid={testId}
       data-value={target}
@@ -70,7 +71,7 @@ export function Odometer({
       {chars.map((c, i) => {
         if (!/\d/.test(c)) {
           return (
-            <span key={i} aria-hidden className="inline-block">
+            <span key={i} aria-hidden className="inline-flex items-center" style={{ height: "1.15em" }}>
               {c}
             </span>
           );
@@ -78,7 +79,7 @@ export function Odometer({
         const d = /\d/.test(cur[i]) ? Number(cur[i]) : 0;
         const fromRight = chars.length - 1 - i;
         return (
-          <span key={i} aria-hidden className="relative inline-block overflow-hidden" style={{ height: "1.15em", width: "0.6em", verticalAlign: "-0.3em" }}>
+          <span key={i} aria-hidden className="relative inline-block overflow-hidden" style={{ height: "1.15em", width: "0.6em" }}>
             <span
               className="absolute inset-x-0 top-0 flex flex-col"
               style={{
