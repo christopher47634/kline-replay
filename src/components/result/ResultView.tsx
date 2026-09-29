@@ -166,6 +166,9 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
         <Link href="/" className={btn("ghost")}>
           换个年份
         </Link>
+        <Link href="/events" className={btn("ghost")}>
+          去猜大事件
+        </Link>
       </section>
 
       {boardOn && <BoardSubmit code={code} ret={r.ret} scriptId={script.id} />}

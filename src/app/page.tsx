@@ -65,6 +65,18 @@ export default function Home() {
         </div>
       </section>
 
+      <section aria-labelledby="events-h" className="pb-14">
+        <Link href="/events" className="block rounded-2xl bg-card border border-gold/40 p-6 hover:border-gold transition-colors focus-visible:outline-2 focus-visible:outline-gold">
+          <div className="flex items-center justify-between">
+            <h2 id="events-h" className="text-xl font-bold">
+              大事件猜涨跌 · 3 分钟
+            </h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-gold/15 text-gold">新玩法</span>
+          </div>
+          <p className="mt-2 text-sm text-sub">熔断、股灾、雷曼、疫情……抽 10 张历史事件卡，猜之后 20 个交易日涨还是跌，答案会被演奏出来。</p>
+        </Link>
+      </section>
+
       <section aria-labelledby="how-h" className="pb-16">
         <h2 id="how-h" className="text-xl font-bold">怎么玩</h2>
         <ol className="mt-5 grid gap-6 md:grid-cols-3">
