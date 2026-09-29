@@ -56,7 +56,11 @@ export function Odometer({
   }, [target, ready, reduce, duration]);
 
   const chars = target.split("");
-  const cur = shown.padStart(chars.length, "0").slice(-chars.length).split("");
+  // Wheels only ever carry digits: align the start and end values by their digits alone (right-aligned), so a sign,
+  // decimal point or % in either string can never end up on a wheel; symbols stay static.
+  const tDigits = target.replace(/\D/g, "");
+  const sDigits = shown.replace(/\D/g, "").padStart(tDigits.length, "0").slice(-tDigits.length || undefined);
+  let digitIdx = -1;
   return (
     <span
       role="text"
@@ -76,7 +80,8 @@ export function Odometer({
             </span>
           );
         }
-        const d = /\d/.test(cur[i]) ? Number(cur[i]) : 0;
+        digitIdx += 1;
+        const d = Number(sDigits[digitIdx] ?? 0);
         const fromRight = chars.length - 1 - i;
         return (
           <span key={i} aria-hidden className="relative inline-block overflow-hidden" style={{ height: "1.15em", width: "0.6em" }}>

@@ -69,18 +69,21 @@ export function GameView({ scriptId }: { scriptId: string }) {
   // Next month: the button says "结算中…" for ~0.5 s, then the page turns to the new month (status flip, chart segment)
   // and only then does the settle dialog rise from the button. A liquidation plays its full screen effect first.
   const [settling, setSettling] = useState(false);
+  const [chartLen, setChartLen] = useState<number | null>(null);
   const [bustRun, setBustRun] = useState(0);
   const shakeRef = useRef<HTMLDivElement>(null);
   const goNext = () => {
     if (!valid || dialogOpen || st.finished || settling) return;
     tick();
     if (reduce) {
+      setChartLen(st.history.length);
       st.next();
       if (useGame.getState().last?.liquidated) runBustFx(null); // sound and buzz only
       setDialogOpen(true);
       return;
     }
     setSettling(true);
+    setChartLen(st.history.length);
     setTimeout(() => {
       st.next();
       setSettling(false);
@@ -162,6 +165,9 @@ export function GameView({ scriptId }: { scriptId: string }) {
   const shownMonth = st.finished && st.last ? st.last.month : st.history.length;
   const month = script.months[shownMonth];
   const shownHistory = st.history.slice(0, shownMonth);
+  // The chart redraw waits until the settle dialog is closed: drawing the new segment while the dialog rises was the
+  // main source of long frames (see DECISIONS). While a dialog is open the chart keeps showing the previous round.
+  const chartHistory = chartLen === null || (!dialogOpen && !settling) ? shownHistory : st.history.slice(0, Math.min(chartLen, shownMonth));
   const previous = st.history.at(-1)?.alloc ?? null;
   const prevMonthNo = shownMonth === 0 ? 12 : shownMonth;
   const lastPnl = shownHistory.at(-1)?.pnl ?? null;
@@ -191,7 +197,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
         </Enter>
         <Enter delay={0.08} className="flex flex-col">
           <div className="flex flex-1 flex-col gap-4">
-            <TrendChart script={script} history={shownHistory} />
+            <TrendChart script={script} history={chartHistory} />
             <KnownInfo script={script} round={shownMonth} />
           </div>
         </Enter>

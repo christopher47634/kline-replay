@@ -28,11 +28,11 @@ export default function StoryPinned() {
       const notes = q("[data-note]");
       const len = line?.getTotalLength() ?? 600;
       gsap.set(line ?? [], { strokeDasharray: len, strokeDashoffset: len });
-      gsap.set(cards, { x: 160, opacity: 0 });
+      gsap.set(cards, { x: 160, autoAlpha: 0 });
       gsap.set(bars, { scaleX: 0 });
       gsap.set(copy.slice(1), { opacity: 0, y: 24 });
-      gsap.set(q("[data-bars]"), { opacity: 0 });
-      gsap.set(q("[data-linebox]"), { opacity: 0 });
+      gsap.set(q("[data-bars]"), { autoAlpha: 0 });
+      gsap.set(q("[data-linebox]"), { autoAlpha: 0 });
       gsap.set(notes, { scale: 0, opacity: 0 });
 
       const tl = gsap.timeline({
@@ -53,27 +53,27 @@ export default function StoryPinned() {
         },
       });
       // segment 1: headlines slide in and stack
-      tl.to(cards, { x: (i) => i * 10, y: (i) => i * 6, opacity: 1, stagger: 0.18, duration: 0.5 }, 0);
+      tl.to(cards, { x: (i) => i * 10, y: (i) => i * 6, autoAlpha: 1, stagger: 0.18, duration: 0.5 }, 0);
       tl.to({}, { duration: 0.35 }); // hold
-      // segment 2: cards recede, bars grow and their numbers count up
+      // segment 2: the cards recede completely (1 -> 1.3, ending at autoAlpha 0) BEFORE the bars appear (1.3+): no ghosting
       tl.to(copy[0], { opacity: 0, y: -24, duration: 0.25 }, 1)
         .to(copy[1], { opacity: 1, y: 0, duration: 0.25 }, 1.1)
-        .to(cards, { scale: 0.84, y: (i) => -40 + i * 6, opacity: 0, duration: 0.45 }, 1)
-        .to(q("[data-bars]"), { opacity: 1, duration: 0.2 }, 1.1)
-        .to(bars, { scaleX: 1, stagger: 0.06, duration: 0.5 }, 1.15);
+        .to(cards, { scale: 0.84, y: (i) => -40 + i * 6, autoAlpha: 0, duration: 0.3, ease: "power1.in" }, 1)
+        .to(q("[data-bars]"), { autoAlpha: 1, duration: 0.15 }, 1.3)
+        .to(bars, { scaleX: 1, stagger: 0.06, duration: 0.5 }, 1.35);
       nums.forEach((n, i) => {
         const o = { v: 0 };
-        tl.to(o, { v: BARS[i].v, duration: 0.5, onUpdate: () => (n.textContent = `${Math.round(o.v)}%`) }, 1.15 + i * 0.06);
+        tl.to(o, { v: BARS[i].v, duration: 0.5, onUpdate: () => (n.textContent = `${Math.round(o.v)}%`) }, 1.35 + i * 0.06);
       });
       tl.to({}, { duration: 0.3 });
-      // segment 3: bars collapse into a line drawn over real data, notes pop
+      // segment 3: the bars leave completely (2 -> 2.3, autoAlpha 0) before the line box appears (2.3+)
       tl.to(copy[1], { opacity: 0, y: -24, duration: 0.25 }, 2)
         .to(copy[2], { opacity: 1, y: 0, duration: 0.25 }, 2.1)
-        .to(bars, { scaleX: 0, stagger: 0.03, duration: 0.3 }, 2)
-        .to(q("[data-bars]"), { opacity: 0, duration: 0.2 }, 2.25)
-        .to(q("[data-linebox]"), { opacity: 1, duration: 0.2 }, 2.1)
-        .to(line ?? [], { strokeDashoffset: 0, duration: 0.6 }, 2.2)
-        .to(notes, { scale: 1, opacity: 1, stagger: 0.1, duration: 0.3, ease: "back.out(2)" }, 2.55);
+        .to(bars, { scaleX: 0, stagger: 0.03, duration: 0.25 }, 2)
+        .to(q("[data-bars]"), { autoAlpha: 0, duration: 0.15 }, 2.3)
+        .to(q("[data-linebox]"), { autoAlpha: 1, duration: 0.15 }, 2.45)
+        .to(line ?? [], { strokeDashoffset: 0, duration: 0.6 }, 2.5)
+        .to(notes, { scale: 1, opacity: 1, stagger: 0.1, duration: 0.3, ease: "back.out(2)" }, 2.85);
     }, el);
     return () => ctx.revert();
   }, []);
