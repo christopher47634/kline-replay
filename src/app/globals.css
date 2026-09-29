@@ -157,3 +157,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .pop, .shake, .flash-gold { animation: none; }
 }
+
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}

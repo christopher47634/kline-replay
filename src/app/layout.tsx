@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Noto_Sans_SC } from "next/font/google";
+import { AppShell } from "@/components/shell/AppShell";
 import { MuteButton } from "@/components/ui/MuteButton";
 import "./globals.css";
 
@@ -21,11 +22,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preload" href="/fonts/smiley-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="min-h-dvh flex flex-col">
-        <MuteButton />
-        <div className="flex-1">{children}</div>
-        <footer className="py-4 px-4 text-center text-xs text-sub border-t border-line">
-          虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议
-        </footer>
+        <AppShell>
+          <MuteButton />
+          <div className="flex-1">{children}</div>
+          <footer className="py-4 px-4 text-center text-xs text-sub border-t border-line">
+            虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议
+          </footer>
+        </AppShell>
       </body>
     </html>
   );
