@@ -1,9 +1,12 @@
 "use client";
 
+import { getMuted } from "./mute";
+
 let ctx: AudioContext | null = null;
 
 /** A soft click for the "next month" button. Silent if Web Audio is unavailable. */
 export function tick() {
+  if (getMuted()) return;
   try {
     ctx ??= new AudioContext();
     const t = ctx.currentTime;

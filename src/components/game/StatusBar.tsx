@@ -21,7 +21,7 @@ export function StatusBar({
   return (
     <div className="sticky top-0 z-20 -mx-4 px-4 bg-bg/90 backdrop-blur border-b border-line">
       {/* Phone: one fixed 44px line so the bar never eats into the cards below. */}
-      <div className="md:hidden h-11 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
+      <div className="md:hidden h-11 pr-10 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
         <span>
           第 <b className="num">{round}</b> 回合 · {monthOnly}
         </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { getMuted, subscribeMute } from "@/lib/mute";
 import type { Composition, Note } from "./compose";
 
 type ToneNS = typeof import("tone");
@@ -18,6 +19,8 @@ export interface PlayerCallbacks {
 
 /** 0.2 s per note at 1x == an eighth note at 150 BPM. */
 const BASE_BPM = 150;
+const MASTER_DB = -6;
+const MUTED_DB = -60;
 
 /**
  * Tone.js scheduler for the duet. Tone is imported lazily so SSR never touches
@@ -29,6 +32,7 @@ export class DuetPlayer {
   private bass: InstanceType<ToneNS["MonoSynth"]> | null = null;
   private kicks: InstanceType<ToneNS["MembraneSynth"]>[] = [];
   private warned = false;
+  private unsub: (() => void) | null = null;
   private cymbal: InstanceType<ToneNS["MetalSynth"]> | null = null;
   private master: InstanceType<ToneNS["Volume"]> | null = null;
   private eventId: number | null = null;
@@ -56,7 +60,11 @@ export class DuetPlayer {
     if (!this.lead) {
       // Smaller lookahead keeps the Draw callbacks (canvas) tight to the audio clock.
       Tone.getContext().lookAhead = 0.05;
-      this.master = new Tone.Volume(-6).toDestination();
+      this.master = new Tone.Volume(getMuted() ? MUTED_DB : MASTER_DB).toDestination();
+      // Mute drops the level instead of stopping playback, so the picture stays in sync.
+      this.unsub = subscribeMute(() => {
+        if (this.master) this.master.volume.value = getMuted() ? MUTED_DB : MASTER_DB;
+      });
       this.lead = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: "triangle" },
         envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 0.3 },
@@ -166,6 +174,8 @@ export class DuetPlayer {
 
   dispose() {
     this.stop();
+    this.unsub?.();
+    this.unsub = null;
     for (const node of [this.lead, this.bass, ...this.kicks, this.cymbal, this.master]) node?.dispose();
     this.lead = this.bass = this.cymbal = this.master = null;
     this.kicks = [];
