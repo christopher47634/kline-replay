@@ -47,12 +47,13 @@ export class DuetVisual {
     this.hi = hi + pad;
   }
 
-  /** Width 16:9 in CSS pixels, backed by devicePixelRatio. */
-  resize(cssWidth: number) {
+  /** Width in CSS pixels (16:9 landscape or 9:16 portrait), backed by devicePixelRatio. */
+  resize(cssWidth: number, aspect: "16:9" | "9:16" = this.aspect) {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = Math.round(cssWidth);
     this.cssW = w;
-    const h = Math.round((w * 9) / 16);
+    this.aspect = aspect;
+    const h = Math.round(this.h);
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
     this.canvas.width = Math.round(w * dpr);
@@ -62,16 +63,21 @@ export class DuetVisual {
   }
 
   private cssW = 960;
+  private aspect: "16:9" | "9:16" = "16:9";
+  private get portrait() {
+    return this.aspect === "9:16";
+  }
   private get w() {
     return this.cssW;
   }
   private get h() {
-    return (this.w * 9) / 16;
+    return this.portrait ? (this.w * 16) / 9 : (this.w * 9) / 16;
   }
 
   private plot() {
     const w = this.w;
     const h = this.h;
+    if (this.portrait) return { left: w * 0.07, right: w * 0.95, top: h * 0.06, bottom: h * 0.55 };
     return { left: w * 0.05, right: w * 0.97, top: h * 0.13, bottom: h * 0.74 };
   }
 
@@ -160,10 +166,17 @@ export class DuetVisual {
         ctx.stroke();
       }
       ctx.fillStyle = SUB;
-      ctx.fillText(this.opts.monthLabels[n.month] ?? "", (x + xEnd) / 2, p.bottom + w * 0.018);
-      if (n.switched) {
+      // Portrait is narrow: only label every third month (1/4/7/10) so labels never touch.
+      if (!this.portrait || n.month % 3 === 0) ctx.fillText(this.opts.monthLabels[n.month] ?? "", (x + xEnd) / 2, p.bottom + w * (this.portrait ? 0.04 : 0.018));
+      if (n.switched && i <= Math.max(this.current, -1)) {
+        // small gold triangle inside the plot, clear of any label
         ctx.fillStyle = "#F5B400";
-        ctx.fillText("换仓", x + 14, p.top - 10);
+        ctx.beginPath();
+        ctx.moveTo(x - 4, p.top + 4);
+        ctx.lineTo(x + 4, p.top + 4);
+        ctx.lineTo(x, p.top + 10);
+        ctx.closePath();
+        ctx.fill();
       }
     });
     ctx.setLineDash([]);
@@ -203,7 +216,7 @@ export class DuetVisual {
       ctx.font = `600 ${Math.max(11, w * 0.013)}px ui-monospace, monospace`;
       ctx.textAlign = x > w * 0.75 ? "right" : x < w * 0.2 ? "left" : "center";
       ctx.fillStyle = INK;
-      ctx.fillText(label, x, y - 14);
+      if (!this.done) ctx.fillText(label, x, y - 14);
     }
 
     this.pianoRoll(upto);
@@ -227,16 +240,16 @@ export class DuetVisual {
     ctx.stroke();
   }
 
-  /** 30 most recent notes as a piano roll along the bottom. */
+  /** 30 (15 in portrait) most recent notes as a piano roll along the bottom. */
   private pianoRoll(upto: number) {
     const { ctx } = this;
     const w = this.w;
     const h = this.h;
-    const top = h * 0.8;
-    const height = h * 0.16;
-    const left = w * 0.05;
-    const width = w * 0.92;
-    const cols = 30;
+    const top = this.portrait ? h * 0.66 : h * 0.8;
+    const height = this.portrait ? h * 0.28 : h * 0.16;
+    const left = w * (this.portrait ? 0.07 : 0.05);
+    const width = w * (this.portrait ? 0.88 : 0.92);
+    const cols = this.portrait ? 15 : 30;
     const cw = width / cols;
     const rh = height / 15;
     ctx.fillStyle = "#10151c";
@@ -256,17 +269,23 @@ export class DuetVisual {
   private endCard() {
     const { ctx } = this;
     const w = this.w;
+    const h = this.h;
     const last = this.comp.notes.at(-1);
     if (!last) return;
     const diff = (last.value - last.marketValue) / this.opts.startCash;
     const pts = Math.abs(diff * 100).toFixed(1);
-    const text = `你的 ${this.opts.yearLabel} · ${diff >= 0 ? "跑赢" : "跑输"}大盘 ${pts} 个百分点`;
-    ctx.font = `800 ${Math.max(16, w * 0.03)}px system-ui, sans-serif`;
+    const lines = this.portrait
+      ? [`你的 ${this.opts.yearLabel}`, `${diff >= 0 ? "跑赢" : "跑输"}大盘 ${pts} 个百分点`]
+      : [`你的 ${this.opts.yearLabel} · ${diff >= 0 ? "跑赢" : "跑输"}大盘 ${pts} 个百分点`];
+    const fs = Math.max(16, w * (this.portrait ? 0.06 : 0.03));
+    const plateH = fs * 1.5 * lines.length + fs * 0.4;
+    const cy = h * 0.3;
+    ctx.fillStyle = "rgba(11,15,20,0.78)";
+    ctx.fillRect(0, cy - plateH / 2, w, plateH);
+    ctx.font = `800 ${fs}px system-ui, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(11,15,20,0.72)";
-    ctx.fillRect(0, this.h * 0.02, w, w * 0.06);
     ctx.fillStyle = diff >= 0 ? RED : GREEN;
-    ctx.fillText(text, w / 2, this.h * 0.02 + w * 0.042);
+    lines.forEach((t, k) => ctx.fillText(t, w / 2, cy - plateH / 2 + fs * 1.5 * (k + 1) - fs * 0.05));
   }
 
   dispose() {

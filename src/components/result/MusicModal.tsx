@@ -64,7 +64,8 @@ export function MusicModal({ script, daily, history, onClose }: { script: Script
       const cs = getComputedStyle(box);
       const innerW = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       const innerH = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-      v.resize(Math.max(200, Math.min(innerW, (innerH * 16) / 9)));
+      const portrait = window.innerWidth < window.innerHeight;
+      v.resize(Math.max(200, portrait ? Math.min(innerW, (innerH * 9) / 16) : Math.min(innerW, (innerH * 16) / 9)), portrait ? "9:16" : "16:9");
     };
     fit();
     const ro = new ResizeObserver(fit);
