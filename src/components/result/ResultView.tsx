@@ -11,7 +11,7 @@ import { gameStore } from "@/game/store";
 import type { Allocation } from "@/game/types";
 import { pct, pp, upDownColor } from "@/lib/format";
 import { getScript } from "@/lib/scripts";
-import { blocks, copyText, exportPng, shareText } from "@/lib/share";
+import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
 import { BoardSubmit } from "./BoardSubmit";
 import { MusicModal } from "./MusicModal";
@@ -181,7 +181,7 @@ function Result({ code, scriptId, allocs, boardOn }: { code: string; scriptId: s
             ret={r.ret}
             rank={r.rank}
             title={script.title}
-            blocks={blocks(r.history)}
+            blocks={r.history.map((h) => (h.liquidated ? "#A855F7" : h.pnl >= 0 ? "#FF4D4F" : "#3FB950"))}
             diffVsMarket={r.ret - r.marketRet}
           />
         </div>
