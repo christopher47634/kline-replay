@@ -9,14 +9,14 @@ import { allocSum } from "./engine";
 const MONTHS = 12;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-function checksum(bytes: Uint8Array, scriptId: string): number {
+export function checksum(bytes: Uint8Array, scriptId: string): number {
   let c = 0x5a;
   for (const ch of scriptId) c = (c * 31 + ch.charCodeAt(0)) & 0xff;
   for (let i = 0; i < bytes.length; i++) c = ((c * 33) ^ bytes[i]) & 0xff;
   return c;
 }
 
-function toBase64url(bytes: Uint8Array): string {
+export function toBase64url(bytes: Uint8Array): string {
   let out = "";
   let buf = 0;
   let bits = 0;
@@ -33,7 +33,7 @@ function toBase64url(bytes: Uint8Array): string {
   return out;
 }
 
-function fromBase64url(s: string): Uint8Array | null {
+export function fromBase64url(s: string): Uint8Array | null {
   const bytes: number[] = [];
   let buf = 0;
   let bits = 0;
