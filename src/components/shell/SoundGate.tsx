@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m as motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { setMuted } from "@/lib/mute";
 import { play, preloadSfx, unlockAudio } from "@/lib/sfx";

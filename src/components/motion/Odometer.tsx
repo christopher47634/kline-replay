@@ -16,6 +16,7 @@ export function Odometer({
   stagger = 45,
   className,
   onDone,
+  testId,
 }: {
   value: number;
   format?: (n: number) => string;
@@ -24,21 +25,29 @@ export function Odometer({
   stagger?: number;
   className?: string;
   onDone?: () => void;
+  /** Exposed as data-testid; the root also carries data-value (final text) and data-settled (roll finished). */
+  testId?: string;
 }) {
   const { reduce, ready } = useMotionPref();
   const target = format(value);
   const [shown, setShown] = useState<string>(() => (from !== undefined ? format(from) : target.replace(/\d/g, "0")));
+  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
+    setSettled(false);
     if (reduce) {
       setShown(target);
+      setSettled(true);
       onDone?.();
       return;
     }
     // Next frame, so the browser paints the starting digits and the transition actually runs.
     const r = requestAnimationFrame(() => setShown(target));
-    const t = setTimeout(() => onDone?.(), duration + stagger * target.length);
+    const t = setTimeout(() => {
+      setSettled(true);
+      onDone?.();
+    }, duration + stagger * target.length);
     return () => {
       cancelAnimationFrame(r);
       clearTimeout(t);
@@ -49,7 +58,15 @@ export function Odometer({
   const chars = target.split("");
   const cur = shown.padStart(chars.length, "0").slice(-chars.length).split("");
   return (
-    <span role="text" aria-label={target} className={`inline-flex items-baseline leading-none ${className ?? ""}`} data-odometer={target}>
+    <span
+      role="text"
+      aria-label={target}
+      className={`inline-flex items-baseline leading-none ${className ?? ""}`}
+      data-odometer={target}
+      data-testid={testId}
+      data-value={target}
+      data-settled={settled ? "true" : "false"}
+    >
       {chars.map((c, i) => {
         if (!/\d/.test(c)) {
           return (

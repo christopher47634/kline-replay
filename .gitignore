@@ -51,3 +51,4 @@ scripts/timelines/*.draft.json
 !.env.example
 demo/raw.webm
 scripts/.cache/
+.lighthouseci/

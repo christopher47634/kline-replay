@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../../src";
 
 /* 「深夜盘口 · 档案馆」design tokens: cold terminal x warm archive paper. */
 @theme {
@@ -18,9 +19,9 @@
   --color-paper: #e9e2d0;
   --color-paper-ink: #2a2622;
 
-  --font-sans: var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: var(--font-jb), ui-monospace, "Cascadia Mono", monospace;
-  --font-display: "Smiley Sans", var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: "Smiley Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -174,4 +175,72 @@ html.has-cursor * {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-scroll-hint { animation: none; }
+}
+
+/* headline ticker: 12 items x2, 40px/s */
+.marquee-track {
+  animation: marquee 60s linear infinite;
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* card -> page shared element (View Transitions API) */
+::view-transition-group(script-card) {
+  animation-duration: 0.64s;
+  animation-timing-function: var(--ease-in-out);
+}
+
+.teletype-char {
+  display: inline-block;
+  animation: teletype 70ms steps(2, end) both;
+}
+
+@keyframes teletype {
+  0% { transform: translate(1.5px, -2px); }
+  50% { transform: translate(-1px, 1px); }
+  100% { transform: none; }
+}
+
+/* forum veteran's double-take, every 3 s */
+.laoge-eyes .eyes-wide { opacity: 0; animation: eyes-wide 3s steps(1, end) infinite; }
+.laoge-eyes .eyes-squint { animation: eyes-squint 3s steps(1, end) infinite; }
+@keyframes eyes-wide { 0%, 90% { opacity: 0; } 92%, 97% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@keyframes eyes-squint { 0%, 90% { opacity: 1; } 92%, 97% { opacity: 0; } 98%, 100% { opacity: 1; } }
+
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* "结算中…" bouncing dots */
+.dots { display: inline-flex; gap: 3px; margin-left: 2px; }
+.dots i { width: 4px; height: 4px; border-radius: 9999px; background: currentColor; animation: dot-bounce 0.5s ease-in-out infinite; }
+.dots i:nth-child(2) { animation-delay: 0.08s; }
+.dots i:nth-child(3) { animation-delay: 0.16s; }
+@keyframes dot-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+/* result page: equaliser bars, glowing player line, purple liquidation squares */
+.eq i { display: block; width: 3px; height: 6px; border-radius: 2px; animation: eq 0.9s ease-in-out infinite; transform-origin: bottom; }
+.group:hover .eq i { animation-duration: 0.4s; }
+@keyframes eq { 0%, 100% { height: 6px; } 50% { height: 22px; } }
+.line-glow { filter: drop-shadow(0 0 5px rgb(255 77 79 / 0.7)); }
+.block-breathe { animation: block-breathe 1.8s ease-in-out infinite; }
+@keyframes block-breathe { 0%, 100% { box-shadow: 0 0 0 0 rgb(168 85 247 / 0); } 50% { box-shadow: 0 0 14px 2px rgb(168 85 247 / 0.7); } }
+
+/* liquidation dialog: breathing red glow on the border */
+.bust-glow { animation: bust-glow 1.6s ease-in-out infinite; }
+@keyframes bust-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(255 77 79 / 0.0), 0 24px 80px rgb(0 0 0 / 0.6); }
+  50% { box-shadow: 0 0 32px 4px rgb(255 77 79 / 0.45), 0 24px 80px rgb(0 0 0 / 0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bust-glow, .dots i, .teletype-char, .laoge-eyes .eyes-wide, .laoge-eyes .eyes-squint { animation: none; }
 }

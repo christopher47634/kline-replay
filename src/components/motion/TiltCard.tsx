@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionTemplate, useMotionValue, useSpring } from "motion/react";
+import { m as motion, useMotionTemplate, useMotionValue, useSpring } from "motion/react";
 import { useRef } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 

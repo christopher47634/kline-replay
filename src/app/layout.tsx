@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Noto_Sans_SC } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
 import { MuteButton } from "@/components/ui/MuteButton";
 import "./globals.css";
 
-const noto = Noto_Sans_SC({ subsets: ["latin"], weight: ["400", "500", "700", "900"], variable: "--font-noto", display: "swap", preload: false });
 const jb = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-jb", display: "swap" });
 
 export const metadata: Metadata = {
@@ -17,7 +16,7 @@ export const viewport: Viewport = { themeColor: "#07090D", width: "device-width"
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" className={`${noto.variable} ${jb.variable}`}>
+    <html lang="zh-CN" className={`${jb.variable}`}>
       <head>
         <link rel="preload" href="/fonts/smiley-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>

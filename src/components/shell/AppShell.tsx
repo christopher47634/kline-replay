@@ -1,5 +1,6 @@
 "use client";
 
+import { LazyMotion } from "motion/react";
 import { Cursor } from "./Cursor";
 import { LenisProvider } from "./LenisProvider";
 import { ReducedMotionProvider } from "./MotionPref";
@@ -9,12 +10,14 @@ import { SoundGate } from "./SoundGate";
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <ReducedMotionProvider>
+      <LazyMotion features={() => import("./motionFeatures").then((m) => m.default)} strict>
       <LenisProvider>
         <div aria-hidden className="grain" />
         {children}
         <Cursor />
         <SoundGate />
       </LenisProvider>
+      </LazyMotion>
     </ReducedMotionProvider>
   );
 }
