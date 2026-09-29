@@ -74,9 +74,10 @@ function CandleCanvas() {
 }
 
 export function EventsCard() {
+  const { reduce } = useMotionPref();
   return (
     <Link href="/events" className="card-surface relative mt-6 block overflow-hidden p-7 transition-colors hover:border-gold/60 md:p-9 focus-visible:outline-2 focus-visible:outline-gold">
-      <CandleCanvas />
+      {!reduce && <CandleCanvas />}
       <div className="relative max-w-[44ch]">
         <div className="flex items-center gap-3">
           <h2 id="events-h" className="font-display text-h1">

@@ -1,4 +1,22 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+/** What the user actually sees on an odometer once it has settled: each digit column's translateY read back as a digit. */
+async function settledOdometerText(page: Page, testId: string) {
+  const odo = page.getByTestId(testId);
+  await expect(odo).toHaveAttribute("data-settled", "true", { timeout: 15_000 });
+  const visible = await odo.evaluate((el) => {
+    return Array.from(el.children)
+      .map((c) => {
+        const inner = c.firstElementChild as HTMLElement | null;
+        if (!inner) return c.textContent ?? "";
+        const box = (c as HTMLElement).getBoundingClientRect().height;
+        const ty = new DOMMatrixReadOnly(getComputedStyle(inner).transform).m42;
+        return String(Math.round(-ty / box));
+      })
+      .join("");
+  });
+  return { visible, value: (await odo.getAttribute("data-value")) as string };
+}
 
 test("plays a full 2015 game, shares it, and plays the music", async ({ page, context }) => {
   const errors: string[] = [];
@@ -24,7 +42,11 @@ test("plays a full 2015 game, shares it, and plays the music", async ({ page, co
 
   // 3. result page
   await expect(page).toHaveURL(/\/result\?s=2015\./, { timeout: 15_000 });
+  // the rolling digits must settle on exactly the value the page reports (screen-reader text and data-value)
+  const odo = await settledOdometerText(page, "final-return-odometer");
+  expect(odo.visible).toBe(odo.value);
   const ret = page.getByTestId("final-return");
+  await expect(ret).toHaveText(odo.value);
   await expect(ret).toHaveText(/^[+−]?\d+\.\d%$/);
   const retText = await ret.textContent();
   await expect(page.getByTestId("persona-card")).toBeVisible();

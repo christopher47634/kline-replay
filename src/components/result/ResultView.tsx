@@ -158,7 +158,7 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
           <span className={`num ${upDownColor(r.ret)}`}>
             {/* the wheel is decorative; the real text lives in the sr-only element (tests and screen readers read it) */}
             <span aria-hidden>
-              <Odometer value={r.ret * 100} format={signedPct} duration={1400} onDone={() => setStamped(true)} />
+              <Odometer testId="final-return-odometer" value={r.ret * 100} format={signedPct} duration={1400} onDone={() => setStamped(true)} />
             </span>
             <span data-testid="final-return" className="sr-only">
               {pct(r.ret)}
