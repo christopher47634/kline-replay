@@ -162,3 +162,16 @@ html.has-cursor,
 html.has-cursor * {
   cursor: none !important;
 }
+
+.hero-scroll-hint {
+  animation: hint-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes hint-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-hint { animation: none; }
+}

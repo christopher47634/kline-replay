@@ -61,7 +61,7 @@ export function Odometer({
         const d = /\d/.test(cur[i]) ? Number(cur[i]) : 0;
         const fromRight = chars.length - 1 - i;
         return (
-          <span key={i} aria-hidden className="relative inline-block overflow-hidden align-bottom" style={{ height: "1.15em", width: "0.6em" }}>
+          <span key={i} aria-hidden className="relative inline-block overflow-hidden" style={{ height: "1.15em", width: "0.6em", verticalAlign: "-0.3em" }}>
             <span
               className="absolute inset-x-0 top-0 flex flex-col"
               style={{

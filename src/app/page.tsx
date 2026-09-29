@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeroCta } from "@/components/home/HeroCta";
+import { Hero } from "@/components/home/Hero";
 import { BoardCount } from "@/components/home/BoardCount";
 import { boardEnabled } from "@/lib/board";
 
@@ -12,22 +12,9 @@ const SCRIPTS = [
 export default function Home() {
   const board = boardEnabled();
   return (
-    <main className="mx-auto max-w-[1080px] px-4">
-      <section className="pt-16 pb-14 md:pt-24 md:pb-20">
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight">穿越 K 线</h1>
-        <p className="mt-5 text-lg md:text-2xl text-ink/90 leading-relaxed max-w-[30ch]">
-          回到 2015 年 6 月，沪指 <span className="num text-up">5178</span> 点。
-          <br />
-          如果是你，跑不跑？
-        </p>
-        <ul className="mt-6 space-y-1.5 text-sm text-sub max-w-[60ch]">
-          <li>行情是真的：每一回合的涨跌来自真实历史数据。</li>
-          <li>头条是“真事假写”：基于真实事件改写成当年口吻，不剧透。</li>
-          <li>结果听得见：你的资产曲线和大盘被演奏成一段二重奏。</li>
-        </ul>
-        <HeroCta scriptId="2015" />
-      </section>
-
+    <main>
+      <Hero />
+      <div className="mx-auto max-w-[1120px] px-6">
       <section aria-labelledby="scripts-h" className="pb-14">
         <h2 id="scripts-h" className="text-xl font-bold">选一个年份</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
@@ -102,6 +89,7 @@ export default function Home() {
           )}
         </p>
       </section>
+      </div>
     </main>
   );
 }
