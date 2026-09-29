@@ -1,33 +1,82 @@
+"use client";
+
+import { m as motion, useInView } from "motion/react";
+import { useRef } from "react";
+import { Reveal } from "@/components/motion/Reveal";
+import { TiltCard } from "@/components/motion/TiltCard";
+import { useMotionPref } from "@/components/shell/MotionPref";
 import type { KeyMove } from "@/game/persona";
 import type { Persona, Rank } from "@/game/types";
 import { pct, upDownHex } from "@/lib/format";
 
-/** On-page persona card. */
+/**
+ * On-page persona card. It arrives face-down (a "?" and texture), and once it scrolls into view it flips (rotateY 180° → 0)
+ * to reveal: the emoji springs in with overshoot, the title reveals character by character, the quote line by line,
+ * and the three key moves stagger in. Hover adds a soft tilt and a moving highlight. Reduced motion: shown face-up.
+ */
 export function PersonaCard({ persona, quote, moves }: { persona: Persona; quote: string; moves: KeyMove[] }) {
+  const { reduce } = useMotionPref();
+  const ref = useRef<HTMLDivElement>(null);
+  const seen = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+  const up = reduce || seen;
+
   return (
-    <section aria-label="投资人格" data-testid="persona-card" className="rounded-2xl bg-card border border-line p-5 md:p-7">
-      <p className="text-sm text-sub">你的投资人格</p>
-      <div className="mt-3 flex items-center gap-4">
-        <span className="text-5xl md:text-6xl" aria-hidden>
-          {persona.emoji}
-        </span>
-        <div>
-          <h2 className="text-2xl md:text-3xl font-black" style={{ color: persona.color }}>
-            {persona.title}
-          </h2>
-          <p className="text-sm text-sub mt-1">{persona.desc}</p>
-        </div>
-      </div>
-      <blockquote className="mt-5 text-lg leading-relaxed">“{quote}”</blockquote>
-      <ul className="mt-5 grid gap-2 sm:grid-cols-3">
-        {moves.map((m) => (
-          <li key={m.label} className="rounded-lg bg-bg p-3">
-            <p className="text-xs text-sub">{m.label}</p>
-            <p className="mt-1 text-sm">{m.text}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div ref={ref} className="h-full" style={{ perspective: 1400 }}>
+      <TiltCard className="h-full" glare>
+        <motion.section
+          aria-label="投资人格"
+          data-testid="persona-card"
+          initial={{ rotateY: reduce ? 0 : 180 }}
+          animate={{ rotateY: up ? 0 : reduce ? 0 : 180 }}
+          transition={{ delay: 0.3, duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
+          style={{ transformStyle: "preserve-3d" }}
+          className="relative h-full min-h-[300px]"
+        >
+          {/* back face */}
+          <div aria-hidden className="card-surface absolute inset-0 grid place-items-center" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden", backgroundImage: "repeating-linear-gradient(45deg, transparent 0 10px, rgb(255 255 255 / 0.025) 10px 11px)" }}>
+            <span className="font-display text-7xl text-mute">？</span>
+          </div>
+          {/* front face */}
+          <div className="card-surface h-full p-5 md:p-7" style={{ backfaceVisibility: "hidden" }}>
+            <p className="text-sm text-sub">你的投资人格</p>
+            <div className="mt-3 flex items-center gap-4">
+              <motion.span
+                className="inline-block text-5xl md:text-6xl"
+                aria-hidden
+                initial={{ scale: reduce ? 1 : 0 }}
+                animate={{ scale: up ? 1 : reduce ? 1 : 0 }}
+                transition={{ delay: 0.95, type: "spring", stiffness: 260, damping: 11 }}
+              >
+                {persona.emoji}
+              </motion.span>
+              <div>
+                <Reveal as="h2" by="chars" inView delay={1.05} className="font-display text-3xl md:text-4xl" style={{ color: persona.color }}>
+                  {persona.title}
+                </Reveal>
+                <p className="mt-1 text-sm text-sub">{persona.desc}</p>
+              </div>
+            </div>
+            <Reveal as="p" inView delay={1.25} className="mt-5 text-lg leading-relaxed">
+              {`“${quote}”`}
+            </Reveal>
+            <ul className="mt-5 grid gap-2 sm:grid-cols-3">
+              {moves.map((m, i) => (
+                <motion.li
+                  key={m.label}
+                  className="rounded-lg bg-bg p-3"
+                  initial={{ opacity: reduce ? 1 : 0, y: reduce ? 0 : 16 }}
+                  animate={{ opacity: up ? 1 : reduce ? 1 : 0, y: up ? 0 : reduce ? 0 : 16 }}
+                  transition={{ delay: 1.4 + i * 0.08, duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <p className="text-xs text-sub">{m.label}</p>
+                  <p className="mt-1 text-sm">{m.text}</p>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        </motion.section>
+      </TiltCard>
+    </div>
   );
 }
 
