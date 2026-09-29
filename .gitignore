@@ -49,3 +49,4 @@ scripts/timelines/*.draft.json
 /test-results
 /playwright-report
 !.env.example
+demo/raw.webm

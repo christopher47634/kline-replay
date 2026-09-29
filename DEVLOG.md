@@ -30,3 +30,25 @@
 **验证结果**：lint 通过；Vitest 28/28；Playwright e2e 2/2（完整一局 → 结算 → 复制链接新页面数字一致 → 音乐播放进度前进；无效链接错误态）；两个剧本 validate 通过；375px 下游戏页与结算页无横向滚动。
 
 **未做 / 需要人来做**：C2/C3/C4/C5 的 Vercel 部署（需要账号授权）、5 人试玩与 3 局盲听、iOS/Android 真机、Demo 视频与 GIF 录制（T33–T35）。
+
+## 2026-09-29：v2 改进（V01–V30）
+
+**做了什么**：
+- **修 bug**：音乐 `Start time must be strictly greater` 异常（kick 三实例、镲声去重、try/catch，e2e 断言 pageerror=0；强平局 2x 播放 0 错误）；定格文案与换仓标签重叠；首页 GitHub 链接改读环境变量。
+- **前端打磨**：剧本加 preMonths，走势图第 1 回合有上下文；头条卡改版（tone 色条 / 虚构媒体 / 日期戳 / 头条标签 / 市场温度计）；「本月已知信息」卡和中列布局；手机 44px 紧凑状态栏；资产「?」说明、按钮禁用文案、输入框里 Enter 提交；结算图图例重排与散户平均端点标注、仓位 tooltip、强平标记；关键操作改人话；音乐弹窗竖屏 9:16；全站静音开关；音乐链接 `?play=1`；OG 中文字体子集打包（断网也出中文）。
+- **新模式「大事件猜涨跌」**：`fetch_long.py` 拉上证 1990– 与标普 1927–；39 张事件卡；`validate_events.py` 用行情核对文中数字并统计涨跌比例；事件引擎 + 22 字节链接；`/events`、游戏页（逐日生长 + 20 音）、结算页与战绩卡。
+- **历史时刻插卡**：2015 三张、2020 两张，effect 只预填仓位。
+- **材料**：三段 GIF（public/og/）、`record_demo.mjs` 录出 2 分 51 秒原始视频与分镜表（demo/）。
+
+**AI 生成的模块**：以上全部。
+
+**遇到的问题**：
+- OG 路由：`next start` 在不同工作目录下启动时 `process.cwd()` 不是项目根，字体读不到；webpack 会把 `new URL(..., import.meta.url)` 换成资源 URL，不能直接 fileURLToPath。最终用 cwd → `__dirname` 两处回退。
+- Yahoo 接口在 Windows 上负时间戳（1987 年以前）`datetime.fromtimestamp` 报 Invalid argument，改用 epoch 加 timedelta。
+- 结算页 `?play=1` 时服务端渲染会碰到 `document`（portal），改成挂载后才渲染弹窗。
+- Playwright 录像需要它自带的 ffmpeg：装到 E 盘（PLAYWRIGHT_BROWSERS_PATH），不写 C 盘。
+- 心得：题库文本里的数字容易和行情对不上（例如 1987 年黑色星期一写了道指的 22.6%，行情是标普的 20.5%）；validate_events.py 的正则对照当场抓到。
+
+**验证结果**：lint 通过；Vitest 48 条；Playwright 6 条（主游戏、历史时刻、事件模式一局/进阶/篡改链接）；两个剧本 validate 通过；事件题库 validate 通过。
+
+**未做 / 需要人来做**：Vercel 部署（需要账号授权）；配旁白剪辑 demo 视频；5 人试玩与 3 局盲听；iOS/Android 真机；题库逐条对照交易所公告 / 维基百科的人工复核。
