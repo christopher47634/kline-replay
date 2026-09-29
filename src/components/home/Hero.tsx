@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
+import { useState } from "react";
 import { HeroBackdrop } from "@/components/hero/HeroBackdrop";
 import { FLY_SECONDS } from "@/components/hero/constants";
 import { Odometer } from "@/components/motion/Odometer";
@@ -21,9 +22,11 @@ function MaskLine({ delay, children }: { delay: number; children: React.ReactNod
 }
 
 export function Hero() {
+  // the 5178 wheel starts when the backdrop is decided, so it ends together with the particle fly-in
+  const [go, setGo] = useState(false);
   return (
     <section className="relative flex min-h-[100svh] items-center overflow-hidden" aria-label="穿越 K 线">
-      <HeroBackdrop />
+      <HeroBackdrop onDecided={() => setGo(true)} />
       <div aria-hidden data-scrim className="absolute inset-0 bg-[linear-gradient(90deg,rgb(7_9_13/0.82),rgb(7_9_13/0.35)_45%,transparent_72%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[1120px] px-6 pb-24 pt-24">
         <Reveal as="h1" by="chars" delay={0.15} className="font-display text-display tracking-tight">
@@ -32,7 +35,7 @@ export function Hero() {
         <p className="mt-6 max-w-[34ch] text-xl leading-relaxed text-ink/90 md:text-3xl">
           <MaskLine delay={0.75}>
             回到 2015 年 6 月，沪指{" "}
-            <Odometer value={5178} from={3200} duration={FLY_SECONDS * 1000} stagger={30} className="num text-up" /> 点。
+            <Odometer value={go ? 5178 : 3200} from={3200} duration={FLY_SECONDS * 1000} stagger={30} className="num text-up" /> 点。
           </MaskLine>
           <MaskLine delay={0.85}>如果是你，跑不跑？</MaskLine>
         </p>

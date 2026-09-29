@@ -22,41 +22,56 @@ function weakDevice(): boolean {
   return (n.hardwareConcurrency ?? 8) <= 2 || (n.deviceMemory ?? 8) <= 2;
 }
 
+const PROBE_KEY = "kline:hero-probe";
+
 /**
- * Hero background. The static WebP + CSS glow is always painted first (it is the LCP element and the
- * fallback for reduced motion / no WebGL / weak GPUs). The R3F particle field loads lazily on top of it.
- * If the first second of frames averages > 30 ms the field is dropped and the static image stays.
+ * Hero background. The static WebP + CSS glow paints first (LCP element, and the permanent fallback for reduced motion,
+ * no WebGL and weak devices). On capable devices a 1-second frame-time probe runs while the static image is shown; only if
+ * it passes does the lazy R3F particle field mount and fly in. The verdict is cached in sessionStorage so it never repeats.
+ * `onDecided` fires when the final look is known (static, or particles starting) so the copy can sync to it.
  */
-export function HeroBackdrop({ onReady }: { onReady?: () => void }) {
+export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
   const { reduce, small, touch, ready } = useMotionPref();
   const [mode, setMode] = useState<"static" | "webgl">("static");
   const [started, setStarted] = useState(false);
-  const probe = useRef(0);
+  const decided = useRef(onDecided);
+  decided.current = onDecided;
 
   useEffect(() => {
     if (!ready) return;
-    if (reduce || !hasWebGL() || weakDevice()) {
+    const fallback = () => {
       setMode("static");
-      onReady?.();
-      return;
+      decided.current?.();
+    };
+    if (reduce || !hasWebGL() || weakDevice()) return fallback();
+    let cached: string | null = null;
+    try {
+      cached = sessionStorage.getItem(PROBE_KEY);
+    } catch {
+      /* private mode: probe every time */
     }
-    setMode("webgl");
-    // frame-time probe: if the machine cannot keep up, fall back instead of stuttering
+    if (cached === "slow") return fallback();
+    if (cached === "ok") return setMode("webgl");
     let frames = 0;
     let raf = 0;
     const t0 = performance.now();
     const loop = () => {
       frames++;
-      if (performance.now() - t0 < 1400) raf = requestAnimationFrame(loop);
+      if (performance.now() - t0 < 1000) raf = requestAnimationFrame(loop);
       else {
-        const avg = (performance.now() - t0) / frames;
-        if (avg > 30) setMode("static");
-        probe.current = avg;
+        const ok = (performance.now() - t0) / frames <= 30;
+        try {
+          sessionStorage.setItem(PROBE_KEY, ok ? "ok" : "slow");
+        } catch {
+          /* ignore */
+        }
+        if (ok) setMode("webgl");
+        else fallback();
       }
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [ready, reduce, onReady]);
+  }, [ready, reduce]);
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden" data-hero-mode={mode}>
@@ -68,8 +83,11 @@ export function HeroBackdrop({ onReady }: { onReady?: () => void }) {
             perBar={small ? 10 : 40}
             interactive={!small && !touch}
             bloom={!small}
-            onStart={() => setStarted(true)}
-            onReady={() => onReady?.()}
+            onStart={() => {
+              setStarted(true);
+              decided.current?.();
+            }}
+            onReady={() => undefined}
           />
         </div>
       )}
