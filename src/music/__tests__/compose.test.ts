@@ -60,6 +60,15 @@ describe("compose", () => {
     expect(perc).toContainEqual({ kind: "liquidation", voice: "kick", velocity: 1, hits: 3 });
   });
 
+  it("never asks one voice to overlap itself: kick hits <= 3, at most one cymbal per note", () => {
+    const history = playAll(s, APPENDIX_B);
+    const daily = simulateDaily(history, s);
+    for (const n of compose(daily, history, s.startCash).notes) {
+      expect(n.perc.filter((p) => p.voice === "cymbal").length).toBeLessThanOrEqual(2);
+      for (const p of n.perc) if (p.voice === "kick") expect(p.hits).toBeLessThanOrEqual(3);
+    }
+  });
+
   it("mapping helpers", () => {
     expect(levelIndex(-0.9)).toBe(0);
     expect(levelIndex(0)).toBe(7);

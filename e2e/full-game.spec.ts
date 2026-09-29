@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test("plays a full 2015 game, shares it, and plays the music", async ({ page, context }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
   // 1. home -> start
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
@@ -43,6 +45,7 @@ test("plays a full 2015 game, shares it, and plays the music", async ({ page, co
   await page.waitForTimeout(2000);
   const progress = await page.evaluate(() => (window as unknown as { __klineMusic?: { position: number } }).__klineMusic?.position ?? 0);
   expect(progress).toBeGreaterThan(0);
+  expect(errors).toEqual([]);
 });
 
 test("invalid result link shows an error state", async ({ page }) => {

@@ -27,7 +27,8 @@ export class DuetPlayer {
   private tone: ToneNS | null = null;
   private lead: InstanceType<ToneNS["PolySynth"]> | null = null;
   private bass: InstanceType<ToneNS["MonoSynth"]> | null = null;
-  private kick: InstanceType<ToneNS["MembraneSynth"]> | null = null;
+  private kicks: InstanceType<ToneNS["MembraneSynth"]>[] = [];
+  private warned = false;
   private cymbal: InstanceType<ToneNS["MetalSynth"]> | null = null;
   private master: InstanceType<ToneNS["Volume"]> | null = null;
   private eventId: number | null = null;
@@ -67,7 +68,8 @@ export class DuetPlayer {
         filterEnvelope: { attack: 0.02, decay: 0.2, sustain: 0.3, baseFrequency: 120, octaves: 2.5 },
       }).connect(this.master);
       this.bass.volume.value = -8;
-      this.kick = new Tone.MembraneSynth({ octaves: 6, pitchDecay: 0.05 }).connect(this.master);
+      // Mono voices assert on overlapping starts, so a liquidation triple-hit needs one voice per hit.
+      this.kicks = [0, 1, 2].map(() => new Tone.MembraneSynth({ octaves: 6, pitchDecay: 0.05 }).connect(this.master!));
       this.cymbal = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.4, release: 0.2 }, harmonicity: 5.1, resonance: 4000, octaves: 1.5 }).connect(this.master);
       this.cymbal.volume.value = -18;
     }
@@ -96,13 +98,23 @@ export class DuetPlayer {
   }
 
   private sound(n: Note, time: number) {
-    const step = 0.2 / this.rate;
-    this.lead!.triggerAttackRelease(n.pitch, step * 0.9, time, n.velocity);
-    if (n.ornament) this.lead!.triggerAttackRelease(n.ornament, step * 0.4, time + step * 0.5, n.velocity * 0.8);
-    if (n.bass) this.bass!.triggerAttackRelease(n.bass.pitch, step * 4, time, n.bass.velocity);
-    for (const p of n.perc) {
-      if (p.voice === "cymbal") this.cymbal!.triggerAttackRelease("C6", "16n", time, p.velocity);
-      else for (let k = 0; k < p.hits; k++) this.kick!.triggerAttackRelease("C1", "8n", time + k * step * 0.33, p.velocity);
+    try {
+      const step = 0.2 / this.rate;
+      this.lead!.triggerAttackRelease(n.pitch, step * 0.9, time, n.velocity);
+      if (n.ornament) this.lead!.triggerAttackRelease(n.ornament, step * 0.4, time + step * 0.5, n.velocity * 0.8);
+      // Must end before the next bass note (5 steps later) so the mono voice never overlaps itself.
+      if (n.bass) this.bass!.triggerAttackRelease(n.bass.pitch, Math.min(step * 4, step * 4.5), time, n.bass.velocity);
+      const cymbal = n.perc.find((p) => p.voice === "cymbal");
+      if (cymbal) this.cymbal!.triggerAttackRelease("C6", "16n", time, cymbal.velocity);
+      for (const p of n.perc) {
+        if (p.voice !== "kick") continue;
+        for (let k = 0; k < p.hits; k++) this.kicks[k % this.kicks.length].triggerAttackRelease("C1", "8n", time + k * step * 0.33, p.velocity);
+      }
+    } catch (e) {
+      if (!this.warned) {
+        this.warned = true;
+        console.warn("[music] 音符触发失败，已跳过", e);
+      }
     }
   }
 
@@ -154,7 +166,8 @@ export class DuetPlayer {
 
   dispose() {
     this.stop();
-    for (const node of [this.lead, this.bass, this.kick, this.cymbal, this.master]) node?.dispose();
-    this.lead = this.bass = this.kick = this.cymbal = this.master = null;
+    for (const node of [this.lead, this.bass, ...this.kicks, this.cymbal, this.master]) node?.dispose();
+    this.lead = this.bass = this.cymbal = this.master = null;
+    this.kicks = [];
   }
 }
