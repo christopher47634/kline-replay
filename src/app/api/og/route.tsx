@@ -73,7 +73,7 @@ export async function GET(request: Request) {
           height: 630,
           display: "flex",
           flexDirection: "column",
-          background: "#0B0F14",
+          background: "#07090D",
           color: "#E6E8EB",
           padding: 64,
           fontFamily: font ? "NotoSC" : "sans-serif",

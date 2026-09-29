@@ -1,10 +1,10 @@
-const BG = "#0B0F14";
+const BG = "#07090D";
 const GRAY = "#8C8C8C";
 const GOLD = "#F5B400";
 const RED = "#FF4D4F";
 const GREEN = "#3FB950";
 const SUB = "#8B95A3";
-const GRID = "#232B36";
+const GRID = "#1C2431";
 
 export interface LineData {
   /** 60 closes up to and including the event day. */

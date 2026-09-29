@@ -1,3 +1,6 @@
 akshare
 pandas
 requests
+fonttools
+brotli
+pillow

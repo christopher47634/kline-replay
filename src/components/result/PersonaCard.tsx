@@ -56,7 +56,7 @@ export function PersonaPoster({
       style={{
         width: 1080,
         height: 1350,
-        background: `radial-gradient(120% 70% at 0% 0%, ${persona.color}33 0%, transparent 60%), radial-gradient(90% 60% at 100% 100%, #FF4D4F22 0%, transparent 60%), #0B0F14`,
+        background: `radial-gradient(120% 70% at 0% 0%, ${persona.color}33 0%, transparent 60%), radial-gradient(90% 60% at 100% 100%, #FF4D4F22 0%, transparent 60%), #07090D`,
         color: "#E6E8EB",
         padding: 88,
         display: "flex",
@@ -86,7 +86,7 @@ export function PersonaPoster({
       </div>
       <div style={{ marginTop: 28, display: "flex", gap: 16 }}>
         {moves.map((m) => (
-          <div key={m.label} style={{ flex: 1, background: "#141A22", borderRadius: 18, padding: "18px 22px" }}>
+          <div key={m.label} style={{ flex: 1, background: "#0D1117", borderRadius: 18, padding: "18px 22px" }}>
             <div style={{ fontSize: 24, color: "#8B95A3" }}>{m.label}</div>
             <div style={{ fontSize: 24, marginTop: 6, lineHeight: 1.4 }}>{m.text}</div>
           </div>

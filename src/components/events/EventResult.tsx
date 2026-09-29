@@ -172,7 +172,7 @@ function EventPoster({
       style={{
         width: 1080,
         height: 1350,
-        background: `radial-gradient(120% 70% at 0% 0%, ${color}33 0%, transparent 60%), #0B0F14`,
+        background: `radial-gradient(120% 70% at 0% 0%, ${color}33 0%, transparent 60%), #07090D`,
         color: "#E6E8EB",
         padding: 88,
         display: "flex",
@@ -193,7 +193,7 @@ function EventPoster({
           </div>
         ))}
       </div>
-      <div style={{ marginTop: "auto", background: "#141A22", borderRadius: 24, padding: "28px 32px" }}>
+      <div style={{ marginTop: "auto", background: "#0D1117", borderRadius: 24, padding: "28px 32px" }}>
         <div style={{ fontSize: 26, color: "#8B95A3" }}>{spotlight.ok ? "最惊险的一张（猜对了）" : "最打脸的一张"}</div>
         <div style={{ marginTop: 10, fontSize: 40, fontWeight: 800, lineHeight: 1.3 }}>
           {spotlight.date} {spotlight.title}

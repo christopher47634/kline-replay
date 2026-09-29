@@ -46,12 +46,12 @@ export function TrendChart({ script, history }: { script: Script; history: Round
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -18 }}>
             <defs>
               <pattern id="future-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <rect width="8" height="8" fill="#141A22" />
+                <rect width="8" height="8" fill="#0D1117" />
                 <line x1="0" y1="0" x2="0" y2="8" stroke="#2c3542" strokeWidth="3" />
               </pattern>
             </defs>
-            <CartesianGrid stroke="#232B36" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: "#8B95A3", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#232B36" }} interval={1} />
+            <CartesianGrid stroke="#1C2431" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: "#8B95A3", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#1C2431" }} interval={1} />
             <YAxis domain={[lo, hi]} tick={{ fill: "#8B95A3", fontSize: 11, fontFamily: "var(--font-mono)" }} tickLine={false} axisLine={false} />
             {known < 12 && (
               <ReferenceArea
@@ -65,7 +65,7 @@ export function TrendChart({ script, history }: { script: Script; history: Round
             )}
             {nPre > 0 && <ReferenceLine x="开局" stroke="#F5B400" strokeDasharray="3 3" label={{ value: "开局", fill: "#F5B400", fontSize: 11, position: "insideTopRight" }} />}
             <Tooltip
-              contentStyle={{ background: "#0B0F14", border: "1px solid #232B36", borderRadius: 8, fontSize: 12 }}
+              contentStyle={{ background: "#07090D", border: "1px solid #1C2431", borderRadius: 8, fontSize: 12 }}
               labelStyle={{ color: "#8B95A3" }}
               formatter={(v, name) => [typeof v === "number" ? v.toFixed(1) : "—", name === "player" ? "你" : name === "pre" ? "开局前大盘" : "上证综指"]}
             />

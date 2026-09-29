@@ -50,3 +50,4 @@ scripts/timelines/*.draft.json
 /playwright-report
 !.env.example
 demo/raw.webm
+scripts/.cache/

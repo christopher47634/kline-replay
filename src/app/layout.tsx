@@ -12,11 +12,14 @@ export const metadata: Metadata = {
   description: "回到 2015 年，用真实行情玩 12 个月，结算出投资人格，再把这一年演奏成一段音乐。",
 };
 
-export const viewport: Viewport = { themeColor: "#0B0F14", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#07090D", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN" className={`${noto.variable} ${jb.variable}`}>
+      <head>
+        <link rel="preload" href="/fonts/smiley-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-dvh flex flex-col">
         <MuteButton />
         <div className="flex-1">{children}</div>

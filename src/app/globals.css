@@ -1,16 +1,49 @@
 @import "tailwindcss";
 
+/* 「深夜盘口 · 档案馆」design tokens: cold terminal x warm archive paper. */
 @theme {
-  --color-bg: #0b0f14;
-  --color-card: #141a22;
-  --color-line: #232b36;
-  --color-ink: #e6e8eb;
+  --color-bg: #07090d;
+  --color-card: #0d1117;
+  --color-elev: #131a24;
+  --color-line: #1c2431;
+  --color-line-hi: rgb(255 255 255 / 0.06);
+  --color-ink: #eceef2;
   --color-sub: #8b95a3;
+  --color-mute: #4e5868;
   --color-up: #ff4d4f;
+  --color-up-glow: rgb(255 77 79 / 0.35);
   --color-down: #3fb950;
+  --color-down-glow: rgb(63 185 80 / 0.35);
   --color-gold: #f5b400;
+  --color-paper: #e9e2d0;
+  --color-paper-ink: #2a2622;
+
   --font-sans: var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: var(--font-jb), ui-monospace, "Cascadia Mono", monospace;
+  --font-display: "Smiley Sans", var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 160ms;
+  --duration-base: 320ms;
+  --duration-slow: 640ms;
+  --duration-story: 1200ms;
+}
+
+@font-face {
+  font-family: "Smiley Sans";
+  src: url("/fonts/smiley-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fluid type scale (display / h1 / h2 / body / small / micro). */
+:root {
+  --text-display: clamp(56px, 9vw, 128px);
+  --text-h1: clamp(32px, 4vw, 56px);
+  --text-h2: clamp(22px, 2.4vw, 30px);
 }
 
 html,
@@ -21,12 +54,57 @@ body {
 
 body {
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.text-display { font-size: var(--text-display); line-height: 1.02; }
+.text-h1 { font-size: var(--text-h1); line-height: 1.1; }
+.text-h2 { font-size: var(--text-h2); line-height: 1.25; }
 
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Card material: 1px inner top highlight instead of a flat block. */
+.card-surface {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  box-shadow: inset 0 1px 0 var(--color-line-hi);
+  border-radius: 16px;
+}
+
+/* Glass for dialogs / floating layers. */
+.glass {
+  background: rgb(13 17 23 / 0.82);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* Fixed film-grain overlay (AppShell renders <div class="grain">). */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background-image: url("/tex/grain.png");
+  background-size: 128px 128px;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+.paper-surface {
+  background-color: var(--color-paper);
+  background-image: url("/tex/paper.png");
+  color: var(--color-paper-ink);
 }
 
 .fade-in {

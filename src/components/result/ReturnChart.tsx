@@ -50,11 +50,11 @@ export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries
       <div className="h-72 md:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 6, left: -12 }}>
-            <CartesianGrid stroke="#232B36" vertical={false} />
+            <CartesianGrid stroke="#1C2431" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#232B36" }}
+              axisLine={{ stroke: "#1C2431" }}
               tick={(p) => (
                 <g transform={`translate(${p.x},${p.y})`}>
                   <text y={12} textAnchor="middle" fill="#8B95A3" fontSize={11}>

@@ -1,10 +1,10 @@
 import type { Composition, Note } from "./compose";
 
-const BG = "#0B0F14";
+const BG = "#07090D";
 const RED = "#FF4D4F";
 const GREEN = "#3FB950";
 const GRAY = "#8C8C8C";
-const LINE = "#232B36";
+const LINE = "#1C2431";
 const SUB = "#8B95A3";
 const INK = "#E6E8EB";
 
