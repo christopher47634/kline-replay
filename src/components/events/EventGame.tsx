@@ -8,11 +8,17 @@ import { encodeEvents } from "@/events/encode";
 import { BUCKET_LABELS, maxScore, outcome, pickCards, scoreGame } from "@/events/engine";
 import { CARDS_PER_GAME, type Guess, type PreparedDeck, type PreparedEvent } from "@/events/types";
 import { pct, upDownColor } from "@/lib/format";
+import { haptic, play } from "@/lib/sfx";
+import { m as motion, useMotionValue, useTransform } from "motion/react";
+import { useMotionPref } from "@/components/shell/MotionPref";
 import { composePhrase } from "@/music/compose";
 import { PhrasePlayer } from "@/music/phrase";
 import { EventChart } from "./EventChart";
 
-type Phase = "intro" | "guess" | "reveal" | "shown";
+/** Swipe distance (px) that commits a guess on phones. */
+const SWIPE = 80;
+
+type Phase ="intro" | "guess" | "reveal" | "shown";
 
 export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number }) {
   const router = useRouter();
@@ -31,6 +37,10 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
     return () => player.current?.dispose();
   }, []);
 
+  const { reduce, touch } = useMotionPref();
+  const dragX = useMotionValue(0);
+  const stampUp = useTransform(dragX, [0, SWIPE], [0, 1]);
+  const stampDown = useTransform(dragX, [-SWIPE, 0], [1, 0]);
   const ev = picks[i];
   const rets = useMemo(() => picks.map((p) => outcome(p).ret), [picks]);
   const played = useMemo(() => scoreGame(rets.slice(0, guesses.length), guesses), [rets, guesses]);
@@ -81,6 +91,16 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
     setRevealed(0);
     setPhase("guess");
   }, [phase, i, picks, deck.id, deckNo, guesses, router]);
+
+  // Reveal feedback: right = ding + [15,30,15] buzz, wrong = down sound + 40ms buzz.
+  useEffect(() => {
+    if (phase !== "shown") return;
+    const c = played.cards[i];
+    if (!c) return;
+    play(c.dirOk ? "ding" : "down");
+    haptic(c.dirOk ? "correct" : "wrong");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -147,22 +167,44 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
         </span>
       </div>
 
-      <article
+      <motion.article
         key={ev.id}
         data-testid="event-card"
-        className={`fade-in mt-5 rounded-2xl bg-card border p-5 md:p-6 ${cardScore ? (cardScore.dirOk ? "border-gold flash-gold" : "border-line shake") : "border-line"}`}
+        // the card is dealt from the pile at the bottom right; on phones it can be swiped right (涨) / left (跌)
+        initial={reduce ? false : { x: 120, y: 80, rotate: 6, opacity: 0 }}
+        animate={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        drag={touch && phase === "guess" ? "x" : false}
+        dragSnapToOrigin
+        dragElastic={0.6}
+        style={{ x: dragX }}
+        onDragEnd={(_e, info) => {
+          if (info.offset.x > SWIPE) pickDirection(true);
+          else if (info.offset.x < -SWIPE) pickDirection(false);
+        }}
+        className={`paper-surface relative mt-5 rounded-2xl border p-5 md:p-6 ${cardScore ? (cardScore.dirOk ? "border-gold flash-gold" : "border-up shake") : "border-[#b9ad8f]"}`}
       >
+        {touch && phase === "guess" && (
+          <>
+            <motion.span aria-hidden style={{ opacity: stampUp }} className="pointer-events-none absolute right-4 top-4 -rotate-12 rounded-md border-4 border-[#B3261E] px-3 py-1 text-3xl font-black text-[#B3261E]">
+              涨
+            </motion.span>
+            <motion.span aria-hidden style={{ opacity: stampDown }} className="pointer-events-none absolute left-4 top-4 rotate-12 rounded-md border-4 border-[#1F7A35] px-3 py-1 text-3xl font-black text-[#1F7A35]">
+              跌
+            </motion.span>
+          </>
+        )}
         <p className="num text-3xl md:text-4xl font-black tracking-tight">{ev.date}</p>
         <h2 className="mt-2 text-xl md:text-2xl font-bold leading-snug">{ev.title}</h2>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink/90">{ev.context}</p>
+        <p className="mt-3 text-[15px] leading-relaxed">{ev.context}</p>
         <p className="mt-3 flex flex-wrap gap-1.5">
           {ev.tags.map((t) => (
-            <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-line text-sub">
+            <span key={t} className="rounded-full bg-[#2A2622]/10 px-2 py-0.5 text-xs text-[#5b5142]">
               {t}
             </span>
           ))}
         </p>
-      </article>
+      </motion.article>
 
       <div className="mt-4">
         <EventChart before={ev.before} after={ev.after} revealed={revealed} pulse={pulse} />
@@ -176,17 +218,19 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
               type="button"
               data-testid="guess-up"
               onClick={() => pickDirection(true)}
-              className={`h-16 rounded-xl text-xl font-black text-white bg-up hover:bg-[#ff6b6d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${dirChoice === true ? "ring-2 ring-white" : ""}`}
+              className={`group relative h-16 overflow-hidden rounded-xl border-2 border-up bg-up/10 text-xl font-black text-up transition-colors duration-200 hover:text-white active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${dirChoice === true ? "!bg-up !text-white" : ""}`}
             >
-              ▲ 涨
+              <span aria-hidden className="absolute inset-0 translate-y-full bg-up transition-transform duration-200 group-hover:translate-y-0" />
+              <span className="relative">▲ 涨</span>
             </button>
             <button
               type="button"
               data-testid="guess-down"
               onClick={() => pickDirection(false)}
-              className={`h-16 rounded-xl text-xl font-black text-white bg-down hover:bg-[#54c766] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${dirChoice === false ? "ring-2 ring-white" : ""}`}
+              className={`group relative h-16 overflow-hidden rounded-xl border-2 border-down bg-down/10 text-xl font-black text-down transition-colors duration-200 hover:text-white active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${dirChoice === false ? "!bg-down !text-white" : ""}`}
             >
-              ▼ 跌
+              <span aria-hidden className="absolute inset-0 translate-y-full bg-down transition-transform duration-200 group-hover:translate-y-0" />
+              <span className="relative">▼ 跌</span>
             </button>
           </div>
           {advanced && (
