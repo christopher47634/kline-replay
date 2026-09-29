@@ -22,6 +22,7 @@ export function Reveal({
   stagger,
   inView = false,
   className,
+  style,
   children,
 }: {
   as?: Tag;
@@ -30,6 +31,7 @@ export function Reveal({
   stagger?: number;
   inView?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   children: string;
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -67,5 +69,5 @@ export function Reveal({
     };
   }, [reduce, ready, by, delay, stagger, inView, children]);
 
-  return createElement(as, { ref, className, style: { visibility: ready && reduce ? "visible" : "hidden" } }, children);
+  return createElement(as, { ref, className, style: { ...style, visibility: ready && reduce ? "visible" : "hidden" } }, children);
 }

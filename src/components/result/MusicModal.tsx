@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { createPortal } from "react-dom";
+import { useFrameLoop } from "@/lib/frameLoop";
 import { compose } from "@/music/compose";
 import { DuetPlayer } from "@/music/player";
 import { DuetVisual } from "@/music/visual";
@@ -35,6 +37,17 @@ export function MusicModal({
   const boxRef = useRef<HTMLDivElement>(null);
   const player = useRef<DuetPlayer | null>(null);
   const visual = useRef<DuetVisual | null>(null);
+  // Note energy drives a slow radial glow behind the canvas (red on up days, green on down days), capped at 15% brightness.
+  const energy = useRef({ e: 0, up: true });
+  const glow = useRef<HTMLDivElement>(null);
+  useFrameLoop((_t, dt) => {
+    const g = energy.current;
+    g.e = Math.max(0, g.e - dt / 700);
+    if (glow.current) {
+      glow.current.style.opacity = String(0.15 * g.e);
+      glow.current.style.background = `radial-gradient(60% 55% at 50% 50%, ${g.up ? "#FF4D4F" : "#3FB950"}, transparent 70%)`;
+    }
+  });
   const [pos, setPos] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState<1 | 2>(1);
@@ -51,6 +64,7 @@ export function MusicModal({
     const p = new DuetPlayer(comp, {
       onStep: (note, i) => {
         v.step(note, i);
+        energy.current = { e: Math.min(1, note.velocity), up: note.r >= 0 };
         setPos(i + 1);
       },
       onEnd: () => {
@@ -159,7 +173,17 @@ export function MusicModal({
 
   // Portal: an animated ancestor (fade-in transform) would otherwise trap position: fixed.
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={`听听你的 ${script.id}`} className="fixed inset-0 z-50 bg-bg flex flex-col" data-progress={pos}>
+    <motion.div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`听听你的 ${script.id}`}
+      className="fixed inset-0 z-50 bg-bg flex flex-col"
+      data-progress={pos}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div ref={glow} aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }} />
       <div className="flex items-center justify-between pl-4 pr-14 py-3 border-b border-line">
         <h2 className="font-bold">
           听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
@@ -169,7 +193,9 @@ export function MusicModal({
         </button>
       </div>
       <div ref={boxRef} className="relative flex-1 min-h-0 overflow-hidden grid place-items-center p-2 md:p-6" onClick={() => needTap && void play()}>
-        <canvas ref={canvasRef} className="rounded-xl border border-line max-w-full" />
+        <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.32, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}>
+          <canvas ref={canvasRef} className="rounded-xl border border-line max-w-full" />
+        </motion.div>
         {bigPlay && !playing && pos === 0 && !ended && !needTap && (
           <button
             type="button"
@@ -197,13 +223,21 @@ export function MusicModal({
           className="w-full accent-up"
         />
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {playing ? (
-            <CtlBtn onClick={pause}>暂停</CtlBtn>
-          ) : (
-            <CtlBtn onClick={() => void play()} primary>
-              {ended ? "再听一遍" : pos > 0 ? "继续" : "播放"}
-            </CtlBtn>
-          )}
+          {/* 72px round play/pause with a progress ring that follows the playhead */}
+          <button
+            type="button"
+            onClick={() => (playing ? pause() : void play())}
+            aria-label={playing ? "暂停" : ended ? "再听一遍" : pos > 0 ? "继续" : "播放"}
+            className="relative grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-up text-white transition-transform hover:bg-[#ff6b6d] active:scale-[0.96]"
+          >
+            <svg viewBox="0 0 72 72" className="absolute inset-0 -rotate-90" aria-hidden>
+              <circle cx="36" cy="36" r="33" fill="none" stroke="rgb(255 255 255 / 0.25)" strokeWidth="3" />
+              <circle cx="36" cy="36" r="33" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeDasharray={2 * Math.PI * 33} strokeDashoffset={2 * Math.PI * 33 * (1 - Math.min(1, pos / Math.max(1, total)))} />
+            </svg>
+            <span aria-hidden className="text-2xl">
+              {playing ? "❚❚" : "▶"}
+            </span>
+          </button>
           <CtlBtn onClick={stop}>停止</CtlBtn>
           <CtlBtn onClick={toggleRate} aria-label="切换速度">
             <span className="num">{rate}x</span>
@@ -217,7 +251,7 @@ export function MusicModal({
           <span className="text-up">红线是你</span>，<span className="text-[#8C8C8C]">灰线是大盘</span>。每个交易日一个音，越高代表赚得越多；低音是大盘，镲声是换仓或跑赢跑输切换，三声低鼓是强平。
         </p>
       </div>
-    </div>,
+    </motion.div>,
     document.body,
   );
 }

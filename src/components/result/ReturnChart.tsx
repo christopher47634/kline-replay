@@ -1,6 +1,7 @@
 "use client";
 
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useMotionPref } from "@/components/shell/MotionPref";
 import type { BenchmarkSeries } from "@/game/engine";
 import { allocSummary } from "@/game/persona";
 import type { RoundRecord } from "@/game/types";
@@ -15,6 +16,7 @@ const NAMES: Record<string, string> = { player: "你", market: "满仓大盘", c
 const signed = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%`;
 
 export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries; startCash: number; history?: RoundRecord[] }) {
+  const { reduce } = useMotionPref();
   const toRet = (v: number) => +((v / startCash - 1) * 100).toFixed(2);
   const last = b.labels.length - 1;
   const retail = +(b.retailAvg * 100).toFixed(1);
@@ -101,9 +103,10 @@ export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries
                 <g key={`r${p.index}`} />
               )
             } activeDot={false} isAnimationActive={false} />
-            <Line dataKey="cash" stroke="#4C8DFF" strokeDasharray="4 4" strokeWidth={1.5} dot={false} isAnimationActive={false} />
-            <Line dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={false} isAnimationActive={false} />
-            <Line dataKey="player" stroke="#FF4D4F" strokeWidth={3} dot={{ r: 2.5 }} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={false} />
+            {/* drawn in order: you (0.3s) → market (0.6s) → cash (0.9s), 0.5s each, overlapping by 0.2s */}
+            <Line dataKey="cash" stroke="#4C8DFF" strokeDasharray="4 4" strokeWidth={1.5} dot={false} isAnimationActive={!reduce} animationBegin={900} animationDuration={500} animationEasing="ease-out" />
+            <Line dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={false} isAnimationActive={!reduce} animationBegin={600} animationDuration={500} animationEasing="ease-out" />
+            <Line dataKey="player" className="line-glow" stroke="#FF4D4F" strokeWidth={3} dot={{ r: 2.5 }} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={!reduce} animationBegin={300} animationDuration={500} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       </div>

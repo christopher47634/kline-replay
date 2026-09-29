@@ -21,3 +21,24 @@ dst = ROOT / "src" / "components" / "hero" / "kline2015.json"
 dst.parent.mkdir(parents=True, exist_ok=True)
 dst.write_text(json.dumps(out, separators=(",", ":")), "utf-8")
 print(len(year), "bars, peak index", out["peak"], f"{dst.stat().st_size / 1024:.1f} KB")
+
+
+# --- sparklines for the script cards + marquee headlines -------------------------------------------------
+def closes_of(year):
+    rows = json.loads((ROOT / "content" / "data" / "prices" / f"market_{year}.json").read_text("utf-8"))["rows"]
+    return [r[1] for r in rows if r[0].startswith(str(year))]
+
+
+def downsample(v, n=40):
+    idx = [round(i * (len(v) - 1) / (n - 1)) for i in range(n)]
+    lo, hi = min(v), max(v)
+    return [round((v[i] - lo) / (hi - lo), 3) for i in idx]
+
+
+spark = {str(y): downsample(closes_of(y)) for y in (2015, 2020)}
+(dst.parent / "spark.json").write_text(json.dumps(spark, separators=(",", ":")), "utf-8")
+
+script = json.loads((ROOT / "content" / "scripts" / "2015.json").read_text("utf-8"))
+marquee = [{"day": f"{m['index']}月" if m["index"] else "12月", "text": m["headlines"][0]["text"]} for m in script["months"]]
+(dst.parent / "marquee.json").write_text(json.dumps(marquee, ensure_ascii=False, separators=(",", ":")), "utf-8")
+print("spark + marquee written")
