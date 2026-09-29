@@ -76,7 +76,7 @@ export function Dialog({
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
-      className={`glass m-auto w-[calc(100%-32px)] max-w-lg rounded-2xl border border-line p-0 text-ink backdrop:bg-black/60 backdrop:backdrop-blur-[20px] ${className}`}
+      className={`m-auto w-[calc(100%-32px)] max-w-lg rounded-2xl border border-line p-0 text-ink bg-[rgb(13_17_23/0.94)] backdrop:bg-black/60 backdrop:backdrop-blur-[20px] ${className}`}
       style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi), 0 24px 80px rgb(0 0 0 / 0.6)" }}
     >
       {mounted ? children : null}

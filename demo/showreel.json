@@ -1,0 +1,49 @@
+{
+ "total": 76.9,
+ "size": {
+  "width": 1440,
+  "height": 810
+ },
+ "shots": [
+  {
+   "name": "hero: particles fly in, 5178 rolls",
+   "start": 0.3
+  },
+  {
+   "name": "hero: pointer pushes the field",
+   "start": 5.9
+  },
+  {
+   "name": "scroll story: headlines → sliders → line",
+   "start": 11.4
+  },
+  {
+   "name": "intro: archive card, teletype",
+   "start": 15.8
+  },
+  {
+   "name": "game: page turns in",
+   "start": 21
+  },
+  {
+   "name": "game: damped sliders, total 100%",
+   "start": 24.8
+  },
+  {
+   "name": "settle: the number rolls, rows slide in",
+   "start": 27
+  },
+  {
+   "name": "result: rolling number, stamp, lines drawn in turn",
+   "start": 60.8
+  },
+  {
+   "name": "persona card flips",
+   "start": 65.4
+  },
+  {
+   "name": "music: duet, glow follows the notes",
+   "start": 70.1
+  }
+ ]
+}

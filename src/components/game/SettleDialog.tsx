@@ -39,6 +39,7 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
 
   useEffect(() => {
     if (!open || !last) return;
+    play("flip"); // the dialog rises with a paper-turn sound
     let alive = true;
     setComment(null);
     setGlow(false);

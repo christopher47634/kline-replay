@@ -52,3 +52,5 @@ scripts/timelines/*.draft.json
 demo/raw.webm
 scripts/.cache/
 .lighthouseci/
+demo/showreel.webm
+demo/showreel-40s.mp4

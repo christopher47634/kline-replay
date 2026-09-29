@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Reveal } from "@/components/motion/Reveal";
 import { PERSONAS } from "@/game/persona";
 import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 
@@ -33,7 +34,7 @@ export default function About() {
       <Link href="/" className="text-sm text-sub hover:text-ink">
         ← 回首页
       </Link>
-      <h1 className="mt-4 text-3xl font-black">玩法与数据说明</h1>
+      <Reveal as="h1" className="mt-4 font-display text-h1">玩法与数据说明</Reveal>
 
       <section className="mt-10">
         <h2 className="text-xl font-bold">玩法</h2>
@@ -68,7 +69,7 @@ export default function About() {
         <table className="mt-3 w-full text-sm">
           <tbody>
             {RULES.map((r) => (
-              <tr key={r.id} className="border-t border-line align-top">
+              <tr key={r.id} className="border-t border-line align-top transition-shadow duration-150 hover:shadow-[inset_4px_0_0_var(--color-gold)]">
                 <td className="py-2.5 pr-4 whitespace-nowrap font-medium">
                   {PERSONAS[r.id].emoji} {PERSONAS[r.id].title}
                 </td>
@@ -84,7 +85,7 @@ export default function About() {
         <table className="mt-3 w-full text-sm">
           <tbody>
             {MUSIC.map(([k, v]) => (
-              <tr key={k} className="border-t border-line align-top">
+              <tr key={k} className="border-t border-line align-top transition-shadow duration-150 hover:shadow-[inset_4px_0_0_var(--color-gold)]">
                 <td className="py-2.5 pr-4 whitespace-nowrap font-medium">{k}</td>
                 <td className="py-2.5 text-ink/90">{v}</td>
               </tr>

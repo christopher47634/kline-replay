@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Reveal } from "@/components/motion/Reveal";
 import { notFound } from "next/navigation";
 import { PERSONAS } from "@/game/persona";
 import type { PersonaId } from "@/game/types";
@@ -27,7 +28,7 @@ export default async function Board({ params }: { params: Promise<{ script: stri
       <Link href="/" className="text-sm text-sub hover:text-ink">
         ← 回首页
       </Link>
-      <h1 className="mt-4 text-3xl font-black">{script.title} · 排行榜</h1>
+      <Reveal as="h1" className="mt-4 font-display text-h1">{`${script.title} · 排行榜`}</Reveal>
       {!boardEnabled() ? (
         <p className="mt-6 text-sub">排行榜暂未开放。</p>
       ) : error ? (
@@ -47,7 +48,15 @@ export default async function Board({ params }: { params: Promise<{ script: stri
           </thead>
           <tbody>
             {rows.map((r, i) => (
-              <tr key={i} className="border-t border-line">
+              <tr
+                key={i}
+                className="board-row border-t border-line"
+                style={{
+                  animationDelay: `${Math.min(i, 8) * 40}ms`,
+                  boxShadow: i < 3 ? `inset 4px 0 0 ${["#F5B400", "#C0C6CF", "#B87333"][i]}` : undefined,
+                  background: i < 3 ? `linear-gradient(90deg, ${["rgb(245 180 0 / 0.08)", "rgb(192 198 207 / 0.06)", "rgb(184 115 51 / 0.07)"][i]}, transparent 60%)` : undefined,
+                }}
+              >
                 <td className="py-2.5 num text-sub">{i + 1}</td>
                 <td className="py-2.5">{r.nickname}</td>
                 <td className={`py-2.5 num text-right font-bold ${upDownColor(Number(r.ret))}`}>{pct(Number(r.ret))}</td>

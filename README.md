@@ -175,3 +175,27 @@ python -m venv .venv && .venv/Scripts/pip install -r scripts/requirements.txt   
 - 音乐：竖屏 9:16 画面；全站静音开关（记住选择）；强平局 2x 播放 0 错误。
 - OG 图：中文字体子集随仓库打包，断网也出中文。
 - 新增：大事件猜涨跌模式、历史时刻插卡、三段 GIF、演示视频原始素材脚本（`scripts/record_demo.mjs`）。
+
+## v3 前端包装（2026-09-29）
+
+设计概念「深夜盘口 · 档案馆」：冷的终端（等宽数字、K 线、红绿光）× 暖的档案（报纸、纸张、打字机）。规则、数据和链接编码没有改。
+
+![首页 hero](docs/screenshots/v3/home-hero-6s.png)
+![结算对话框](docs/screenshots/v3/desktop-settle-dialog.png)
+![结算页人格卡](docs/screenshots/v3/desktop-result-persona.png)
+
+- **首页**：2015 年 244 根上证日 K 变成粒子，飞入成走势轮廓，鼠标会推开粒子；5178 翻牌与飞入同时结束；三段滚动叙事；剧本卡倾斜、卡片转场；跑马灯。低端设备 / 减弱动效 / 无 WebGL 时自动换成静态图。
+- **游戏**：纸色档案 Intro、翻页进入；阻尼滑块每跨一档有 tick 与震动；「结算中…」→ 月份翻牌 → 结算对话框从按钮放大，盈亏数字翻牌落定；强平有整页震动、红暗角、信号干扰和低鼓。
+- **结算**：翻牌收益、段位盖章、四条线依次绘制、人格卡 3D 翻转；音乐弹窗背景随音符发光。
+- **声音**：6 个 UI 音效共 12 KB，首次访问有「开启声音」提示；右上角喇叭可关，同一音效 80 ms 内不重复。
+- **降级**：`prefers-reduced-motion`、省电模式、触屏、无 WebGL、页面不可见各有测试（`e2e/degrade.spec.ts`）。
+
+新增命令：
+
+```bash
+npm run perf                          # Lighthouse：首页 / 游戏 / 结算 × 桌面 / 手机（4G），对照方案 7.1 预算
+node scripts/analyze_trace.mjs        # 4 倍降速下的帧耗时统计
+node scripts/record_showreel.mjs      # 录展示视频（需要 Playwright 自带 ffmpeg）
+python scripts/build_fonts.py         # 重新生成得意黑子集
+node scripts/render_sfx.mjs           # 重新合成 6 个音效
+```

@@ -38,6 +38,13 @@ export function GameView({ scriptId }: { scriptId: string }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [flipIn, setFlipIn] = useState(false); // came from the paper Intro: the game page flips in from the other side
   const panel = useRef<AllocationPanelHandle>(null);
+
+  // Warm the text-reveal library while the player reads round 1, so the first settle dialog does not pay for parsing it.
+  useEffect(() => {
+    const warm = () => void Promise.all([import("gsap"), import("gsap/SplitText"), import("gsap/ScrollTrigger")]);
+    const id = setTimeout(warm, 1500);
+    return () => clearTimeout(id);
+  }, []);
   const router = useRouter();
 
   useEffect(() => {
@@ -165,8 +172,8 @@ export function GameView({ scriptId }: { scriptId: string }) {
     <main className="mx-auto max-w-[1120px] px-4 pb-10 md:px-6">
       <div ref={shakeRef}>
       <StatusBar round={shownMonth + 1} total={script.months.length} label={month.label} cash={st.cash} startCash={script.startCash} lastPnl={lastPnl} />
-      <div key={shownMonth} className="mt-5 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
-        <Enter delay={0} className="md:col-span-2 lg:col-span-1">
+      <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
+        <Enter key={`head-${shownMonth}`} delay={0} className="md:col-span-2 lg:col-span-1">
           <section aria-label="本月头条" className="space-y-3">
             <h2 className="font-bold">
               {month.label}初 · 头条
@@ -188,7 +195,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
             <KnownInfo script={script} round={shownMonth} />
           </div>
         </Enter>
-        <Enter delay={0.16}>
+        <Enter key={`alloc-${shownMonth}`} delay={0.16}>
           <div className="space-y-4">
             <AllocationPanel ref={panel} assets={script.assets} value={st.draft} onChange={st.setAlloc} previous={previous} onSubmit={goNext} />
             {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}
