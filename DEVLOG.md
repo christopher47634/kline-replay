@@ -52,3 +52,13 @@
 **验证结果**：lint 通过；Vitest 48 条；Playwright 6 条（主游戏、历史时刻、事件模式一局/进阶/篡改链接）；两个剧本 validate 通过；事件题库 validate 通过。
 
 **未做 / 需要人来做**：Vercel 部署（需要账号授权）；配旁白剪辑 demo 视频；5 人试玩与 3 局盲听；iOS/Android 真机；题库逐条对照交易所公告 / 维基百科的人工复核。
+
+## 2026-09-29：v3 前端包装（进行中）
+
+**做了什么**：F01–F06 已按任务提交（token、字体、AppShell、音效、动效组件、首页 hero）。F07–F20（首页下半部分、Intro、游戏页、结算页、音乐弹窗、事件页的动效）先整批落在分支 `v3/f07-f20`，验证后再拆分合入。
+
+**命令行故障（诚实记录）**：写 F13（进入下个月）起，命令行工具被服务端的自动审批服务连续拒绝（返回「没有给出判定」，不是命令本身的问题），最终连续 10 次后当前回合被强制结束。这段时间里 **F13 后半到 F20 的代码是在没有任何编译、类型检查、测试反馈的情况下写的**：GameView、StatusBar、SettleDialog、BustFx、ResultView、PersonaCard、BlockGrid、ReturnChart、MusicModal、EventGame、Odometer 的改动都属于这一批。恢复后先把它们提交到 wip 提交，再依次 tsc / lint / vitest / build / e2e。结果：tsc 与 lint 一次通过，Vitest 48 条通过，e2e 除一处（见下）全部通过；那一处是减弱动效下首页仍有一个 canvas（事件入口卡的蜡烛动画），已修。
+
+**性能**：第一次测量首页手机 56、桌面 82，LCP 12 s。原因：Tailwind 扫描了整个仓库（CSS 126 KB）、Noto 中文切片、GSAP/Lenis/motion/recharts 都在首屏。处理后桌面三页 96–99，手机（4G 档）94–98 / 87 / 94，全部达标。
+
+**未做 / 待做**：F21–F25（排行榜与关于页细节、降级矩阵逐条验证、trace 分析脚本、展示视频、README 截图替换）；R3F 版的音乐背景；分支尚未拆成按页提交合回 main。
