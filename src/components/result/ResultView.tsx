@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -19,9 +19,12 @@ import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
 import { BoardSubmit } from "./BoardSubmit";
-import { MusicModal } from "./MusicModal";
+import dynamic from "next/dynamic";
+import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
+
+const MusicModal = dynamic(() => import("./MusicModal").then((m) => m.MusicModal), { ssr: false });
 import { PersonaCard, PersonaPoster } from "./PersonaCard";
-import { ReturnChart } from "./ReturnChart";
+const ReturnChart = dynamic(() => import("./ReturnChart").then((m) => m.ReturnChart), { ssr: false, loading: () => <ChartSkeleton height={320} /> });
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -22,7 +22,11 @@ import { KnownInfo } from "./KnownInfo";
 import { SettleDialog } from "./SettleDialog";
 import { StatusBar } from "./StatusBar";
 import { Thermometer } from "./Thermometer";
-import { TrendChart } from "./TrendChart";
+import dynamic from "next/dynamic";
+import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
+
+// recharts stays out of the first-load bundle; the skeleton holds the space so nothing shifts
+const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
 import { tick } from "@/lib/sfx";
 
 export function GameView({ scriptId }: { scriptId: string }) {

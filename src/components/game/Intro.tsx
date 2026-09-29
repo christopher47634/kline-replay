@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimationControls } from "motion/react";
+import { m as motion, useAnimationControls } from "motion/react";
 import { useEffect, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import type { Script } from "@/game/types";

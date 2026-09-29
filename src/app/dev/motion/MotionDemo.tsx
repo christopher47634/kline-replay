@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DrawPath } from "@/components/motion/DrawPath";
 import { MagneticButton } from "@/components/motion/Magnetic";
 import { Odometer } from "@/components/motion/Odometer";
 import { Reveal } from "@/components/motion/Reveal";
 import { TiltCard } from "@/components/motion/TiltCard";
+import { BustVignette, runBustFx } from "@/components/game/BustFx";
 import { play, type SfxName } from "@/lib/sfx";
 
 const SFX: SfxName[] = ["tick", "flip", "up", "down", "bust", "ding"];
 
 export function MotionDemo() {
   const [v, setV] = useState(5178);
+  const [bust, setBust] = useState(0);
+  const shake = useRef<HTMLElement>(null);
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-16 space-y-14">
+    <main ref={shake} className="mx-auto max-w-[1120px] px-6 py-16 space-y-14">
+      <BustVignette run={bust} />
       <h1 className="text-h1 font-display">/dev/motion</h1>
 
       <section>
@@ -49,6 +53,21 @@ export function MotionDemo() {
         <svg viewBox="0 0 400 100" className="w-full max-w-[520px]">
           <DrawPath d="M0 80 C40 20 80 90 120 50 S200 10 240 60 S320 90 400 20" stroke="#FF4D4F" strokeWidth={3} glow />
         </svg>
+      </section>
+
+      <section>
+        <h2 className="text-h2 mb-4 font-display">Liquidation effect</h2>
+        <button
+          type="button"
+          data-testid="bust-demo"
+          onClick={() => {
+            runBustFx(shake.current);
+            setBust((n) => n + 1);
+          }}
+          className="h-10 rounded-lg border border-up px-4 text-sm text-up hover:bg-up/10"
+        >
+          触发强平效果
+        </button>
       </section>
 
       <section>

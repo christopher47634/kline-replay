@@ -9,7 +9,7 @@ import { BUCKET_LABELS, maxScore, outcome, pickCards, scoreGame } from "@/events
 import { CARDS_PER_GAME, type Guess, type PreparedDeck, type PreparedEvent } from "@/events/types";
 import { pct, upDownColor } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
-import { motion, useMotionValue, useTransform } from "motion/react";
+import { m as motion, useMotionValue, useTransform } from "motion/react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { composePhrase } from "@/music/compose";
 import { PhrasePlayer } from "@/music/phrase";

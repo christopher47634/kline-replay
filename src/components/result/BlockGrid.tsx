@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import type { RoundRecord, Script } from "@/game/types";
 import { pct, shortMonth } from "@/lib/format";

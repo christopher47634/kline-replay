@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import { createPortal } from "react-dom";
 import { useFrameLoop } from "@/lib/frameLoop";
 import { compose } from "@/music/compose";

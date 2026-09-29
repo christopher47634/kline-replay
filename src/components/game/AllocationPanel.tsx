@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimationControls, useMotionValue, useSpring, useTransform } from "motion/react";
+import { m as motion, useAnimationControls, useMotionValue, useSpring, useTransform } from "motion/react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { allCash, allocSum } from "@/game/engine";

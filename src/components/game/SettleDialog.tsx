@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Odometer } from "@/components/motion/Odometer";
 import { Reveal } from "@/components/motion/Reveal";

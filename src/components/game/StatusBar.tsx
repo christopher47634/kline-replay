@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m as motion } from "motion/react";
 import { pct, upDownColor, yuan } from "@/lib/format";
 import { RollingNumber } from "./RollingNumber";
 

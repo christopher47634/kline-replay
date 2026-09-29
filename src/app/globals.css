@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../../src";
 
 /* 「深夜盘口 · 档案馆」design tokens: cold terminal x warm archive paper. */
 @theme {
@@ -18,9 +19,9 @@
   --color-paper: #e9e2d0;
   --color-paper-ink: #2a2622;
 
-  --font-sans: var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: var(--font-jb), ui-monospace, "Cascadia Mono", monospace;
-  --font-display: "Smiley Sans", var(--font-noto), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: "Smiley Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
