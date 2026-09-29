@@ -110,3 +110,35 @@ export function compose(daily: DailyPoint[], history: RoundRecord[], startCash: 
   });
   return { major, scale, notes };
 }
+
+/** One note of an event-mode phrase (lead melody only: no bass, no percussion). */
+export interface PhraseNote {
+  i: number;
+  idx: number;
+  pitch: string;
+  velocity: number;
+  /** Daily return this note stands for. */
+  r: number;
+  value: number;
+}
+
+export interface Phrase {
+  major: boolean;
+  scale: string[];
+  notes: PhraseNote[];
+}
+
+/**
+ * Melody for a run of closes after an event: pitch follows the move since `base`
+ * (±20% spans the scale), loudness follows the day's own move. Major key if it ended up, minor if down.
+ */
+export function composePhrase(values: number[], base: number): Phrase {
+  const major = (values.at(-1) ?? base) >= base;
+  const scale = major ? MAJOR : MINOR;
+  const notes = values.map((v, i): PhraseNote => {
+    const r = v / (i === 0 ? base : values[i - 1]) - 1;
+    const idx = levelIndex((v / base - 1) * 2.5);
+    return { i, idx, pitch: scale[idx], velocity: velocityOf(r), r, value: v };
+  });
+  return { major, scale, notes };
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compose, levelIndex, MINOR, shiftOctave, velocityOf } from "../compose";
+import { compose, composePhrase, levelIndex, MAJOR, MINOR, shiftOctave, velocityOf } from "../compose";
 import { playAll, simulateDaily } from "@/game/engine";
 import { APPENDIX_B } from "@/game/fixtures";
 import { getScript } from "@/lib/scripts";
@@ -76,5 +76,18 @@ describe("compose", () => {
     expect(velocityOf(0)).toBeCloseTo(0.4);
     expect(velocityOf(-0.08)).toBeCloseTo(1);
     expect(shiftOctave("A4", -2)).toBe("A2");
+  });
+
+  it("composePhrase: one lead note per day, major when the run ends up, minor when down, no perc/bass", () => {
+    const up = composePhrase([101, 103, 102, 108], 100);
+    expect(up.major).toBe(true);
+    expect(up.notes).toHaveLength(4);
+    expect(up.notes.every((n) => MAJOR.includes(n.pitch))).toBe(true);
+    expect(up.notes[3].idx).toBeGreaterThan(up.notes[0].idx);
+    const down = composePhrase([99, 95, 90, 85], 100);
+    expect(down.major).toBe(false);
+    expect(down.notes.every((n) => MINOR.includes(n.pitch))).toBe(true);
+    expect(down.notes[3].idx).toBeLessThan(down.notes[0].idx);
+    expect(Object.keys(up.notes[0]).sort()).toEqual(["i", "idx", "pitch", "r", "value", "velocity"]);
   });
 });
