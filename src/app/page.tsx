@@ -83,9 +83,11 @@ export default function Home() {
           <Link href="/about" className="hover:text-ink underline underline-offset-4">
             玩法与数据说明
           </Link>
-          <a href="https://github.com/christopher47634/kline-replay" className="hover:text-ink underline underline-offset-4">
-            GitHub
-          </a>
+          {process.env.NEXT_PUBLIC_REPO_URL && (
+            <a href={process.env.NEXT_PUBLIC_REPO_URL} className="hover:text-ink underline underline-offset-4">
+              GitHub
+            </a>
+          )}
         </p>
       </section>
     </main>
