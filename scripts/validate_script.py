@@ -54,12 +54,27 @@ def main(path):
                 continue
             if len(h["text"]) > 25:
                 errors.append(f"{tag}: headline >25 chars: {h['text']}")
-            if h["tone"] not in ("bull", "bear", "neutral") or not 1 <= h["day"] <= 28:
+            if h["tone"] not in ("bull", "bear", "neutral") or not 1 <= h["day"] <= 31:
                 errors.append(f"{tag}: bad tone/day on headline {h['text']}")
         if not m.get("rumor") or len(m["rumor"]) > 40:
             errors.append(f"{tag}: rumor missing or >40 chars")
         if not m.get("hindsight") or len(m["hindsight"]) > 60:
             errors.append(f"{tag}: hindsight missing or >60 chars ({len(m.get('hindsight', ''))})")
+        mo = m.get("moment")
+        if mo is not None:
+            for k in ("date", "title", "text", "question", "options"):
+                if not mo.get(k):
+                    errors.append(f"{tag}: moment missing {k}")
+            if mo.get("date", "") >= f"{s.get('id')}-{i + 1:02d}-01":
+                errors.append(f"{tag}: moment date {mo.get('date')} is not before the round starts (would spoil it)")
+            if len(mo.get("text", "")) > 120:
+                errors.append(f"{tag}: moment text >120 chars")
+            for o in mo.get("options", []):
+                eff = o.get("effect")
+                if eff is not None and not set(eff) <= {"scale", "marginPlus"}:
+                    errors.append(f"{tag}: unknown effect keys {sorted(eff)}")
+                if eff and not 0 <= eff.get("scale", 0.5) <= 1:
+                    errors.append(f"{tag}: moment scale must be in [0, 1]")
         if not isinstance(m.get("rumorIsSignal"), bool):
             errors.append(f"{tag}: rumorIsSignal must be bool")
         signals += bool(m.get("rumorIsSignal"))

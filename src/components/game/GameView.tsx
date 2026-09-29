@@ -11,6 +11,8 @@ import { getScript } from "@/lib/scripts";
 import { AllocationPanel, isValidAlloc, type AllocationPanelHandle } from "./AllocationPanel";
 import { HeadlineCard, RumorCard } from "./HeadlineCard";
 import { Intro } from "./Intro";
+import { MomentCard } from "./MomentCard";
+import { applyEffect } from "@/game/moment";
 import { KnownInfo } from "./KnownInfo";
 import { SettleDialog } from "./SettleDialog";
 import { StatusBar } from "./StatusBar";
@@ -32,6 +34,17 @@ export function GameView({ scriptId }: { scriptId: string }) {
     return useGame.persist.onFinishHydration(() => setHydrated(true));
   }, [useGame]);
 
+  // Historical-moment card: shown once per round, before the allocation panel (remembered across reloads).
+  const momentKey = (m: number) => `kline-moment:${script.id}:${m}`;
+  const [momentDone, setMomentDone] = useState<Record<number, boolean>>({});
+  const seen = (m: number) => {
+    if (momentDone[m]) return true;
+    try {
+      return localStorage.getItem(momentKey(m)) === "1";
+    } catch {
+      return false;
+    }
+  };
   const valid = isValidAlloc(st.draft);
   const resultHref = `/result?s=${encodeGame(script.id, st.history.map((h) => h.alloc))}`;
 
@@ -85,6 +98,18 @@ export function GameView({ scriptId }: { scriptId: string }) {
     );
   }
 
+  const activeMoment = !dialogOpen && !st.finished ? script.months[st.history.length]?.moment : undefined;
+  const chooseMoment = (o: { effect: import("@/game/moment").MomentEffect | null }) => {
+    const m = st.history.length;
+    if (o.effect) st.setAlloc(applyEffect(st.draft, o.effect));
+    setMomentDone((d) => ({ ...d, [m]: true }));
+    try {
+      localStorage.setItem(momentKey(m), "1");
+    } catch {
+      /* fine: the card may show again after a reload */
+    }
+  };
+
   const shownMonth = dialogOpen && st.last ? st.last.month : st.history.length;
   const month = script.months[shownMonth];
   const shownHistory = st.history.slice(0, shownMonth);
@@ -120,6 +145,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
           </p>
         </div>
       </div>
+      {activeMoment && !seen(st.history.length) && <MomentCard key={st.history.length} moment={activeMoment} onChoose={chooseMoment} />}
       <SettleDialog script={script} last={st.last} open={dialogOpen} onClose={closeDialog} isFinal={st.finished} />
     </main>
   );

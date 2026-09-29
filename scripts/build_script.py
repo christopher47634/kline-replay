@@ -96,6 +96,7 @@ def main():
             "rumor": c["rumor"],
             "rumorIsSignal": c["rumorIsSignal"],
             "hindsight": c["hindsight"],
+            **({"moment": c["moment"]} if c.get("moment") else {}),
             "marketReturn": rets["market"],
             "returns": returns,
             "daily": daily,

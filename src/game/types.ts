@@ -11,6 +11,8 @@ export interface DailyBar {
   r: Record<TradedId | "market", number>;
 }
 
+import type { Moment } from "./moment";
+
 export type Tone = "bull" | "bear" | "neutral";
 
 export interface Headline {
@@ -28,6 +30,8 @@ export interface ScriptMonth {
   rumor: string;
   rumorIsSignal: boolean;
   hindsight: string;
+  /** Optional historical-moment card shown before this round. */
+  moment?: Moment;
   marketReturn: number;
   returns: Record<AssetId, number>;
   daily: DailyBar[];

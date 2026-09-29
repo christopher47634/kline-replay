@@ -13,6 +13,8 @@ test("plays a full 2015 game, shares it, and plays the music", async ({ page, co
 
   // 2. twelve rounds of "平均分配" -> next -> close dialog
   for (let m = 0; m < 12; m++) {
+    // historical-moment cards appear before some rounds: take "不动" so the allocation stays even
+    if (await page.getByTestId("moment-card").isVisible().catch(() => false)) await page.getByRole("button", { name: "不动" }).click();
     await page.getByRole("button", { name: "平均分配" }).click();
     await page.getByRole("button", { name: /进入下个月|结算最后一个月/ }).first().click();
     const dialog = page.getByRole("dialog", { name: "本月结算" });
@@ -73,4 +75,29 @@ test("invalid result link shows an error state", async ({ page }) => {
   await page.goto("/result?s=2015.broken");
   await expect(page.getByRole("heading", { name: "链接无效" })).toBeVisible();
   await expect(page.getByRole("link", { name: "回首页" })).toBeVisible();
+});
+
+test("historical moment card pre-fills the allocation and can still be edited", async ({ page }) => {
+  await page.goto("/play/2015");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.getByRole("button", { name: /开始第 1 回合/ }).click();
+  await page.getByRole("button", { name: "平均分配" }).click();
+  await page.getByRole("button", { name: /进入下个月/ }).first().click();
+  await page.getByRole("dialog", { name: "本月结算" }).getByRole("button", { name: /进入下个月/ }).click();
+
+  const card = page.getByTestId("moment-card");
+  await expect(card).toBeVisible();
+  await expect(card.getByRole("heading")).toContainText("1 月 19 日");
+  await card.getByRole("button", { name: "减半仓" }).click();
+  await expect(card).toHaveCount(0);
+  await expect(page.getByLabel("融资加杠杆 百分比")).toHaveValue("5");
+  await expect(page.getByLabel("货币基金 百分比")).toHaveValue("65");
+  await expect(page.getByRole("button", { name: /进入下个月/ }).first()).toBeEnabled(); // still sums to 100
+  await page.getByLabel("融资加杠杆 百分比").fill("10");
+  await expect(page.getByRole("button", { name: "合计需为 100%" })).toBeDisabled();
+
+  // reload: the card is remembered as answered
+  await page.reload();
+  await expect(page.getByTestId("moment-card")).toHaveCount(0);
 });

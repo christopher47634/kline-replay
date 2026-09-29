@@ -12,6 +12,7 @@ async function play(page, rounds, shotAt) {
   await page.reload();
   await page.getByRole("button", { name: /开始第 1 回合/ }).click();
   for (let m = 0; m < rounds; m++) {
+    if (await page.getByTestId("moment-card").isVisible().catch(() => false)) await page.getByRole("button", { name: "不动" }).click();
     if (shotAt[m]) await shotAt[m]();
     await page.getByRole("button", { name: "平均分配" }).click();
     await page.getByRole("button", { name: /进入下个月|结算最后一个月/ }).first().click();
