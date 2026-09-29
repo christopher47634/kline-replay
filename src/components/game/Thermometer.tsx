@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useMotionPref } from "@/components/shell/MotionPref";
 import { pct } from "@/lib/format";
 
 const CELLS = ["#1F7A35", "#3E6B48", "#4B5563", "#8A4B4E", "#C93A3D"];
@@ -11,17 +15,45 @@ export function tempLevel(r: number): number {
   return 4;
 }
 
+/** Five cells light up left to right (60ms apart) up to last month's level; the target cell pulses once. */
 export function Thermometer({ ret, monthNo }: { ret: number; monthNo: number }) {
   const level = tempLevel(ret);
+  const { reduce } = useMotionPref();
+  const [lit, setLit] = useState(reduce ? level : -1);
+
+  useEffect(() => {
+    if (reduce) {
+      setLit(level);
+      return;
+    }
+    setLit(-1);
+    const timers = Array.from({ length: level + 1 }, (_, i) => setTimeout(() => setLit(i), 350 + i * 60));
+    return () => timers.forEach(clearTimeout);
+  }, [level, reduce, monthNo]);
+
   return (
     <div className="flex items-center gap-3 text-xs text-sub" data-testid="thermo">
       <span className="shrink-0">上月市场温度</span>
-      <div className="flex gap-1 flex-1" role="img" aria-label={`上月大盘 ${pct(ret)}`}>
-        {CELLS.map((c, i) => (
-          <span key={c} className="h-3 flex-1 rounded-sm" style={{ background: c, opacity: i === level ? 1 : 0.28, outline: i === level ? "1.5px solid #E6E8EB" : "none", outlineOffset: 1 }} />
-        ))}
+      <div className="flex flex-1 gap-1" role="img" aria-label={`上月大盘 ${pct(ret)}`}>
+        {CELLS.map((c, i) => {
+          const on = i <= lit;
+          const target = i === level;
+          return (
+            <span
+              key={c}
+              className="h-3 flex-1 rounded-sm transition-opacity duration-150"
+              style={{
+                background: c,
+                opacity: on ? (target ? 1 : 0.55) : 0.16,
+                outline: target && on ? "1.5px solid #ECEEF2" : "none",
+                outlineOffset: 1,
+                animation: target && lit === level && !reduce ? "pulse-once 400ms var(--ease-snap)" : undefined,
+              }}
+            />
+          );
+        })}
       </div>
-      <span className="shrink-0 num text-ink">
+      <span className="num shrink-0 text-ink">
         {monthNo}月大盘 {pct(ret)}
       </span>
     </div>

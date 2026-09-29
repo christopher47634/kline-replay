@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { useMotionPref } from "@/components/shell/MotionPref";
 import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { RoundRecord, Script } from "@/game/types";
 
@@ -9,6 +11,11 @@ import type { RoundRecord, Script } from "@/game/types";
  * has context; 开局 is the previous December's close.
  */
 export function TrendChart({ script, history }: { script: Script; history: RoundRecord[] }) {
+  const { reduce } = useMotionPref();
+  // first draw 800ms left to right; later rounds redraw in 400ms
+  const first = useRef(true);
+  const dur = first.current ? 800 : 400;
+  first.current = false;
   const known = history.length; // month-ends revealed so far
   const pre = script.preMonths ?? [];
   const nPre = pre.length === 2 ? 2 : 0; // points before 开局: Nov start, Nov end
@@ -48,6 +55,7 @@ export function TrendChart({ script, history }: { script: Script; history: Round
               <pattern id="future-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                 <rect width="8" height="8" fill="#0D1117" />
                 <line x1="0" y1="0" x2="0" y2="8" stroke="#2c3542" strokeWidth="3" />
+                {!reduce && <animateTransform attributeName="patternTransform" type="translate" additive="sum" from="0 0" to="160 0" dur="20s" repeatCount="indefinite" />}
               </pattern>
             </defs>
             <CartesianGrid stroke="#1C2431" vertical={false} />
@@ -65,14 +73,17 @@ export function TrendChart({ script, history }: { script: Script; history: Round
             )}
             {nPre > 0 && <ReferenceLine x="开局" stroke="#F5B400" strokeDasharray="3 3" label={{ value: "开局", fill: "#F5B400", fontSize: 11, position: "insideTopRight" }} />}
             <Tooltip
+              isAnimationActive={!reduce}
+              animationDuration={180}
+              animationEasing="ease-out"
               contentStyle={{ background: "#07090D", border: "1px solid #1C2431", borderRadius: 8, fontSize: 12 }}
               labelStyle={{ color: "#8B95A3" }}
               formatter={(v, name) => [typeof v === "number" ? v.toFixed(1) : "—", name === "player" ? "你" : name === "pre" ? "开局前大盘" : "上证综指"]}
             />
             <Legend formatter={(v) => (v === "player" ? "你" : v === "pre" ? "开局前大盘" : "上证综指")} wrapperStyle={{ fontSize: 12, color: "#8B95A3" }} />
             <Line type="linear" dataKey="pre" stroke="#8C8C8C" strokeOpacity={0.6} strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} connectNulls />
-            <Line type="linear" dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} connectNulls={false} />
-            <Line type="linear" dataKey="player" stroke="#FF4D4F" strokeWidth={2.5} dot={{ r: 2.5 }} isAnimationActive={false} connectNulls={false} />
+            <Line type="linear" dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={{ r: 2 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
+            <Line type="linear" dataKey="player" stroke="#FF4D4F" strokeWidth={2.5} dot={{ r: 2.5 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
