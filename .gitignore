@@ -54,3 +54,4 @@ scripts/.cache/
 .lighthouseci/
 demo/showreel.webm
 demo/showreel-40s.mp4
+demo/*.mp4
