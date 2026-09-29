@@ -68,6 +68,10 @@ describe("judgePersona", () => {
     expect(moves.map((m) => m.label)).toEqual(["最大加仓", "最大减仓", "最高风险"]);
     expect(moves[2].month).toBe(4);
     const none = keyMoves(playAll(s, flat(allCash())), s);
-    expect(none[0].text).toBe("全年没有加过仓");
+    expect(none[0].text).toBe("全年没加过仓");
+    expect(none[1].text).toBe("全年没减过仓");
+    // plain-language templates: "N 月，把 X% 的钱押进…" / "N 月，一口气清掉 X% 的风险仓位"
+    expect(moves[0].text).toMatch(/^\d+ 月，把 \d+% 的钱押进.+/);
+    expect(moves[1].text).toMatch(/^\d+ 月，一口气清掉 \d+% 的风险仓位$/);
   });
 });

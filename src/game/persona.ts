@@ -1,5 +1,5 @@
 import personasJson from "../../content/personas.json";
-import type { Allocation, Persona, PersonaId, RoundRecord, Script } from "./types";
+import type { Allocation, AssetId, Persona, PersonaId, RoundRecord, Script } from "./types";
 
 export const PERSONAS = personasJson as Record<PersonaId, Persona>;
 
@@ -69,6 +69,29 @@ export interface KeyMove {
 }
 
 /** Three highlight moves for the persona card: biggest add, biggest cut, riskiest month. */
+const SHORT: Partial<Record<AssetId, string>> = { sh50: "上证50", cyb: "创业板", bank: "银行", baijiu: "白酒", margin: "杠杆" };
+
+/** e.g. "创业板 40% · 杠杆 40%" — the risky holdings of one month, biggest first. */
+export function allocSummary(a: Allocation): string {
+  const parts = (Object.keys(SHORT) as AssetId[])
+    .filter((id) => a[id] > 0)
+    .sort((x, y) => a[y] - a[x])
+    .slice(0, 3)
+    .map((id) => `${SHORT[id]} ${a[id]}%`);
+  return parts.length ? parts.join(" · ") : "全部现金";
+}
+
+/** Names of the (up to two) risky assets whose weight rose the most in month `i`. */
+function boughtNames(history: RoundRecord[], i: number): string {
+  const prev = i === 0 ? null : history[i - 1].alloc;
+  const rises = (Object.keys(SHORT) as AssetId[])
+    .map((id) => ({ id, d: history[i].alloc[id] - (prev?.[id] ?? 0) }))
+    .filter((x) => x.d > 0)
+    .sort((a, b) => b.d - a.d)
+    .slice(0, 2);
+  return rises.map((x) => SHORT[x.id]).join("和") || "风险资产";
+}
+
 export function keyMoves(history: RoundRecord[], script: Pick<Script, "months">): KeyMove[] {
   if (!history.length) return [];
   const risky = history.map((h) => 100 - h.alloc.cash);
@@ -83,11 +106,11 @@ export function keyMoves(history: RoundRecord[], script: Pick<Script, "months">)
   const hr = history.map((h) => highRisk(h.alloc));
   const riskI = hr.reduce((best, v, i) => (v > hr[best] ? i : best), 0);
   const moves: KeyMove[] = [
-    { label: "最大加仓", month: addI, text: change[addI] > 0 ? `${label(addI)}，风险仓位 +${change[addI]}%` : "全年没有加过仓" },
+    { label: "最大加仓", month: addI, text: change[addI] > 0 ? `${label(addI)}，把 ${change[addI]}% 的钱押进${boughtNames(history, addI)}` : "全年没加过仓" },
     {
       label: "最大减仓",
       month: Math.max(cutI, 0),
-      text: cutI >= 0 && change[cutI] < 0 ? `${label(cutI)}，风险仓位 ${change[cutI]}%` : "全年没有减过仓",
+      text: cutI >= 0 && change[cutI] < 0 ? `${label(cutI)}，一口气清掉 ${-change[cutI]}% 的风险仓位` : "全年没减过仓",
     },
     { label: "最高风险", month: riskI, text: `${label(riskI)}，创业板 + 杠杆占 ${hr[riskI]}%` },
   ];
