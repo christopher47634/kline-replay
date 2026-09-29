@@ -41,3 +41,17 @@ test("reduced motion renders no canvas on the home page and skips the custom cur
   await expect(page.locator("html.has-cursor")).toHaveCount(0);
   await ctx.close();
 });
+
+test("a modal dialog gets the native cursor back (the custom cursor sits below the top layer)", async ({ page }) => {
+  await page.goto("/play/2015");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.getByRole("button", { name: /开始第 1 回合/ }).click();
+  await expect(page.locator("html.has-cursor")).toHaveCount(1);
+  await page.getByRole("button", { name: "平均分配" }).click();
+  await page.getByTestId("next-month").click();
+  const dialog = page.getByRole("dialog", { name: "本月结算" });
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((el) => getComputedStyle(el).cursor)).toBe("auto");
+  expect(await dialog.getByRole("button", { name: /进入下个月/ }).evaluate((el) => getComputedStyle(el).cursor)).toBe("pointer");
+});

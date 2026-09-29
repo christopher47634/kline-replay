@@ -164,6 +164,17 @@ html.has-cursor * {
   cursor: none !important;
 }
 
+/* A modal <dialog> lives in the browser's top layer, above the custom cursor: give it the native cursor back. */
+html.has-cursor dialog[open],
+html.has-cursor dialog[open] * {
+  cursor: auto !important;
+}
+html.has-cursor dialog[open] button,
+html.has-cursor dialog[open] a,
+html.has-cursor dialog[open] label {
+  cursor: pointer !important;
+}
+
 .hero-scroll-hint {
   animation: hint-bob 2.4s ease-in-out infinite;
 }
