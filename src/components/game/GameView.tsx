@@ -29,6 +29,9 @@ import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
 import { tick } from "@/lib/sfx";
 
+/** Starting opacity for the columns that re-enter when the month turns (see the Enter comment). */
+const TURN_FROM = 0.6;
+
 export function GameView({ scriptId }: { scriptId: string }) {
   const script = getScript(scriptId) as Script;
   const useGame = useMemo(() => gameStore(script), [script]);
@@ -179,18 +182,19 @@ export function GameView({ scriptId }: { scriptId: string }) {
       <div ref={shakeRef}>
       <StatusBar round={shownMonth + 1} total={script.months.length} label={month.label} cash={st.cash} startCash={script.startCash} lastPnl={lastPnl} />
       <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
-        <Enter key={`head-${shownMonth}`} delay={0} className="md:col-span-2 lg:col-span-1">
+        {/* A new month replaces what is on screen: these entrances start at 0.6, never at 0, or the columns blink out for a frame. */}
+        <Enter key={`head-${shownMonth}`} delay={0} from={TURN_FROM} y={10} className="md:col-span-2 lg:col-span-1">
           <section aria-label="本月头条" className="space-y-3">
             <h2 className="font-bold">
               {month.label}初 · 头条
             </h2>
             <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
             {month.headlines.map((h, k) => (
-              <Enter key={h.text} delay={0.1 + k * 0.06} y={16}>
+              <Enter key={h.text} delay={0.06 + k * 0.05} y={10} from={TURN_FROM}>
                 <HeadlineCard headline={h} lead={k === 0} monthNo={prevMonthNo} />
               </Enter>
             ))}
-            <Enter delay={0.1 + month.headlines.length * 0.06} y={16}>
+            <Enter delay={0.06 + month.headlines.length * 0.05} y={10} from={TURN_FROM}>
               <RumorCard text={month.rumor} />
             </Enter>
           </section>
@@ -201,7 +205,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
             <KnownInfo script={script} round={shownMonth} />
           </div>
         </Enter>
-        <Enter key={`alloc-${shownMonth}`} delay={0.16}>
+        <Enter key={`alloc-${shownMonth}`} delay={0.08} from={TURN_FROM} y={10}>
           <div className="space-y-4">
             <AllocationPanel ref={panel} assets={script.assets} value={st.draft} onChange={st.setAlloc} previous={previous} onSubmit={goNext} />
             {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}

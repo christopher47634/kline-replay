@@ -55,3 +55,37 @@ test("a modal dialog gets the native cursor back (the custom cursor sits below t
   expect(await dialog.evaluate((el) => getComputedStyle(el).cursor)).toBe("auto");
   expect(await dialog.getByRole("button", { name: /进入下个月/ }).evaluate((el) => getComputedStyle(el).cursor)).toBe("pointer");
 });
+
+test("turning the month never blanks the page: the headline and allocation columns stay visible", async ({ page }) => {
+  await page.goto("/play/2015");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.getByRole("button", { name: /开始第 1 回合/ }).click();
+  await page.waitForTimeout(1500);
+  await page.getByRole("button", { name: "平均分配" }).click();
+  // Sample the effective opacity (own x every ancestor) of the two columns that re-enter on a new month.
+  await page.evaluate(() => {
+    const eff = (el: Element | null) => {
+      let o = 1;
+      for (let e = el; e && e !== document.body; e = e.parentElement) o *= Number(getComputedStyle(e).opacity);
+      return o;
+    };
+    const w = window as unknown as { __minOpacity: number; __iv: number };
+    w.__minOpacity = 1;
+    w.__iv = window.setInterval(() => {
+      const head = document.querySelector("main section[aria-label='本月头条']");
+      const btn = document.querySelector("[data-testid='next-month']");
+      if (head) w.__minOpacity = Math.min(w.__minOpacity, eff(head));
+      if (btn) w.__minOpacity = Math.min(w.__minOpacity, eff(btn));
+    }, 16);
+  });
+  await page.getByTestId("next-month").click();
+  await expect(page.getByRole("dialog", { name: "本月结算" })).toBeVisible();
+  await page.waitForTimeout(600);
+  const min = await page.evaluate(() => {
+    const w = window as unknown as { __minOpacity: number; __iv: number };
+    clearInterval(w.__iv);
+    return w.__minOpacity;
+  });
+  expect(min).toBeGreaterThanOrEqual(0.5);
+});
