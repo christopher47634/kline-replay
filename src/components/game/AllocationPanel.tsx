@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { allCash, allocSum } from "@/game/engine";
 import { ASSET_IDS, type Allocation, type AssetId, type ScriptAsset } from "@/game/types";
 
@@ -20,8 +20,9 @@ export interface AllocationPanelHandle {
 
 export const AllocationPanel = forwardRef<
   AllocationPanelHandle,
-  { assets: ScriptAsset[]; value: Allocation; onChange: (a: Allocation) => void; previous: Allocation | null }
->(function AllocationPanel({ assets, value, onChange, previous }, ref) {
+  { assets: ScriptAsset[]; value: Allocation; onChange: (a: Allocation) => void; previous: Allocation | null; onSubmit?: () => void }
+>(function AllocationPanel({ assets, value, onChange, previous, onSubmit }, ref) {
+  const [help, setHelp] = useState<AssetId | null>(null);
   const sliders = useRef<(HTMLInputElement | null)[]>([]);
   useImperativeHandle(ref, () => ({ focusRow: (i) => sliders.current[i]?.focus() }));
   const sum = allocSum(value);
@@ -47,6 +48,15 @@ export const AllocationPanel = forwardRef<
                 {a.name}
               </label>
               <span className={`text-[11px] px-1.5 py-0.5 rounded ${RISK_STYLE[a.risk] ?? "bg-line text-sub"}`}>{a.risk}</span>
+              <button
+                type="button"
+                aria-label={`${a.name} 说明`}
+                aria-expanded={help === a.id}
+                onClick={() => setHelp(help === a.id ? null : a.id)}
+                className="grid place-items-center w-5 h-5 rounded-full border border-line text-[11px] text-sub hover:text-ink hover:border-sub"
+              >
+                ?
+              </button>
               <input
                 aria-label={`${a.name} 百分比`}
                 type="number"
@@ -55,12 +65,20 @@ export const AllocationPanel = forwardRef<
                 step={5}
                 value={value[a.id]}
                 onChange={(e) => set(a.id, Number(e.target.value))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    onSubmit?.();
+                  }
+                }}
                 className="num ml-auto w-16 h-8 rounded-md bg-bg border border-line text-right px-2 text-sm focus:outline-none focus:border-gold"
               />
               <span className="text-sub text-sm">%</span>
             </div>
+            {help === a.id && <p className="mt-1.5 text-xs text-sub">{a.desc}</p>}
             <input
               id={`slider-${a.id}`}
+              tabIndex={-1}
               ref={(el) => {
                 sliders.current[i] = el;
               }}
