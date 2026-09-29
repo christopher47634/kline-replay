@@ -7,6 +7,7 @@ Writes: content/scripts/{year}.json, then runs validate_script.py on it.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -21,6 +22,33 @@ TRADED = ["sh50", "cyb", "bank", "baijiu", "market"]
 def load_closes(asset, year):
     data = json.loads((PRICES / f"{asset}_{year}.json").read_text("utf-8"))
     return {r[0]: r[1] for r in data["rows"]}, data["source"]
+
+
+OUTLETS = ["财经晨报", "证券时报（虚构）", "每日财讯", "财经观察", "市场周刊"]  # all fictional
+BULL = "涨升增创新高降息降准利好放量突破回升反弹上调加仓入市扩容松绑刺激".replace(" ", "")
+BEAR = "跌降亏爆恐慌熔断收紧清查处罚减持下调暴挫崩退缩限强平违规去杠杆"
+
+
+def tone_of(text):
+    """Rough keyword tone for headlines that don't carry an explicit one."""
+    if "降息" in text or "降准" in text:
+        return "bull"
+    b = sum(text.count(c) for c in set(BULL))
+    d = sum(text.count(c) for c in set(BEAR) if c != "降")
+    return "bull" if b > d else "bear" if d > b else "neutral"
+
+
+def norm_headline(h, month_i, pos):
+    """Old format is a plain string; new format is {text, outlet, day, tone}. Fill any gaps deterministically."""
+    if isinstance(h, str):
+        h = {"text": h}
+    seed = int(hashlib.md5(f"{month_i}:{h['text']}".encode("utf-8")).hexdigest()[:8], 16)
+    return {
+        "text": h["text"],
+        "outlet": h.get("outlet") or OUTLETS[(month_i + pos) % len(OUTLETS)],
+        "day": h.get("day") or 1 + seed % 28,
+        "tone": h.get("tone") or tone_of(h["text"]),
+    }
 
 
 def r4(x):
@@ -64,7 +92,7 @@ def main():
         months.append({
             "index": m,
             "label": f"{year} 年 {m + 1} 月",
-            "headlines": c["headlines"],
+            "headlines": [norm_headline(h, m, k) for k, h in enumerate(c["headlines"])],
             "rumor": c["rumor"],
             "rumorIsSignal": c["rumorIsSignal"],
             "hindsight": c["hindsight"],
@@ -74,6 +102,30 @@ def main():
         })
         month_end_market.append(closes["market"][end_day])
         prev_day = end_day
+
+    # preMonths: Nov/Dec of the previous year, so round 1 has context. If the fetched window
+    # starts mid-month (no prior close), the month is measured from its first close instead.
+    pre_months = []
+    for mm in (11, 12):
+        prefix = f"{year - 1}-{mm:02d}"
+        days = [d for d in prev_year if d.startswith(prefix)]
+        if not days:
+            continue
+        before = [d for d in common if d < days[0]]
+        base = before[-1] if before else days[0]
+        seq = days if before else days[1:]
+        pd = base
+        pdaily = []
+        for d in seq:
+            pdaily.append({"date": d, "r": {a: r4(closes[a][d] / closes[a][pd] - 1) for a in TRADED}})
+            pd = d
+        prets = {a: r4(closes[a][days[-1]] / closes[a][base] - 1) for a in TRADED}
+        pre_months.append({
+            "label": f"{year - 1} 年 {mm} 月",
+            "marketReturn": prets["market"],
+            "returns": {a: prets[a] for a in ["sh50", "cyb", "bank", "baijiu"]},
+            "daily": pdaily,
+        })
 
     peak = max(range(12), key=lambda i: month_end_market[i])
     trough = min(range(12), key=lambda i: month_end_market[i])
@@ -90,6 +142,7 @@ def main():
         "troughMonth": trough,
         "assets": content["assets"],
         "params": params,
+        "preMonths": pre_months,
         "months": months,
         "benchmarks": {
             "allInMarket": r4(all_in_market),

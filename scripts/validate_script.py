@@ -28,6 +28,13 @@ def main(path):
     months = s.get("months", [])
     if len(months) != 12:
         errors.append(f"expected 12 months, got {len(months)}")
+    pre = s.get("preMonths")
+    if not isinstance(pre, list) or len(pre) != 2:
+        errors.append("preMonths must have 2 entries (previous Nov/Dec)")
+    else:
+        for pm in pre:
+            if not pm.get("daily"):
+                errors.append(f"preMonths {pm.get('label')}: empty daily")
     signals = 0
     for i, m in enumerate(months):
         tag = f"month {i}"
@@ -42,8 +49,13 @@ def main(path):
         if len(hl) != 3:
             errors.append(f"{tag}: needs exactly 3 headlines")
         for h in hl:
-            if len(h) > 25:
-                errors.append(f"{tag}: headline >25 chars: {h}")
+            if not isinstance(h, dict) or not {"text", "outlet", "day", "tone"} <= set(h):
+                errors.append(f"{tag}: headline must be an object with text/outlet/day/tone: {h}")
+                continue
+            if len(h["text"]) > 25:
+                errors.append(f"{tag}: headline >25 chars: {h['text']}")
+            if h["tone"] not in ("bull", "bear", "neutral") or not 1 <= h["day"] <= 28:
+                errors.append(f"{tag}: bad tone/day on headline {h['text']}")
         if not m.get("rumor") or len(m["rumor"]) > 40:
             errors.append(f"{tag}: rumor missing or >40 chars")
         if not m.get("hindsight") or len(m["hindsight"]) > 60:
@@ -54,7 +66,7 @@ def main(path):
         n = len(m.get("daily", []))
         if not 15 <= n <= 23:
             errors.append(f"{tag}: daily length {n} not in [15, 23]")
-        text = "".join(hl) + m.get("rumor", "")
+        text = "".join(h["text"] for h in hl if isinstance(h, dict)) + m.get("rumor", "")
         for banned in ["建议买入", "建议卖出"]:
             if banned in text:
                 errors.append(f"{tag}: contains banned phrase {banned}")

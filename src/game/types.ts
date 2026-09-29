@@ -11,15 +11,33 @@ export interface DailyBar {
   r: Record<TradedId | "market", number>;
 }
 
+export type Tone = "bull" | "bear" | "neutral";
+
+export interface Headline {
+  text: string;
+  outlet: string;
+  /** Day of the previous month the item ran (headlines are already-known news). */
+  day: number;
+  tone: Tone;
+}
+
 export interface ScriptMonth {
   index: number;
   label: string;
-  headlines: string[];
+  headlines: Headline[];
   rumor: string;
   rumorIsSignal: boolean;
   hindsight: string;
   marketReturn: number;
   returns: Record<AssetId, number>;
+  daily: DailyBar[];
+}
+
+/** A month before the game starts (previous Nov/Dec), shown as chart context. */
+export interface PreMonth {
+  label: string;
+  marketReturn: number;
+  returns: Record<TradedId, number>;
   daily: DailyBar[];
 }
 
@@ -47,6 +65,7 @@ export interface Script {
   troughMonth: number;
   assets: ScriptAsset[];
   params: ScriptParams;
+  preMonths: PreMonth[];
   months: ScriptMonth[];
   benchmarks: { allInMarket: number; allCash: number; retailAvg: number; retailAvgNote: string };
   sources: { label: string; url: string }[];
