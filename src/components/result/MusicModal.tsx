@@ -9,6 +9,7 @@ import { DuetPlayer } from "@/music/player";
 import { DuetVisual } from "@/music/visual";
 import type { DailyPoint, RoundRecord, Script } from "@/game/types";
 import { shortMonth } from "@/lib/format";
+import { Pause, Play, X } from "lucide-react";
 
 declare global {
   interface Window {
@@ -189,7 +190,9 @@ export function MusicModal({
           听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
         </h2>
         <button type="button" onClick={onClose} className="h-9 px-3 rounded-md text-sub hover:text-ink hover:bg-card" aria-label="关闭">
-          关闭 ✕
+          <span className="inline-flex items-center gap-1">
+            关闭 <X size={16} strokeWidth={2} aria-hidden />
+          </span>
         </button>
       </div>
       <div ref={boxRef} className="relative flex-1 min-h-0 overflow-hidden grid place-items-center p-2 md:p-6" onClick={() => needTap && void play()}>
@@ -234,8 +237,8 @@ export function MusicModal({
               <circle cx="36" cy="36" r="33" fill="none" stroke="rgb(255 255 255 / 0.25)" strokeWidth="3" />
               <circle cx="36" cy="36" r="33" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeDasharray={2 * Math.PI * 33} strokeDashoffset={2 * Math.PI * 33 * (1 - Math.min(1, pos / Math.max(1, total)))} />
             </svg>
-            <span aria-hidden className="text-2xl">
-              {playing ? "❚❚" : "▶"}
+            <span aria-hidden className="grid place-items-center">
+              {playing ? <Pause size={26} fill="currentColor" strokeWidth={0} /> : <Play size={26} fill="currentColor" strokeWidth={0} className="translate-x-0.5" />}
             </span>
           </button>
           <CtlBtn onClick={stop}>停止</CtlBtn>

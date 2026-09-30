@@ -26,6 +26,8 @@ import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 
 const MusicModal = dynamic(() => import("./MusicModal").then((m) => m.MusicModal), { ssr: false });
 import { PersonaCard, PersonaPoster } from "./PersonaCard";
+import { Check } from "lucide-react";
+import { Emoji } from "@/components/ui/Emoji";
 const ReturnChart = dynamic(() => import("./ReturnChart").then((m) => m.ReturnChart), { ssr: false, loading: () => <ChartSkeleton height={320} /> });
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
@@ -52,7 +54,14 @@ function ShareButton({ variant, label, run, onDone }: { variant: "primary" | "ou
         } else onDone("复制失败");
       }}
     >
-      {ok ? "✓ 已完成" : label}
+      {ok ? (
+        <span className="inline-flex items-center gap-1">
+          <Check size={16} strokeWidth={2.4} aria-hidden />
+          已完成
+        </span>
+      ) : (
+        label
+      )}
     </MagneticButton>
   );
 }
@@ -222,11 +231,7 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
           </p>
           <button type="button" onClick={() => setMusic(true)} className="group mt-auto pt-6 text-left">
             <span className="flex items-center gap-3 rounded-xl border border-up/40 bg-up/10 px-4 py-4 transition-colors group-hover:bg-up/15">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FF4D4F" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
-                <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
-                <rect x="3" y="14" width="5" height="7" rx="1.5" />
-                <rect x="16" y="14" width="5" height="7" rx="1.5" />
-              </svg>
+              <Emoji art="headphone" char="🎧" size={36} className="transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
               <span>
                 <span className="block font-bold text-up">听听你的 {script.id}</span>
                 <span className="mt-0.5 block text-xs text-sub">资产曲线和大盘的二重奏，约 {Math.round(r.daily.length * 0.2)} 秒</span>

@@ -124,7 +124,7 @@ test("more settings: glass level 2, up/down colours, loupe off, accent, reduced 
   await expect(page.getByRole("dialog", { name: "阅读设置 · 玻璃质感" })).toBeVisible();
   await page.getByRole("radio", { name: /着色/ }).click();
   await expect(html).toHaveAttribute("data-glass", "tinted");
-  await page.getByRole("button", { name: /‹ 阅读设置/ }).click();
+  await page.getByRole("button", { name: "返回阅读设置" }).click();
   const upBefore = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-up").trim());
   await page.getByRole("radio", { name: "绿涨红跌" }).click();
   await expect(html).toHaveAttribute("data-updown", "intl");

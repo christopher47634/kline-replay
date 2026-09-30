@@ -132,6 +132,8 @@ export type PersonaId =
 export interface Persona {
   title: string;
   emoji: string;
+  /** Fluent emoji file in public/art/emoji (scripts/build_art.mjs); the Unicode emoji stays for share text */
+  art?: string;
   desc: string;
   quotes: string[];
   color: string;

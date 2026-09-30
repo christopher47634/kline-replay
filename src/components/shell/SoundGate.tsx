@@ -4,6 +4,7 @@ import { AnimatePresence, m as motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { setMuted } from "@/lib/mute";
 import { play, preloadSfx, unlockAudio } from "@/lib/sfx";
+import { Volume2 } from "lucide-react";
 
 const KEY = "kline:sound-asked";
 
@@ -69,7 +70,10 @@ export function SoundGate() {
           transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
           className="lg glass fixed right-2 top-[3.25rem] md:bottom-5 md:right-5 md:top-auto z-[80] rounded-full border border-line px-4 py-2 text-sm text-ink shadow-lg hover:border-gold"
         >
-          🔊 开启声音，体验更完整
+          <span className="inline-flex items-center gap-1.5">
+            <Volume2 size={16} strokeWidth={2} aria-hidden className="text-gold" />
+            开启声音，体验更完整
+          </span>
         </motion.button>
       )}
     </AnimatePresence>

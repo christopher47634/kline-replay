@@ -217,14 +217,8 @@
 .skin-card[aria-checked="true"] { border-color: var(--color-gold); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-gold) 18%, transparent); }
 .skin-card b { font-size: 15px; }
 .skin-card span:last-child { font-size: 12px; color: var(--color-sub); line-height: 1.4; }
-.skin-mini { height: 64px; border-radius: 9px; padding: 8px; display: grid; gap: 4px; align-content: start; overflow: hidden; }
-.skin-mini i { display: block; height: 5px; border-radius: 3px; }
-.mini-pan { background: #07090d; border: 1px solid #1c2431; grid-template-columns: 30% 1fr; gap: 4px 6px; }
-.mini-pan i { background: #1c2431; height: 4px; } .mini-pan i:nth-child(1) { grid-row: span 4; height: 100%; background: #0d1117; border: 1px solid #1c2431; } .mini-pan i:nth-child(2) { background: #f5b400; width: 60%; } .mini-pan i:nth-child(3) { background: #ff4d4f; width: 40%; } .mini-pan i:nth-child(4) { background: #3fb950; width: 50%; }
-.mini-paper { background: #f6f4ef; border: 1px solid #dfdbd1; }
-.mini-paper i { background: #17191e; opacity: 0.8; } .mini-paper i:nth-child(1) { width: 70%; height: 8px; } .mini-paper i:nth-child(2) { width: 90%; opacity: 0.3; } .mini-paper i:nth-child(3) { width: 60%; opacity: 0.3; } .mini-paper i:nth-child(4) { width: 40%; background: #2146ad; }
-.mini-plain { background: #fff; border: 1px solid #e8e6e0; padding: 12px 14px; gap: 6px; }
-.mini-plain i { background: #222; opacity: 0.25; } .mini-plain i:nth-child(1) { width: 55%; height: 7px; opacity: 0.8; } .mini-plain i:nth-child(2) { width: 85%; } .mini-plain i:nth-child(n + 4) { display: none; }
+.skin-shot { display: block; width: 100%; aspect-ratio: 49 / 32; height: auto; object-fit: cover; object-position: left top; border-radius: 9px; border: 1px solid var(--color-line); box-shadow: 0 4px 12px -6px rgb(0 0 0 / 0.35); transition: transform 0.35s var(--ease-out); }
+.skin-card:hover .skin-shot { transform: scale(1.03); }
 .opt { display: grid; gap: 6px; padding: 14px; border-radius: 14px; border: 1.5px solid var(--color-line); background: var(--color-bg); text-align: left; color: var(--color-ink); }
 .opt[aria-checked="true"] { border-color: var(--color-gold); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-gold) 18%, transparent); }
 .opt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--color-sub); }
@@ -310,9 +304,9 @@
 .sb-bar > i { display: block; height: 100%; background: var(--color-gold); transition: width 0.6s var(--ease-out); }
 
 /* ---------- 设置：玻璃样张（背后放一段有颜色的内容，才看得出折射） ---------- */
-.glass-demo { position: relative; height: 104px; border-radius: 14px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--color-line);
-  background: repeating-linear-gradient(118deg, var(--color-up) 0 7px, transparent 7px 20px, var(--color-gold) 20px 26px, transparent 26px 40px, var(--color-down) 40px 47px, transparent 47px 60px), var(--color-bg); }
-.glass-demo-t { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 800 44px/1 var(--font-mono); letter-spacing: -0.02em; color: var(--color-ink); text-shadow: 0 1px 0 var(--color-bg); }
+/* the backdrop is a real chart from the game (public/art/glass-bg.jpg), so the lens bends lines and numbers you know */
+.glass-demo { position: relative; height: 120px; border-radius: 14px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--color-line);
+  background: url("/art/glass-bg.jpg") center / cover no-repeat, #0e1219; }
 .glass-demo .lg { position: relative; width: 168px; height: 56px; border-radius: 28px; display: grid; place-items: center; font-weight: 600; font-size: 14px; color: var(--color-ink); transform: translateX(46px); }
 :root:is([data-glass="clear"], [data-glass="tinted"]) .glass-demo .lg.lg-press { transform: translateX(46px) scale(1.08); }
 .swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; vertical-align: -2px; margin-right: 6px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25); }

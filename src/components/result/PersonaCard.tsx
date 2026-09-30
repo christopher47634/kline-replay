@@ -8,6 +8,7 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import type { KeyMove } from "@/game/persona";
 import type { Persona, Rank } from "@/game/types";
 import { pct, upDownHex } from "@/lib/format";
+import { Emoji } from "@/components/ui/Emoji";
 
 /**
  * On-page persona card. It arrives face-down (a "?" and texture), and once it scrolls into view it flips (rotateY 180° → 0)
@@ -34,20 +35,20 @@ export function PersonaCard({ persona, quote, moves }: { persona: Persona; quote
         >
           {/* back face */}
           <div aria-hidden className="card-surface absolute inset-0 grid place-items-center" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden", backgroundImage: "repeating-linear-gradient(45deg, transparent 0 10px, rgb(255 255 255 / 0.025) 10px 11px)" }}>
-            <span className="font-display text-7xl text-mute">？</span>
+            <Emoji art="question" char="？" size={96} className="persona-back-mark opacity-80" />
           </div>
           {/* front face */}
           <div className="card-surface h-full p-5 md:p-7" style={{ backfaceVisibility: "hidden" }}>
             <p className="text-sm text-sub">你的投资人格</p>
             <div className="mt-3 flex items-center gap-4">
               <motion.span
-                className="inline-block text-5xl md:text-6xl"
+                className="persona-art inline-block shrink-0"
                 aria-hidden
                 initial={{ scale: reduce ? 1 : 0 }}
                 animate={{ scale: up ? 1 : reduce ? 1 : 0 }}
                 transition={{ delay: 0.95, type: "spring", stiffness: 260, damping: 11 }}
               >
-                {persona.emoji}
+                <Emoji art={persona.art} char={persona.emoji} size={72} />
               </motion.span>
               <div>
                 <Reveal as="h2" by="chars" inView delay={1.05} className="font-display text-3xl md:text-4xl" style={{ color: persona.color }}>
@@ -114,7 +115,9 @@ export function PersonaPoster({
       }}
     >
       <div style={{ fontSize: 30, color: "#8B95A3", letterSpacing: 2 }}>穿越 K 线 · {title}</div>
-      <div style={{ marginTop: 48, fontSize: 112, lineHeight: 1 }}>{persona.emoji}</div>
+      <div style={{ marginTop: 48, lineHeight: 1 }}>
+        <Emoji art={persona.art} char={persona.emoji} size={132} />
+      </div>
       <div style={{ marginTop: 28, fontSize: 96, fontWeight: 900, color: persona.color, lineHeight: 1.05 }}>{persona.title}</div>
       <div style={{ marginTop: 12, fontSize: 34, color: "#8B95A3" }}>{persona.desc}</div>
       <div style={{ marginTop: 44, fontSize: 40, lineHeight: 1.5, fontWeight: 500 }}>“{quote}”</div>

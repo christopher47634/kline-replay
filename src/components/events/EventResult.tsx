@@ -8,6 +8,7 @@ import { BUCKET_LABELS, outcome, scoreGame, titleOf } from "@/events/engine";
 import type { Guess, PreparedDeck, PreparedEvent } from "@/events/types";
 import { pct, upDownColor } from "@/lib/format";
 import { copyText, exportPng } from "@/lib/share";
+import { Check, X } from "lucide-react";
 
 export function EventResult({ deck, deckNo, code }: { deck: PreparedDeck; deckNo: number; code: string }) {
   const decoded = useMemo(() => decodeEvents(deck.id, code), [deck.id, code]);
@@ -93,7 +94,7 @@ function Body({ deck, cards: evs, guesses, code }: { deck: PreparedDeck; cards: 
           const g = guesses[i];
           return (
             <li key={e.id} className="p-4 flex items-start gap-3" data-testid="event-row">
-              <span className={`mt-0.5 grid place-items-center w-6 h-6 rounded-full text-sm font-bold shrink-0 ${c.dirOk ? "bg-down/20 text-down" : "bg-up/20 text-up"}`}>{c.dirOk ? "✓" : "✕"}</span>
+              <span className={`mt-0.5 grid place-items-center w-6 h-6 rounded-full text-sm font-bold shrink-0 ${c.dirOk ? "bg-down/20 text-down" : "bg-up/20 text-up"}`}>{c.dirOk ? <Check size={15} strokeWidth={2.8} aria-label="猜对" /> : <X size={15} strokeWidth={2.8} aria-label="猜错" />}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm">
                   <span className="num text-sub mr-2">{e.date}</span>

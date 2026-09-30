@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 import { getMuted } from "@/lib/mute";
 import { BARS, COPY, HEADLINES, linePath } from "./storyData";
+import { Music } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,8 +113,8 @@ export default function StoryPinned() {
               {["18%_22%", "46%_8%", "78%_58%"].map((pos) => {
                 const [l, t] = pos.split("_");
                 return (
-                  <span key={pos} data-note className="absolute text-2xl text-gold" style={{ left: l, top: t }}>
-                    ♪
+                  <span key={pos} data-note className="absolute text-gold" style={{ left: l, top: t }}>
+                    <Music size={22} strokeWidth={2.2} aria-hidden />
                   </span>
                 );
               })}

@@ -14,6 +14,8 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import { composePhrase } from "@/music/compose";
 import { PhrasePlayer } from "@/music/phrase";
 import { EventChart } from "./EventChart";
+import { Check } from "lucide-react";
+import { Emoji } from "@/components/ui/Emoji";
 
 /** Swipe distance (px) that commits a guess on phones. */
 const SWIPE = 80;
@@ -162,7 +164,7 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
             得分 <b className="num text-gold">{total}</b>
           </span>
           <span className={streak >= 2 ? "text-up font-bold" : "text-sub"} data-testid="event-streak">
-            {streak >= 2 ? "🔥" : ""}连对 ×{streak}
+            {streak >= 2 && <Emoji art="fire" char="🔥" size={18} className="-mt-0.5 mr-0.5 inline-block align-middle" />}连对 ×{streak}
           </span>
         </span>
       </div>
@@ -277,7 +279,7 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
               </p>
               <p className="text-sub mt-0.5">
                 你猜{guesses[i].up ? "涨" : "跌"}
-                {guesses[i].bucket !== null && <>，幅度「{BUCKET_LABELS[guesses[i].bucket!]}」{cardScore.bucketOk ? "✓" : `（实际「${BUCKET_LABELS[out.bucket]}」）`}</>}
+                {guesses[i].bucket !== null && <>，幅度「{BUCKET_LABELS[guesses[i].bucket!]}」{cardScore.bucketOk ? <Check size={15} strokeWidth={2.6} aria-label="对" className="ml-0.5 inline-block align-[-2px] text-down" /> : `（实际「${BUCKET_LABELS[out.bucket]}」）`}</>}
                 {cardScore.bonus > 0 && <span className="text-up ml-2">连对加成 +{cardScore.bonus}</span>}
               </p>
             </div>

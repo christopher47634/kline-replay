@@ -2,6 +2,7 @@
 
 import { ACCENTS, FONTS, GLASSES, LEADINGS, SCALES, SKINS, VOICES, resetPrefs, resolve, setPrefs, skinMeta, usePrefs } from "@/lib/prefs";
 import { Drawer, useDrawer } from "./Drawer";
+import { ChevronRight } from "lucide-react";
 
 /** The 阅读设置 drawer itself: loaded on first open so it stays out of every page's first-load bundle. */
 export default function SettingsDrawer({ onClose }: { onClose: () => void }) {
@@ -24,11 +25,7 @@ function Seg<T extends string | number>({ label, value, items, onPick }: { label
   );
 }
 
-const Chevron = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="text-sub">
-    <path d="m9 6 6 6-6 6" />
-  </svg>
-);
+const Chevron = () => <ChevronRight size={17} strokeWidth={2} aria-hidden className="text-sub" />;
 
 function Body() {
   const p = usePrefs();
@@ -42,12 +39,9 @@ function Body() {
         <div className="skin-cards" role="radiogroup" aria-label="主题">
           {SKINS.map((k) => (
             <button key={k.id} type="button" role="radio" aria-checked={p.skin === k.id} className="skin-card press" onClick={() => setPrefs({ skin: k.id })}>
-              <span className={`skin-mini mini-${k.id}`} aria-hidden>
-                <i />
-                <i />
-                <i />
-                <i />
-              </span>
+              {/* a real screenshot of the board in that skin (scripts/shoot_skins.mjs), not a mock-up */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="skin-shot" src={`/art/skin-${k.id}.jpg`} alt="" aria-hidden width={294} height={192} loading="lazy" draggable={false} />
               <b>{k.name}</b>
               <span>{k.who}</span>
             </button>
@@ -208,7 +202,6 @@ function GlassPage() {
   return (
     <>
       <div className="glass-demo" aria-hidden>
-        <span className="glass-demo-t num">5178.19</span>
         <span className="lg">
           <span>按住试试</span>
         </span>

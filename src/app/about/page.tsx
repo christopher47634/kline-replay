@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Emoji } from "@/components/ui/Emoji";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/Reveal";
 import { PERSONAS } from "@/game/persona";
@@ -71,7 +72,7 @@ export default function About() {
             {RULES.map((r) => (
               <tr key={r.id} className="border-t border-line align-top transition-shadow duration-150 hover:shadow-[inset_4px_0_0_var(--color-gold)]">
                 <td className="py-2.5 pr-4 whitespace-nowrap font-medium">
-                  {PERSONAS[r.id].emoji} {PERSONAS[r.id].title}
+                  <span className="inline-flex items-center gap-2"><Emoji art={PERSONAS[r.id].art} char={PERSONAS[r.id].emoji} size={22} />{PERSONAS[r.id].title}</span>
                 </td>
                 <td className="py-2.5 text-ink/90">{r.rule}</td>
               </tr>

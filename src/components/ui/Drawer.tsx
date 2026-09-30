@@ -2,6 +2,7 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { ChevronLeft, X as XIcon } from "lucide-react";
 
 /*
  * Two-level drawer (二级抽屉): phones get a bottom sheet, desktops a right-hand panel.
@@ -20,11 +21,7 @@ export interface DrawerPage {
 const Ctx = createContext<{ push: (p: DrawerPage) => void; pop: () => void }>({ push: () => {}, pop: () => {} });
 export const useDrawer = () => useContext(Ctx);
 
-const X = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-    <path d="M6 6l12 12M18 6 6 18" />
-  </svg>
-);
+const X = () => <XIcon size={19} strokeWidth={1.9} aria-hidden />;
 
 export function Drawer({ open, onClose, title, label, children }: { open: boolean; onClose: () => void; title: string; label?: ReactNode; children: ReactNode }) {
   const [sub, setSub] = useState<DrawerPage | null>(null);
@@ -106,8 +103,9 @@ export function Drawer({ open, onClose, title, label, children }: { open: boolea
             <section className="drawer-layer drawer-l2 is-top" key={sub.key}>
               <header className="drawer-head">
                 <div>
-                  <button type="button" className="drawer-back" onClick={pop}>
-                    ‹ {title}
+                  <button type="button" className="drawer-back" onClick={pop} aria-label={`返回${title}`}>
+                    <ChevronLeft size={16} strokeWidth={2.2} aria-hidden className="-ml-1" />
+                    {title}
                   </button>
                   {sub.label && <div className="drawer-label">{sub.label}</div>}
                   <h2 className="drawer-title">{sub.title}</h2>

@@ -9,6 +9,7 @@ import { TiltCard } from "@/components/motion/TiltCard";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { navigateWithTransition } from "@/lib/viewTransition";
 import spark from "@/components/hero/spark.json";
+import { Star } from "lucide-react";
 
 const SCRIPTS = [
   { id: "2015", title: "2015：疯牛与股灾", note: "沪指 3200 → 5178 → 2850", stars: 4, minutes: 6, open: true },
@@ -49,8 +50,12 @@ export function ScriptCards({ board }: { board: boolean }) {
               {s.open ? (
                 <p className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-sub">
                   <span>
-                    难度 <span className="text-gold">{"★".repeat(s.stars)}</span>
-                    <span className="text-line">{"★".repeat(5 - s.stars)}</span>
+                    难度{" "}
+                    <span className="inline-flex translate-y-[2px] gap-px" role="img" aria-label={`${s.stars} 星（满分 5）`}>
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <Star key={i} size={12} strokeWidth={0} fill="currentColor" className={i < s.stars ? "text-gold" : "text-line"} />
+                      ))}
+                    </span>
                   </span>
                   <span>约 {s.minutes} 分钟</span>
                   {board && <BoardCount scriptId={s.id} />}

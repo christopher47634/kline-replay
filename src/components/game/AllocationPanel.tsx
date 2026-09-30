@@ -6,6 +6,7 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import { allCash, allocSum } from "@/game/engine";
 import { ASSET_IDS, type Allocation, type AssetId, type ScriptAsset } from "@/game/types";
 import { tick } from "@/lib/sfx";
+import { TriangleAlert } from "lucide-react";
 
 const RISK_STYLE: Record<string, string> = {
   无: "bg-line text-sub",
@@ -193,9 +194,7 @@ export const AllocationPanel = forwardRef<
             </div>
             {a.id === "margin" && value.margin > 0 && (
               <p className="mt-1.5 flex items-center gap-1.5 text-xs text-up/90">
-                <span aria-hidden className={reduce ? "" : "animate-pulse"}>
-                  ⚠
-                </span>
+                <TriangleAlert size={14} strokeWidth={2.2} aria-hidden className={`shrink-0 ${reduce ? "" : "animate-pulse"}`} />
                 2 倍杠杆，年息 8.4%，亏 50% 强平
               </p>
             )}

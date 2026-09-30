@@ -64,28 +64,20 @@ export function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; 
   );
 }
 
-/** The forum veteran: eyes squint, and every ~3 s they go wide for a beat. */
+/**
+ * The forum veteran, an Open Peeps illustration (Pablo Stanley, CC0; scripts/build_art.mjs): a suspicious look, and
+ * every ~3 s a double take (the "awe" face) for a beat. Two stacked images, the second shown by the laoge-eyes keyframes.
+ */
 function Laoge() {
   const { reduce } = useMotionPref();
   return (
-    <svg viewBox="0 0 64 64" width={36} height={36} fill="none" aria-hidden className="rounded-full">
-      <rect width="64" height="64" rx="32" fill="#1C2430" />
-      <g fill="#8B95A3">
-        <path d="M17 26c1-8 7-13 15-13s14 5 15 13z" />
-        <path d="M14 26.5h36c1.4 0 2 .9 1.4 1.8-.5.8-1.4 1.2-2.4 1.2H15c-1 0-1.9-.4-2.4-1.2-.6-.9 0-1.8 1.4-1.8z" />
-        <path d="M20 30h24c0 9-5 15-12 15s-12-6-12-15z" />
-        <path d="M10 64c1-10 9-16 22-16s21 6 22 16z" />
-      </g>
-      <g className={reduce ? "" : "laoge-eyes"}>
-        <path className="eyes-squint" d="M25 34.5h4M35 34.5h4" stroke="#1C2430" strokeWidth="1.6" strokeLinecap="round" />
-        <g className="eyes-wide" fill="#1C2430">
-          <circle cx="27" cy="34.5" r="2" />
-          <circle cx="37" cy="34.5" r="2" />
-        </g>
-      </g>
-      <path d="M29 40.5c1.5.8 3.5.8 5 0" stroke="#1C2430" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M33.5 40.2l9-2.6" stroke="#E6E8EB" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
+    // Open Peeps are black-ink drawings: a warm paper disc keeps the hat and hair readable on the dark skin
+    <span aria-hidden className={`laoge relative block h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#efe6d2] ring-1 ring-line ${reduce ? "" : "laoge-eyes"}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/art/laoge.svg" alt="" width={40} height={40} className="eyes-squint absolute inset-0 h-full w-full" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/art/laoge-wow.svg" alt="" width={40} height={40} className="eyes-wide absolute inset-0 h-full w-full" />
+    </span>
   );
 }
 

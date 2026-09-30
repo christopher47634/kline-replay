@@ -2,6 +2,7 @@
   "leverage_maniac": {
     "title": "杠杆狂人",
     "emoji": "🎢",
+    "art": "roller-coaster",
     "desc": "借来的钱最香",
     "quotes": [
       "别人炒股用闲钱，你炒股用的是券商的钱。",
@@ -13,6 +14,7 @@
   "top_escaper": {
     "title": "逃顶大师",
     "emoji": "🪂",
+    "art": "parachute",
     "desc": "在最热闹的时候悄悄离场",
     "quotes": [
       "你减仓的那一刻，营业部还在排队开户。",
@@ -24,6 +26,7 @@
   "bottom_hunter": {
     "title": "抄底猎人",
     "emoji": "🎯",
+    "art": "bullseye",
     "desc": "千股跌停时你在进场",
     "quotes": [
       "满屏绿油油的那天，你默默点了买入。",
@@ -35,6 +38,7 @@
   "chaser": {
     "title": "追涨型冒险家",
     "emoji": "🏄",
+    "art": "surfer",
     "desc": "哪里热闹去哪里",
     "quotes": [
       "连涨两个月你就坐不住了，股吧的气氛你最懂。",
@@ -46,6 +50,7 @@
   "scared_bird": {
     "title": "惊弓之鸟",
     "emoji": "🐦",
+    "art": "bird",
     "desc": "亏一次就缩回现金",
     "quotes": [
       "一根大阴线，你就连夜把仓位换成了货基。",
@@ -57,6 +62,7 @@
   "diamond_hands": {
     "title": "钻石手",
     "emoji": "💎",
+    "art": "gem",
     "desc": "认准了就不动",
     "quotes": [
       "千股跌停也好，万人开户也罢，你的仓位纹丝不动。",
@@ -68,6 +74,7 @@
   "drifter": {
     "title": "随波逐流者",
     "emoji": "🌊",
+    "art": "wave",
     "desc": "跟着感觉走",
     "quotes": [
       "你的仓位像营业部的广播，今天一个说法明天一个。",
