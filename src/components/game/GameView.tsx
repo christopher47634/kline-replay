@@ -59,7 +59,7 @@ export function GameView({ script }: { script: Script }) {
   }, [useGame]);
 
   // Historical-moment card: shown once per round, before the allocation panel (remembered across reloads).
-  const momentKey = (m: number) => `kline-moment:${script.id}:${m}`;
+  const momentKey = (m: number) => `kline-moment:${script.blind ? "blind-" : ""}${script.id}:${m}`;
   const [momentDone, setMomentDone] = useState<Record<number, boolean>>({});
   const seen = (m: number) => {
     if (momentDone[m]) return true;
@@ -70,7 +70,8 @@ export function GameView({ script }: { script: Script }) {
     }
   };
   const valid = isValidAlloc(st.draft);
-  const resultHref = `/result?s=${encodeGame(script.id, st.history.map((h) => h.alloc))}`;
+  // 盲盒: the result page first asks which year it was, then reveals it
+  const resultHref = `/result?s=${encodeGame(script.id, st.history.map((h) => h.alloc))}${script.blind ? "&blind=1" : ""}`;
 
   // Next month: the button says "结算中…" for ~0.5 s, then the page turns to the new month (status flip, chart segment)
   // and only then does the settle dialog rise from the button. A liquidation plays its full screen effect first.

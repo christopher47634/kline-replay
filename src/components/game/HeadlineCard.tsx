@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import type { Headline, Tone } from "@/game/types";
 
@@ -41,7 +41,7 @@ function Typed({ text, ms = 400, delay = 0 }: { text: string; ms?: number; delay
 }
 
 /** A headline: tone-colored bar (3px → 5px on hover), outlet, and a date stamp in the (already past) previous month. */
-export function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; lead?: boolean; monthNo: number }) {
+export const HeadlineCard = memo(function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; lead?: boolean; monthNo: number }) {
   const stamp = `${monthNo}月${headline.day}日`;
   return (
     <article className="spot group relative overflow-hidden rounded-xl border border-line bg-card py-3 pl-4 pr-4 transition-[transform,background-color,border-color] duration-150 hover:-translate-y-0.5 hover:bg-elev hover:border-mute" style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi)" }}>
@@ -62,7 +62,7 @@ export function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; 
       <span className="sr-only">{TONE_LABEL[headline.tone]}</span>
     </article>
   );
-}
+});
 
 /**
  * The forum veteran, an Open Peeps illustration (Pablo Stanley, CC0; scripts/build_art.mjs): a suspicious look, and
@@ -81,7 +81,7 @@ function Laoge() {
   );
 }
 
-export function RumorCard({ text }: { text: string }) {
+export const RumorCard = memo(function RumorCard({ text }: { text: string }) {
   return (
     <article className="spot rounded-xl border border-dashed border-line bg-card p-4">
       <div className="flex items-center gap-3">
@@ -93,4 +93,4 @@ export function RumorCard({ text }: { text: string }) {
       <p className="mt-2 text-xs text-sub">可能是真的，也可能是噪音</p>
     </article>
   );
-}
+});

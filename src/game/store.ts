@@ -44,7 +44,9 @@ const stores = new Map<string, GameStoreHook>();
 
 /** One persisted store per script, key `kline-replay:{scriptId}`. */
 export function gameStore(script: Script) {
-  const hit = stores.get(script.id);
+  // 盲盒 games save separately: playing 2008 blind must not resume (or spoil) a normal 2008 game
+  const slot = script.blind ? `blind-${script.id}` : script.id;
+  const hit = stores.get(slot);
   if (hit) return hit;
   const s = create<GameStore>()(
     persist(
@@ -79,10 +81,10 @@ export function gameStore(script: Script) {
         },
         reset: () => set({ ...initial(script) }),
       }),
-      { name: storageKey(script.id), storage: createJSONStorage(() => localStorage), version: 1 },
+      { name: storageKey(slot), storage: createJSONStorage(() => localStorage), version: 1 },
     ),
   );
-  stores.set(script.id, s as GameStoreHook);
+  stores.set(slot, s as GameStoreHook);
   return s as GameStoreHook;
 }
 

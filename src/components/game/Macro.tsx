@@ -15,12 +15,17 @@ import { Spark } from "@/components/ui/Spark";
  */
 
 const mLabel = (m: string) => `${+m.slice(5)} 月`;
-const yLabel = (m: string) => `${m.slice(0, 4)} 年 ${+m.slice(5)} 月`;
+/** "2015 年 1 月"; in 盲盒 mode the year becomes 今年 / 去年 so the drawer does not give it away. */
+const yl = (script: Script, m: string) => {
+  if (!script.blind) return `${m.slice(0, 4)} 年 ${+m.slice(5)} 月`;
+  const d = Number(m.slice(0, 4)) - Number(script.id);
+  return `${d === 0 ? "今年" : d === -1 ? "去年" : d === -2 ? "前年" : "那年"} ${+m.slice(5)} 月`;
+};
 
 function useMacroDrawer(script: Script, round: number) {
   const [open, setOpen] = useState(false);
   const drawer = (
-    <Drawer open={open} onClose={() => setOpen(false)} title="宏观与资金面" label={`${yLabel(roundMonth(script.id, round))}初 · 当时已经公布的数据`}>
+    <Drawer open={open} onClose={() => setOpen(false)} title="宏观与资金面" label={`${yl(script, roundMonth(script.id, round))}初 · 当时已经公布的数据`}>
       <Overview script={script} round={round} />
     </Drawer>
   );
@@ -89,7 +94,7 @@ function Detail({ s, script, round }: { s: MacroSeries; script: Script; round: n
     <>
       <Spark rows={rows.map((r) => r.v)} base={s.base} big future={s.rows.length - rows.length} />
       <p className="dr-note">
-        {s.note}。本回合开始时，最新能看到的是 {yLabel(cutoff)} 的数据；虚线之后是还没公布的月份。
+        {s.note}。本回合开始时，最新能看到的是 {yl(script, cutoff)} 的数据；虚线之后是还没公布的月份。
         {position(rows) ? ` 最新值处在${position(rows)!.text.replace("近", "最近 ")}的位置。` : ""}
       </p>
       <table className="vr-table num">
@@ -102,7 +107,7 @@ function Detail({ s, script, round }: { s: MacroSeries; script: Script; round: n
         <tbody>
           {[...rows].reverse().map((r) => (
             <tr key={r.m}>
-              <td>{yLabel(r.m)}</td>
+              <td>{yl(script, r.m)}</td>
               <td className="r font-bold">{fmtMacro(s, r.v)}</td>
             </tr>
           ))}
@@ -163,7 +168,7 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
               <span className="block truncate text-[11px] text-sub">{s.name}</span>
               <span className="num block text-sm font-bold">
                 {last ? (
-                  <span data-zoom data-zoom-label={`${s.name} · ${yLabel(last.m)}`}>
+                  <span data-zoom data-zoom-label={`${s.name} · ${yl(script, last.m)}`}>
                     {fmtMacro(s, last.v)}
                   </span>
                 ) : (
@@ -196,7 +201,7 @@ function Pos({ rows }: { rows: { m: string; v: number }[] }) {
 function Calendar({ script, round, compact = false }: { script: Script; round: number; compact?: boolean }) {
   const due = dueThisRound(script.id, round);
   if (!due.length) return null;
-  const month = yLabel(roundMonth(script.id, round));
+  const month = yl(script, roundMonth(script.id, round));
   if (compact)
     return (
       <div className="cal mt-3" data-testid="calendar">
@@ -218,7 +223,7 @@ function Calendar({ script, round, compact = false }: { script: Script; round: n
         {due.map((d) => (
           <li key={d.id}>
             <span>
-              {yLabel(d.m)} {d.name}
+              {yl(script, d.m)} {d.name}
             </span>
             <span className="text-sub">{d.when}</span>
           </li>

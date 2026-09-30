@@ -4,6 +4,7 @@ import { AnimatePresence, m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BlindReveal } from "./BlindReveal";
 import { celebrate } from "@/lib/celebrate";
 import { MagneticButton } from "@/components/motion/Magnetic";
 import { Odometer } from "@/components/motion/Odometer";
@@ -32,9 +33,40 @@ const ReturnChart = dynamic(() => import("./ReturnChart").then((m) => m.ReturnCh
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
 /** `script` is looked up on the server from the code, so only that year's data reaches the browser. */
-export function ResultView({ code, script, boardOn, openMusic = false }: { code: string; script: Script | null; boardOn: boolean; openMusic?: boolean }) {
+export function ResultView({
+  code,
+  script,
+  boardOn,
+  openMusic = false,
+  blind = false,
+  years = [],
+}: {
+  code: string;
+  script: Script | null;
+  boardOn: boolean;
+  openMusic?: boolean;
+  /** straight after a 盲盒 game: ask which year it was before showing anything that names it */
+  blind?: boolean;
+  years?: string[];
+}) {
   const decoded = useMemo(() => decodeGame(code), [code]);
+  const [revealed, setRevealed] = useState(!blind);
   if (!decoded.ok || !script || script.id !== decoded.scriptId) return <InvalidLink reason={decoded.ok ? "剧本不存在" : decoded.error} />;
+  if (!revealed)
+    return (
+      <BlindReveal
+        years={years}
+        answer={script.id}
+        title={script.title}
+        subtitle={script.subtitle}
+        ret={totalReturn(script, playAll(script, decoded.allocs))}
+        onDone={() => {
+          setRevealed(true);
+          window.history.replaceState(null, "", `/result?s=${encodeURIComponent(code)}`); // a reload or a shared link shows the result directly
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
   return <Result code={code} script={script} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} />;
 }
 

@@ -58,7 +58,7 @@ export function Intro({ script, onStart }: { script: Script; onStart: () => void
           style={{ boxShadow: "inset 0 0 0 2px rgb(179 38 30 / 0.35)" }}
         >
           <p className="text-[10px] tracking-[0.3em]">档案编号</p>
-          <p className="num text-xl font-black tracking-widest">{script.id}-01</p>
+          <p className="num text-xl font-black tracking-widest">{script.blind ? "????" : script.id}-01</p>
         </motion.div>
 
         <div className="relative mx-auto max-w-[720px] px-6 py-20 md:py-28">

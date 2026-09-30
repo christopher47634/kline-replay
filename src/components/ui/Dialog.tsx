@@ -37,6 +37,9 @@ export function Dialog({
     return { x: t.left + t.width / 2 - r.left, y: t.top + t.height / 2 - r.top };
   };
 
+  // unmounted while open (e.g. the page navigates to the result): give the custom cursor back
+  useEffect(() => () => document.documentElement.classList.remove("dialog-open"), []);
+
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -49,6 +52,7 @@ export function Dialog({
       setMounted(true);
       closing.current = false;
       if (!d.open) d.showModal();
+      document.documentElement.classList.add("dialog-open"); // native cursor while the dialog is up (globals.css)
       if (!reduce) {
         const o = originOffset(d);
         if (o) d.style.transformOrigin = `${o.x}px ${o.y}px`;
@@ -58,6 +62,7 @@ export function Dialog({
       closing.current = true;
       const finish = () => {
         d.close();
+        document.documentElement.classList.remove("dialog-open");
         d.getAnimations().forEach((a) => a.cancel());
         setMounted(false);
         closing.current = false;

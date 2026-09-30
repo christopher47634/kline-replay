@@ -6,6 +6,16 @@
  * 系统或设置里「减少动效」时全部静止。
  * ========================================================= */
 
+/* Variables written on every pointer move are registered as non-inherited: changing one restyles that element
+   only, not its whole subtree (unregistered custom properties inherit, which made each mouse move restyle every
+   card's contents). */
+@property --sx { syntax: "*"; inherits: false; }
+@property --sy { syntax: "*"; inherits: false; }
+@property --px { syntax: "*"; inherits: false; }
+@property --py { syntax: "*"; inherits: false; }
+@property --dx { syntax: "*"; inherits: false; }
+@property --dy { syntax: "*"; inherits: false; }
+
 /* ---------- 聚光卡片（Magic Card）：光标所在的面板里跟着一团柔光，边框亮起一段 ---------- */
 .card-surface:not(.absolute), .spot { position: relative; isolation: isolate; }
 :is(.card-surface, .spot)::after {
@@ -27,14 +37,15 @@
 html body { background: transparent; }
 
 /* ---------- 点阵底纹（Dot Pattern）：盘面空白处一层很淡的点阵，光标附近的点亮起来 ---------- */
-.dotfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-.dotfield::before, .dotfield::after { content: ""; position: absolute; inset: 0; background-size: 24px 24px; }
-.dotfield::before { background-image: radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1.3px); mask-image: linear-gradient(180deg, #000, transparent 85%); }
-.dotfield::after {
-  background-image: radial-gradient(color-mix(in oklab, var(--color-gold) 70%, white) 1px, transparent 1.4px);
-  -webkit-mask-image: radial-gradient(170px circle at var(--dx, -500px) var(--dy, -500px), rgb(0 0 0 / 0.55), transparent 75%);
-  mask-image: radial-gradient(170px circle at var(--dx, -500px) var(--dy, -500px), rgb(0 0 0 / 0.55), transparent 75%);
-}
+.dotfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.dotfield::before { content: ""; position: absolute; inset: 0; background-size: 24px 24px; background-image: radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1.3px); mask-image: linear-gradient(180deg, #000, transparent 85%); }
+/* The lit dots near the pointer: a 340px round window moved with `transform`, holding a full-screen layer of bright
+   dots moved the opposite way so the dots stay put. Both moves are compositor-only: no repaint per mouse move
+   (a mask following --dx/--dy repainted the whole screen every frame). */
+.dot-lens { position: absolute; left: 0; top: 0; width: 340px; height: 340px; border-radius: 50%; overflow: hidden; will-change: transform; transform: translate3d(-600px, -600px, 0);
+  -webkit-mask-image: radial-gradient(circle, rgb(0 0 0 / 0.55), transparent 72%); mask-image: radial-gradient(circle, rgb(0 0 0 / 0.55), transparent 72%); }
+.dot-lens > i { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; will-change: transform; background-size: 24px 24px;
+  background-image: radial-gradient(color-mix(in oklab, var(--color-gold) 70%, white) 1px, transparent 1.4px); }
 :root:is([data-skin="paper"], [data-skin="plain"]) .dotfield::before { background-image: radial-gradient(rgb(23 25 30 / 0.07) 1px, transparent 1.3px); }
 :root[data-skin="plain"] .dotfield { display: none; }
 
@@ -45,13 +56,16 @@ html body { background: transparent; }
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0) border-box;
 }
+/* A conic light spinning behind the ring mask: `transform` runs on the compositor, so the beam costs the main thread
+   nothing per frame (the earlier offset-path version restyled the button 60 times a second). */
 .beam::before {
-  content: ""; position: absolute; width: 90px; aspect-ratio: 1;
-  offset-path: rect(0 auto auto 0 round 14px); offset-anchor: 100% 50%;
-  background: linear-gradient(to left, rgb(255 255 255 / 0.95), color-mix(in oklab, var(--beam, var(--color-gold)) 60%, white), transparent);
-  animation: beam-run 4.8s linear infinite;
+  content: ""; position: absolute; left: 50%; top: 50%; width: max(220%, 420px); aspect-ratio: 1;
+  background: conic-gradient(from 0deg, transparent 0 80%, color-mix(in oklab, var(--beam, var(--color-gold)) 60%, white) 91%, rgb(255 255 255 / 0.95) 97%, transparent 100%);
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: beam-spin 4.8s linear infinite;
+  will-change: transform;
 }
-@keyframes beam-run { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+@keyframes beam-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 /* ---------- 流光按钮（Shimmer / Shine）：悬停时一道斜光扫过 ---------- */
 .shine { position: relative; overflow: hidden; isolation: isolate; }
@@ -104,8 +118,10 @@ html body { background: transparent; }
 .bar-grow.from-left { transform-origin: left center; } .bar-grow.from-right { transform-origin: right center; }
 @keyframes bar-grow { from { transform: scaleX(0.05); } to { transform: none; } }
 /* 状态栏：当前月的进度格呼吸；换月时一道光扫过整条 */
-.sb-ticks i.now { animation: tick-breathe 2.4s ease-in-out infinite; }
-@keyframes tick-breathe { 50% { box-shadow: 0 0 14px color-mix(in oklab, var(--color-gold) 85%, transparent); } }
+/* the glow is a pseudo-element whose opacity breathes (compositor-only, unlike an animated box-shadow) */
+.sb-ticks i.now { position: relative; }
+.sb-ticks i.now::after { content: ""; position: absolute; inset: -3px -2px; border-radius: 4px; box-shadow: 0 0 12px color-mix(in oklab, var(--color-gold) 85%, transparent); opacity: 0; animation: tick-breathe 2.4s ease-in-out infinite; }
+@keyframes tick-breathe { 50% { opacity: 1; } }
 :root .lg > .sb-sweep { position: absolute !important; z-index: 1 !important; }
 .sb-sweep { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
 .sb-sweep::after { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-gold) 22%, transparent), transparent); animation: sb-sweep 1.1s var(--ease-out) 0.15s both; }
@@ -116,9 +132,26 @@ html body { background: transparent; }
 .donut circle { transition: stroke-dasharray 0.5s var(--ease-out), stroke-dashoffset 0.5s var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {
-  .beam, .dotfield::after { display: none; }
-  .shine::after, .shimmer-text, .tfx > span, .stagger > *, .drawer-body > *, .bar-grow, .sb-ticks i.now, .sb-sweep::after { animation: none !important; }
+  .beam, .dot-lens { display: none; }
+  .shine::after, .shimmer-text, .tfx > span, .stagger > *, .drawer-body > *, .bar-grow, .sb-ticks i.now::after, .sb-sweep::after, .beam::before { animation: none !important; }
   .shimmer-text { -webkit-text-fill-color: currentColor; background: none; }
 }
-:root[data-motion="reduce"] .beam, :root[data-motion="reduce"] .dotfield::after { display: none; }
+:root[data-motion="reduce"] .beam, :root[data-motion="reduce"] .dot-lens { display: none; }
 :root[data-motion="reduce"] .shimmer-text { -webkit-text-fill-color: currentColor; background: none; }
+
+/* 盲盒卡片：问号轻轻浮动 */
+.mystery-float { animation: mystery-float 3.2s ease-in-out infinite; }
+@keyframes mystery-float { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .mystery-float { animation: none; } }
+
+/* ---------- 流畅度保底（lib/perf.ts）：设备跟不上时自动降档，本次访问有效 ---------- */
+/* 1 档：跟着指针走的光效和玻璃折射 */
+:root[data-perf] .dot-lens,
+:root[data-perf] :is(.card-surface, .spot)::before,
+:root[data-perf] :is(.card-surface, .spot)::after { display: none; }
+:root[data-perf][data-glass="clear"] .lg { -webkit-backdrop-filter: blur(4px) saturate(160%) !important; backdrop-filter: blur(4px) saturate(160%) !important; }
+:root[data-perf][data-glass="tinted"] .lg { -webkit-backdrop-filter: blur(12px) saturate(160%) !important; backdrop-filter: blur(12px) saturate(160%) !important; }
+/* 2 档：一直在动的装饰 */
+:root[data-perf="2"] :is(.beam, .sb-sweep) { display: none; }
+:root[data-perf="2"] .shine::after, :root[data-perf="2"] .sb-ticks i.now::after,
+:root[data-perf="2"] :is(.tfx > span, .stagger > *, .drawer-body > *, .mystery-float) { animation: none !important; }

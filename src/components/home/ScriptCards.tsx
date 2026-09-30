@@ -10,6 +10,9 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import { navigateWithTransition } from "@/lib/viewTransition";
 import spark from "@/components/hero/spark.json";
 import { Star } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Emoji } from "@/components/ui/Emoji";
+import { mysterySlug } from "@/lib/blind";
 
 const SCRIPTS = [
   // chronological, like a timeline
@@ -34,6 +37,8 @@ export function ScriptCards({ board }: { board: boolean }) {
   const [tip, setTip] = useState(false);
 
   return (
+    <>
+    <MysteryCard ids={SCRIPTS.filter((s) => s.open).map((s) => s.id)} />
     <div className="mt-6 grid gap-6 md:grid-cols-3">
       {SCRIPTS.map((s, i) => {
         const body = (
@@ -112,6 +117,50 @@ export function ScriptCards({ board }: { board: boolean }) {
           </motion.div>
         );
       })}
+    </div>
+    </>
+  );
+}
+
+const LAST_MYSTERY = "kline:last-mystery";
+
+/**
+ * 盲盒模式: a random year with the year hidden (lib/blind.ts). Never the same box twice in a row.
+ * The link is an opaque slug, so hovering it does not give the year away either.
+ */
+function MysteryCard({ ids }: { ids: string[] }) {
+  const router = useRouter();
+  const open = () => {
+    let last: string | null = null;
+    try {
+      last = localStorage.getItem(LAST_MYSTERY);
+    } catch {
+      /* private mode */
+    }
+    const pool = ids.map(mysterySlug).filter((s) => s !== last);
+    const slug = pool[Math.floor(Math.random() * pool.length)];
+    try {
+      localStorage.setItem(LAST_MYSTERY, slug);
+    } catch {
+      /* ignore */
+    }
+    router.push(`/mystery/${slug}`);
+  };
+  return (
+    <div className="card-surface mt-6 flex flex-col gap-5 p-6 md:flex-row md:items-center md:p-7" data-testid="mystery-card">
+      <Emoji art="question" char="❓" size={64} className="mystery-float shrink-0" />
+      <div className="flex-1">
+        <p className="flex items-center gap-2 font-display text-2xl">
+          盲盒模式
+          <span className="rounded-full bg-gold/15 px-2 py-0.5 font-sans text-xs text-gold">新玩法</span>
+        </p>
+        <p className="mt-1.5 text-sm leading-relaxed text-sub">
+          随机抽一年，年份保密：头条里能认出年份的名字都换了说法，点位换算成起点 = 100。玩完 12 个月，先猜这是哪一年，再揭晓。考的是判断，不是记性。
+        </p>
+      </div>
+      <Button className="shine relative h-12 shrink-0 px-7 text-base" onClick={open}>
+        开一个盲盒
+      </Button>
     </div>
   );
 }

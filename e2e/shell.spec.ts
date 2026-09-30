@@ -124,3 +124,26 @@ test("light skins: the cursor dot is dark and solid, the ring dark", async ({ pa
   expect(s).toEqual({ bg: "rgb(23, 25, 30)", blend: "normal" });
   expect(await page.locator(".cur-ring").evaluate((el) => getComputedStyle(el).borderTopColor)).toMatch(/rgba\(23, 25, 30/);
 });
+
+test("流畅度保底: sustained jank steps the heavy effects down; settings can restore them", async ({ page }) => {
+  await page.goto("/play/2015");
+  await page.evaluate(() => sessionStorage.clear());
+  await page.reload();
+  await page.waitForTimeout(5500); // the watcher ignores the first 5 s (load, hydration)
+  expect(await page.evaluate(() => document.documentElement.dataset.perf ?? "")).toBe("");
+  // a device that cannot keep up: six 150 ms frames in a row
+  for (let i = 0; i < 6; i++) {
+    await page.evaluate(() => {
+      const t = performance.now();
+      while (performance.now() - t < 150) {
+        /* busy */
+      }
+    });
+    await page.waitForTimeout(60);
+  }
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.perf)).toBe("1");
+  await page.getByRole("button", { name: /阅读设置/ }).click();
+  await expect(page.getByTestId("perf-notice")).toBeVisible();
+  await page.getByRole("button", { name: "恢复全部特效" }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.perf ?? "")).toBe("");
+});

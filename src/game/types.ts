@@ -65,6 +65,10 @@ export interface Script {
   subtitle: string;
   intro: string;
   startCash: number;
+  /** SSE Composite close before the year starts (blind mode rescales point levels to 起点 = 100) */
+  baseClose?: number;
+  /** 盲盒模式: a masked copy of a real script (lib/blind.ts); the year is revealed on the result page */
+  blind?: boolean;
   peakMonth: number;
   troughMonth: number;
   assets: ScriptAsset[];

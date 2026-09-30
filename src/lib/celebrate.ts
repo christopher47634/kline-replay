@@ -22,15 +22,16 @@ export async function celebrate(kind: "month" | "year", from?: Element | null) {
     host.appendChild(canvas);
   }
   const fire = confetti.create(canvas, { resize: true, useWorker: true, disableForReducedMotion: true });
+  const k = root.dataset.perf === "2" ? 0.4 : 1; // lib/perf.ts: a device that is struggling gets a lighter burst
   if (kind === "month") {
     const b = from?.getBoundingClientRect();
     const origin = b ? { x: (b.left + b.width / 2) / innerWidth, y: (b.top + b.height / 2) / innerHeight } : { x: 0.5, y: 0.4 };
-    await fire({ particleCount: 70, spread: 70, startVelocity: 32, ticks: 160, gravity: 1.1, scalar: 0.85, origin, colors });
+    await fire({ particleCount: Math.round(70 * k), spread: 70, startVelocity: 32, ticks: 160, gravity: 1.1, scalar: 0.85, origin, colors });
   } else {
     const end = Date.now() + 900;
     const side = () => {
-      void fire({ particleCount: 4, angle: 60, spread: 55, startVelocity: 55, origin: { x: 0, y: 0.7 }, colors });
-      void fire({ particleCount: 4, angle: 120, spread: 55, startVelocity: 55, origin: { x: 1, y: 0.7 }, colors });
+      void fire({ particleCount: Math.max(1, Math.round(4 * k)), angle: 60, spread: 55, startVelocity: 55, origin: { x: 0, y: 0.7 }, colors });
+      void fire({ particleCount: Math.max(1, Math.round(4 * k)), angle: 120, spread: 55, startVelocity: 55, origin: { x: 1, y: 0.7 }, colors });
       if (Date.now() < end) requestAnimationFrame(side);
     };
     side();

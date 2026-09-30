@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { RoundRecord, Script } from "@/game/types";
@@ -10,7 +10,7 @@ import type { RoundRecord, Script } from "@/game/types";
  * The two months before the start (previous Nov/Dec) are drawn as a faded gray line so round 1
  * has context; 开局 is the previous December's close.
  */
-export function TrendChart({ script, history }: { script: Script; history: RoundRecord[] }) {
+function TrendChartView({ script, history }: { script: Script; history: RoundRecord[] }) {
   const { reduce } = useMotionPref();
   // first draw 800ms left to right; later rounds redraw in 400ms
   const first = useRef(true);
@@ -43,7 +43,8 @@ export function TrendChart({ script, history }: { script: Script; history: Round
   const hi = Math.ceil(Math.max(110, ...visible) / 10) * 10;
 
   return (
-    <section aria-label="走势" className="card-surface flex-1 flex flex-col p-4">
+    // contain: the chart library measures itself on every mouse move; containment keeps that forced layout inside the card
+    <section aria-label="走势" className="card-surface flex-1 flex flex-col p-4 [contain:layout_style]">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="shrink-0 font-bold">走势</h2>
         <span className="text-right text-xs text-sub">起点 = 100，月末值</span>
@@ -90,3 +91,12 @@ export function TrendChart({ script, history }: { script: Script; history: Round
     </section>
   );
 }
+
+/**
+ * The board re-renders on every slider step; the chart only needs to when a month is added. History records are
+ * immutable (the store appends new ones), so length + last record identify the series.
+ */
+export const TrendChart = memo(
+  TrendChartView,
+  (a, b) => a.script === b.script && a.history.length === b.history.length && a.history.at(-1) === b.history.at(-1),
+);

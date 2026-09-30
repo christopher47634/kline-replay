@@ -7,7 +7,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { fetchComment } from "@/lib/comment";
+import { fetchComment, templateComment } from "@/lib/comment";
 import { pct, upDownColor, yuan } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import type { LastSettle } from "@/game/store";
@@ -49,14 +49,17 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
     setComment(null);
     setGlow(false);
     if (voice !== "standard") return; // the veteran's comment belongs to the standard voice only
-    fetchComment({
+    const req = {
       scriptId: script.id,
       month: last.month,
       allocBefore: last.allocBefore,
       allocAfter: last.alloc,
       pnl: last.pnl,
       marketReturn: script.months[last.month].marketReturn,
-    }).then((t) => alive && setComment(t));
+    };
+    // 盲盒: the live AI comment knows the year and might say it; use the local templates instead
+    if (script.blind) setComment(templateComment(req));
+    else fetchComment(req).then((t) => alive && setComment(t));
     return () => {
       alive = false;
     };

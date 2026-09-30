@@ -88,21 +88,30 @@ export function GlassLayer() {
     let raf = 0;
     let px = 0;
     let py = 0;
+    // Glass boxes are measured once and re-measured only after a scroll, a resize or a DOM change — never per pointer
+    // move: reading layout right after the previous frame's style writes forced a full style + layout pass each time.
+    let boxes: Map<HTMLElement, DOMRect> | null = null;
+    const invalidate = () => (boxes = null);
+    const measure = () => {
+      if (!boxes) boxes = new Map([...document.querySelectorAll<HTMLElement>(".lg")].map((el) => [el, el.getBoundingClientRect()]));
+      return boxes;
+    };
+    const boxOf = (el: HTMLElement) => measure().get(el) ?? (invalidate(), measure().get(el) ?? el.getBoundingClientRect());
     const local = (el: HTMLElement, x: number, y: number) => {
-      const b = el.getBoundingClientRect();
+      const b = boxOf(el);
       el.style.setProperty("--px", `${(x - b.left).toFixed(0)}px`);
       el.style.setProperty("--py", `${(y - b.top).toFixed(0)}px`);
       return b;
     };
     const aim = () => {
       raf = 0;
-      document.querySelectorAll<HTMLElement>(".lg").forEach((el) => {
-        const b = el.getBoundingClientRect();
+      measure().forEach((b, el) => {
         if (!b.width) return;
         // the gradient starts on the side the light comes from
         let a = (Math.atan2(px - (b.left + b.width / 2), -(py - (b.top + b.height / 2))) * 180) / Math.PI + 180;
         const prev = lastA.get(el);
         if (prev !== undefined) a += Math.round((prev - a) / 360) * 360; // never swing the long way round
+        if (prev !== undefined && Math.abs(prev - a) < 0.5) return; // no change, no style write
         lastA.set(el, a);
         el.style.setProperty("--lg-a", `${a.toFixed(1)}deg`);
       });
@@ -122,12 +131,12 @@ export function GlassLayer() {
     const onDown = (e: PointerEvent) => {
       const t = (e.target as Element | null)?.closest?.<HTMLElement>(".lg");
       if (!t) return;
+      invalidate(); // a press is rare: measure fresh
       const b = local(t, e.clientX, e.clientY);
       t.classList.add("lg-press");
       lit = [t];
-      document.querySelectorAll<HTMLElement>(".lg").forEach((o) => {
+      measure().forEach((c, o) => {
         if (o === t) return;
-        const c = o.getBoundingClientRect();
         const gap = Math.max(c.left - b.right, b.left - c.right, c.top - b.bottom, b.top - c.bottom, 0);
         if (c.width && gap < 140) {
           local(o, e.clientX, e.clientY);
@@ -144,7 +153,19 @@ export function GlassLayer() {
     window.addEventListener("pointerdown", onDown, { passive: true });
     window.addEventListener("pointerup", onUp, { passive: true });
     window.addEventListener("pointercancel", onUp, { passive: true });
+    window.addEventListener("scroll", invalidate, { passive: true, capture: true });
+    window.addEventListener("resize", invalidate);
+    // glass added or removed (drawers, the loupe, the sound hint). Only those: the chart tooltip rewrites its DOM on
+    // every mouse move, and dropping the cache for that meant a forced layout per frame.
+    const hasGlass = (n: Node) => n instanceof Element && (n.classList.contains("lg") || !!n.querySelector(".lg"));
+    const mo = new MutationObserver((records) => {
+      if (records.some((r) => [...r.addedNodes, ...r.removedNodes].some(hasGlass))) invalidate();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
     return () => {
+      mo.disconnect();
+      window.removeEventListener("scroll", invalidate, { capture: true });
+      window.removeEventListener("resize", invalidate);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);

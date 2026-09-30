@@ -158,6 +158,8 @@ def main():
         "subtitle": content["subtitle"],
         "intro": content["intro"],
         "startCash": 100000,
+        # SSE Composite close on the last trading day before the year: blind mode rescales point levels to 起点 = 100
+        "baseClose": round(closes["market"][prev_year[-1]], 2),
         "peakMonth": peak,
         "troughMonth": trough,
         "assets": content["assets"],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { pct } from "@/lib/format";
 
@@ -23,7 +23,7 @@ export function tempLevel(r: number): number {
 }
 
 /** Five cells light up left to right (60ms apart) up to last month's level; the target cell pulses once. */
-export function Thermometer({ ret, monthNo }: { ret: number; monthNo: number }) {
+export const Thermometer = memo(function Thermometer({ ret, monthNo }: { ret: number; monthNo: number }) {
   const level = tempLevel(ret);
   const { reduce } = useMotionPref();
   const [lit, setLit] = useState(reduce ? level : -1);
@@ -65,4 +65,4 @@ export function Thermometer({ ret, monthNo }: { ret: number; monthNo: number }) 
       </span>
     </div>
   );
-}
+});

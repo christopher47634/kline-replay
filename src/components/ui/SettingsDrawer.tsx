@@ -2,6 +2,7 @@
 
 import { ACCENTS, FONTS, GLASSES, LEADINGS, SCALES, SKINS, VOICES, resetPrefs, resolve, setPrefs, skinMeta, usePrefs } from "@/lib/prefs";
 import { Drawer, useDrawer } from "./Drawer";
+import { setPerf, usePerf } from "@/lib/perf";
 import { ChevronRight } from "lucide-react";
 
 /** The 阅读设置 drawer itself: loaded on first open so it stays out of every page's first-load bundle. */
@@ -124,6 +125,7 @@ function Body() {
           <Seg label="动效" value={p.motion} items={[["auto", "完整"], ["reduce", "减少"]] as const} onPick={(v) => setPrefs({ motion: v })} />
         </div>
         <p className="dr-note">放大镜：鼠标停在关键数字上时放大显示，触屏不启用。动效「减少」：不翻页、不弹跳、不跑数字，和系统的「减少动态效果」一样。</p>
+        <PerfNotice />
       </div>
 
       <button type="button" className="dr-row" onClick={resetPrefs}>
@@ -223,5 +225,21 @@ function GlassPage() {
       </div>
       <p className="dr-note">玻璃只用在浮在内容上面的控件：顶部状态栏、右上角按钮、放大镜。正文和数据卡保持实底，读起来不花。</p>
     </>
+  );
+}
+
+/** Shown only after lib/perf.ts stepped the effects down on this device; one tap restores them. */
+function PerfNotice() {
+  const level = usePerf();
+  if (!level) return null;
+  return (
+    <div className="dr-row" style={{ gridTemplateColumns: "1fr auto" }} data-testid="perf-notice">
+      <span className="text-[13.5px] leading-relaxed text-sub">
+        这台设备刚才有点跟不上，已临时关掉{level === 2 ? "跟随光标的光效、玻璃折射和循环装饰动画" : "跟随光标的光效和玻璃折射"}（本次访问有效）。
+      </span>
+      <button type="button" className="press rounded-lg border border-line px-3 py-1.5 text-sm text-ink" onClick={() => setPerf(0)}>
+        恢复全部特效
+      </button>
+    </div>
   );
 }

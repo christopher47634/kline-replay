@@ -192,12 +192,13 @@ html.has-cursor * {
 .cur-ring.is-hover { border-color: var(--color-gold); border-width: 1.5px; }
 
 /* While a modal <dialog> is open (it sits in the browser's top layer, above the custom cursor), use the native cursor
-   everywhere, backdrop included, and hide the custom one. */
-html.has-cursor:has(dialog[open]),
-html.has-cursor:has(dialog[open]) * {
+   everywhere, backdrop included, and hide the custom one. The Dialog component sets .dialog-open on <html>
+   (a `html:has(dialog[open])` selector made every DOM change re-check the whole document). */
+html.has-cursor.dialog-open,
+html.has-cursor.dialog-open * {
   cursor: auto !important;
 }
-html:has(dialog[open]) :is(.cur-dot, .cur-ring) { display: none; }
+html.dialog-open :is(.cur-dot, .cur-ring) { display: none; }
 
 /* A modal <dialog> lives in the browser's top layer, above the custom cursor: give it the native cursor back. */
 html.has-cursor dialog[open],

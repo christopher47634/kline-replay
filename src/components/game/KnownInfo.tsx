@@ -1,10 +1,11 @@
 import type { Script, TradedId } from "@/game/types";
 import { pct, upDownColor } from "@/lib/format";
+import { memo } from "react";
 
 const ROWS: TradedId[] = ["sh50", "cyb", "bank", "baijiu"];
 
 /** Last month's move per asset: already-known information, so it never spoils the coming month. */
-export function KnownInfo({ script, round }: { script: Script; round: number }) {
+export const KnownInfo = memo(function KnownInfo({ script, round }: { script: Script; round: number }) {
   const prev = round === 0 ? script.preMonths.at(-1) : script.months[round - 1];
   if (!prev) return null;
   const rets = ROWS.map((id) => prev.returns[id]);
@@ -43,4 +44,4 @@ export function KnownInfo({ script, round }: { script: Script; round: number }) 
       </ul>
     </section>
   );
-}
+});

@@ -4,15 +4,17 @@ import { decodeGame } from "@/game/encode";
 import { playAll, totalReturn } from "@/game/engine";
 import { boardEnabled } from "@/lib/board";
 import { pct } from "@/lib/format";
-import { getScript } from "@/lib/scripts";
+import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 
-type Props = { searchParams: Promise<{ s?: string; play?: string }> };
+type Props = { searchParams: Promise<{ s?: string; play?: string; blind?: string }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const s = (await searchParams).s ?? "";
+  const sp = await searchParams;
+  const s = sp.s ?? "";
   const d = decodeGame(s);
   const script = d.ok ? getScript(d.scriptId) : null;
   if (!d.ok || !script) return { title: "链接无效 · 穿越 K 线" };
+  if (sp.blind === "1") return { title: "盲盒揭晓 · 穿越 K 线" }; // the tab title must not give the year away before the guess
   const ret = totalReturn(script, playAll(script, d.allocs));
   const title = ret >= 0 ? `我在 ${script.id} 年赚了 ${pct(ret).slice(1)}，你呢？` : `我在 ${script.id} 年亏了 ${pct(ret).slice(1)}，你呢？`;
   const image = `/api/og?s=${encodeURIComponent(s)}`;
@@ -27,5 +29,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function ResultPage({ searchParams }: Props) {
   const sp = await searchParams;
   const d = decodeGame(sp.s ?? "");
-  return <ResultView code={sp.s ?? ""} script={d.ok ? getScript(d.scriptId) : null} boardOn={boardEnabled()} openMusic={sp.play === "1"} />;
+  return (
+    <ResultView
+      code={sp.s ?? ""}
+      script={d.ok ? getScript(d.scriptId) : null}
+      boardOn={boardEnabled()}
+      openMusic={sp.play === "1"}
+      blind={sp.blind === "1"}
+      years={SCRIPT_IDS}
+    />
+  );
 }
