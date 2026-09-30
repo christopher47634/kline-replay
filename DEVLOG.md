@@ -90,3 +90,11 @@
 | 排行榜前三色条、行 stagger | ✓；「自己的记录高亮脉冲」没做（榜单页是服务端渲染，不知道谁是自己） |
 
 **未做 / 待做**：音乐弹窗的 R3F 背景（CSS 版已做）；上面标注的几项；展示视频只有 51 秒（方案要 40 秒），原始素材 `demo/showreel.webm`，剪辑版 `demo/showreel-40s.mp4`；真机与 iOS 未测。
+
+## 2026-09-30 v4：阅读设置、三套主题、复盘文风、真实宏观数据、液态玻璃与放大镜
+
+- 纠正：09-29 我误把「借鉴见微」理解成升级见微，先做了见微 v0.9（在独立目录 jianwei-v3，没有动这个仓库）；用户指出后改回本项目。
+- 新增：`lib/prefs.ts` + `lib/prefsBoot.ts`（首帧前生效）、`app/skins.css`、`ui/Drawer.tsx`（二级抽屉）、`ui/SettingsButton.tsx` / `SettingsDrawer.tsx`、`shell/GlassLayer.tsx`（折射滤镜、光标坐标、放大镜）、`lib/voice.ts` + `result/YearVoice.tsx`（三种文风）、`lib/macro.ts` + `game/Macro.tsx`（宏观抽屉与盘口工作台）、`scripts/fetch_macro.mjs`、`scripts/build_body_fonts.py`。
+- 验证：Vitest 57（新增 9：首帧脚本与 React 解析一致、归因求和、白话措辞、年度指标、宏观不剧透与历史数值）；Playwright 22（新增 themes.spec 6）；Lighthouse 全部达标（结果页 a11y 因新表格的低对比注释一度掉到 88，已修到 96）。
+- 已知：放大镜进不了结算弹窗（浏览器顶层）；AI 点评接口返回的新字不在裁剪字体里，会退回系统字体；新增投资者数据从 2015 年 4 月才开始。
+

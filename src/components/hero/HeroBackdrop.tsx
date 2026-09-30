@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
+import { useResolved } from "@/lib/prefs";
+import k2015 from "./kline2015.json";
 
 const KlineField = dynamic(() => import("./KlineField"), { ssr: false });
 
@@ -32,6 +34,8 @@ const PROBE_KEY = "kline:hero-probe";
  */
 export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
   const { reduce, small, touch, ready } = useMotionPref();
+  const { skin } = useResolved();
+  const lightSkin = skin !== "pan";
   const [mode, setMode] = useState<"static" | "webgl">("static");
   const [started, setStarted] = useState(false);
   const decided = useRef(onDecided);
@@ -43,7 +47,8 @@ export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
       setMode("static");
       decided.current?.();
     };
-    if (reduce || !hasWebGL() || weakDevice()) return fallback();
+    // the paper / plain skins draw the year as an ink line instead of the dark particle field
+    if (lightSkin || reduce || !hasWebGL() || weakDevice()) return fallback();
     let cached: string | null = null;
     try {
       cached = sessionStorage.getItem(PROBE_KEY);
@@ -71,12 +76,13 @@ export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [ready, reduce]);
+  }, [ready, reduce, lightSkin]);
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden" data-hero-mode={mode}>
-      <Image src="/hero-fallback.webp" alt="" fill priority sizes="100vw" className={`object-cover transition-opacity duration-500 ${started && mode === "webgl" ? "opacity-0" : "opacity-100"}`} />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(60% 50% at 12% 0%, rgb(255 77 79 / 0.12), transparent 70%), radial-gradient(60% 50% at 95% 100%, rgb(63 185 80 / 0.08), transparent 70%)" }} />
+      <Image src="/hero-fallback.webp" alt="" fill priority sizes="100vw" className={`hero-dark object-cover transition-opacity duration-500 ${started && mode === "webgl" ? "opacity-0" : "opacity-100"}`} />
+      <InkLine />
+      <div className="hero-dark absolute inset-0" style={{ background: "radial-gradient(60% 50% at 12% 0%, rgb(255 77 79 / 0.12), transparent 70%), radial-gradient(60% 50% at 95% 100%, rgb(63 185 80 / 0.08), transparent 70%)" }} />
       {mode === "webgl" && (
         <div className="absolute inset-0">
           <KlineField
@@ -92,5 +98,22 @@ export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** Paper / plain skins: the 2015 Shanghai Composite drawn as one ink stroke, the 5178 peak marked in red. */
+function InkLine() {
+  const c = (k2015 as { closes: number[] }).closes;
+  const lo = Math.min(...c);
+  const hi = Math.max(...c);
+  const pk = c.indexOf(hi);
+  const x = (i: number) => 380 + (i / (c.length - 1)) * 600;
+  const y = (v: number) => 360 - ((v - lo) / (hi - lo)) * 250;
+  return (
+    <svg className="hero-ink absolute inset-0 h-full w-full" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid slice">
+      <polyline points={c.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")} fill="none" stroke="var(--color-ink)" strokeOpacity="0.28" strokeWidth="1.4" strokeLinejoin="round" />
+      <circle cx={x(pk)} cy={y(hi)} r="4" fill="var(--color-up)" />
+      <text x={x(pk) + 8} y={y(hi) - 8} fill="var(--color-up)" fontSize="13" fontFamily="var(--font-mono)">5178</text>
+    </svg>
   );
 }

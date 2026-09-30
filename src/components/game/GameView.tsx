@@ -19,6 +19,7 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import { MomentCard } from "./MomentCard";
 import { applyEffect } from "@/game/moment";
 import { KnownInfo } from "./KnownInfo";
+import { useResolved } from "@/lib/prefs";
 import { SettleDialog } from "./SettleDialog";
 import { StatusBar } from "./StatusBar";
 import { Thermometer } from "./Thermometer";
@@ -26,6 +27,9 @@ import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 
 // recharts stays out of the first-load bundle; the skeleton holds the space so nothing shifts
+// the workbench and the macro drawer (with their data) load after the board is interactive
+const Workbench = dynamic(() => import("./Macro").then((m) => m.Workbench), { ssr: false });
+const MacroButton = dynamic(() => import("./Macro").then((m) => m.MacroButton), { ssr: false });
 const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
 import { tick } from "@/lib/sfx";
 
@@ -38,6 +42,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
   const st = useGame();
   const [hydrated, setHydrated] = useState(false);
   const { reduce } = useMotionPref();
+  const { skin } = useResolved();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [flipIn, setFlipIn] = useState(false); // came from the paper Intro: the game page flips in from the other side
   const panel = useRef<AllocationPanelHandle>(null);
@@ -178,7 +183,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
   return (
     <div style={{ perspective: 1600 }} className={flipIn ? "overflow-x-clip" : undefined}>
       <motion.div initial={flipIn && !reduce ? { rotateY: 90 } : false} animate={{ rotateY: 0 }} transition={{ duration: 0.32, ease: [0.65, 0, 0.35, 1] }} style={{ transformOrigin: "left center" }}>
-    <main className="mx-auto max-w-[1120px] px-4 pb-10 md:px-6">
+    <main className="mx-auto max-w-[1120px] px-4 pb-10 md:px-6" data-zoom-area>
       <div ref={shakeRef}>
       <StatusBar round={shownMonth + 1} total={script.months.length} label={month.label} cash={st.cash} startCash={script.startCash} lastPnl={lastPnl} />
       <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
@@ -188,7 +193,9 @@ export function GameView({ scriptId }: { scriptId: string }) {
             <h2 className="font-bold">
               {month.label}初 · 头条
             </h2>
+            <div data-plain-hide>
             <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
+            </div>
             {month.headlines.map((h, k) => (
               <Enter key={h.text} delay={0.06 + k * 0.05} y={10} from={TURN_FROM}>
                 <HeadlineCard headline={h} lead={k === 0} monthNo={prevMonthNo} />
@@ -202,7 +209,11 @@ export function GameView({ scriptId }: { scriptId: string }) {
         <Enter delay={0.08} className="flex flex-col">
           <div className="flex flex-1 flex-col gap-4">
             <TrendChart script={script} history={chartHistory} />
-            <KnownInfo script={script} round={shownMonth} />
+            <div data-plain-hide>
+              <KnownInfo script={script} round={shownMonth} />
+              {skin !== "pan" && <MacroButton script={script} round={shownMonth} />}
+            </div>
+            {skin === "pan" && <Workbench script={script} round={shownMonth} draft={st.draft} />}
           </div>
         </Enter>
         <Enter key={`alloc-${shownMonth}`} delay={0.08} from={TURN_FROM} y={10}>

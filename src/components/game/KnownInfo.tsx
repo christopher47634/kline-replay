@@ -31,7 +31,11 @@ export function KnownInfo({ script, round }: { script: Script; round: number }) 
                   style={{ width: `${(Math.min(1, Math.abs(r) / scale) * 50).toFixed(1)}%` }}
                 />
               </span>
-              <span className={`w-16 text-right num ${upDownColor(r)}`}>{pct(r)}</span>
+              <span className={`w-16 text-right num ${upDownColor(r)}`}>
+                <span data-zoom data-zoom-label={`${name} · ${monthNo} 月`} data-zoom-tone={r > 0 ? "up" : r < 0 ? "down" : undefined}>
+                  {pct(r)}
+                </span>
+              </span>
             </li>
           );
         })}

@@ -15,7 +15,7 @@ const RISK_STYLE: Record<string, string> = {
   极高: "bg-up text-white",
 };
 /** Track fill colour follows the asset's risk level. */
-const RISK_FILL: Record<string, string> = { 无: "#8B95A3", 低: "#3FB950", 中: "#F5B400", 高: "#FF4D4F", 极高: "#A855F7" };
+const RISK_FILL: Record<string, string> = { 无: "var(--color-sub)", 低: "var(--color-down)", 中: "var(--color-gold)", 高: "var(--color-up)", 极高: "var(--color-bust)" };
 
 const clamp = (v: number) => Math.max(0, Math.min(100, Math.round(v / 5) * 5));
 
@@ -141,7 +141,7 @@ export const AllocationPanel = forwardRef<
                 sliders.current[i] = el;
               }}
               value={value[a.id]}
-              color={RISK_FILL[a.risk] ?? "#8B95A3"}
+              color={RISK_FILL[a.risk] ?? "var(--color-sub)"}
               onChange={(v) => set(a.id, v)}
             />
             <div className="mt-2 flex gap-1.5 md:hidden">

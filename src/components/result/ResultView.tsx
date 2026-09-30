@@ -19,6 +19,7 @@ import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
 import { BoardSubmit } from "./BoardSubmit";
+import { YearVoice } from "./YearVoice";
 import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 
@@ -141,7 +142,7 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
     <li>
       <span className={r.ret >= other ? "text-up" : "text-down"}>{r.ret >= other ? "跑赢" : "跑输"}</span>
       {label}
-      <span className={`num mx-1 font-bold ${r.ret >= other ? "text-up" : "text-down"}`}>
+      <span className={`num mx-1 font-bold ${r.ret >= other ? "text-up" : "text-down"}`} data-zoom data-zoom-value={`${pp(r.ret, other)} pp`} data-zoom-label={`${r.ret >= other ? "跑赢" : "跑输"}${label}`} data-zoom-tone={r.ret >= other ? "up" : "down"}>
         <Odometer value={Math.abs(r.ret - other) * 100} format={(n) => n.toFixed(1)} duration={800} />
       </span>
       个百分点
@@ -150,7 +151,7 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
   );
 
   return (
-    <main className="mx-auto max-w-[1120px] px-4 py-10 md:px-6 md:py-14">
+    <main className="mx-auto max-w-[1120px] px-4 py-10 md:px-6 md:py-14" data-zoom-area>
       {/* black-out: the page arrives from darkness (0.2s) */}
       {!reduce && <motion.div aria-hidden initial={{ opacity: 1 }} animate={{ opacity: 0 }} transition={{ duration: 0.2, delay: 0.05 }} className="pointer-events-none fixed inset-0 z-[55] bg-bg" />}
 
@@ -195,6 +196,8 @@ function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; 
         </ul>
         <p className="mt-3 text-xs text-sub">散户平均：{script.benchmarks.retailAvgNote}</p>
       </section>
+
+      <YearVoice script={script} history={r.history} daily={r.daily} marketRet={r.marketRet} cashRet={r.cashRet} />
 
       <div className="mt-6 grid items-stretch gap-6 md:grid-cols-[1.4fr_1fr]">
         <PersonaCard persona={r.persona} quote={r.quote} moves={r.moves} />

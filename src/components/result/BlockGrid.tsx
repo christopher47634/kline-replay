@@ -18,6 +18,7 @@ export function BlockGrid({ script, history }: { script: Script; history: RoundR
           <li key={h.month} data-testid="block" title={tip} className="group relative">
             <motion.span
               className={`block aspect-square rounded-md ${color} ${h.liquidated && !reduce ? "block-breathe" : ""}`}
+              role="img"
               aria-label={`${tip}，${kind}`}
               initial={reduce ? false : { scale: 0 }}
               whileInView={{ scale: 1 }}

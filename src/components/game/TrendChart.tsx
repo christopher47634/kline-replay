@@ -53,14 +53,14 @@ export function TrendChart({ script, history }: { script: Script; history: Round
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -18 }}>
             <defs>
               <pattern id="future-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <rect width="8" height="8" fill="#0D1117" />
-                <line x1="0" y1="0" x2="0" y2="8" stroke="#2c3542" strokeWidth="3" />
+                <rect width="8" height="8" fill="var(--color-card)" />
+                <line x1="0" y1="0" x2="0" y2="8" stroke="var(--color-line-2)" strokeWidth="3" />
                 {!reduce && <animateTransform attributeName="patternTransform" type="translate" additive="sum" from="0 0" to="160 0" dur="20s" repeatCount="indefinite" />}
               </pattern>
             </defs>
-            <CartesianGrid stroke="#1C2431" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: "#8B95A3", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#1C2431" }} interval={1} />
-            <YAxis domain={[lo, hi]} tick={{ fill: "#8B95A3", fontSize: 11, fontFamily: "var(--font-mono)" }} tickLine={false} axisLine={false} />
+            <CartesianGrid stroke="var(--color-line)" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: "var(--color-sub)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--color-line)" }} interval={1} />
+            <YAxis domain={[lo, hi]} tick={{ fill: "var(--color-sub)", fontSize: 11, fontFamily: "var(--font-mono)" }} tickLine={false} axisLine={false} />
             {known < 12 && (
               <ReferenceArea
                 x1={labels[nPre + known]}
@@ -68,22 +68,22 @@ export function TrendChart({ script, history }: { script: Script; history: Round
                 fill="url(#future-hatch)"
                 fillOpacity={1}
                 ifOverflow="extendDomain"
-                label={{ value: "未来不可见", fill: "#8B95A3", fontSize: 13, position: "center" }}
+                label={{ value: "未来不可见", fill: "var(--color-sub)", fontSize: 13, position: "center" }}
               />
             )}
-            {nPre > 0 && <ReferenceLine x="开局" stroke="#F5B400" strokeDasharray="3 3" label={{ value: "开局", fill: "#F5B400", fontSize: 11, position: "insideTopRight" }} />}
+            {nPre > 0 && <ReferenceLine x="开局" stroke="var(--color-gold)" strokeDasharray="3 3" label={{ value: "开局", fill: "var(--color-gold)", fontSize: 11, position: "insideTopRight" }} />}
             <Tooltip
               isAnimationActive={!reduce}
               animationDuration={180}
               animationEasing="ease-out"
-              contentStyle={{ background: "#07090D", border: "1px solid #1C2431", borderRadius: 8, fontSize: 12 }}
-              labelStyle={{ color: "#8B95A3" }}
+              contentStyle={{ background: "var(--color-bg)", border: "1px solid var(--color-line)", borderRadius: 8, fontSize: 12 }}
+              labelStyle={{ color: "var(--color-sub)" }}
               formatter={(v, name) => [typeof v === "number" ? v.toFixed(1) : "—", name === "player" ? "你" : name === "pre" ? "开局前大盘" : "上证综指"]}
             />
-            <Legend formatter={(v) => (v === "player" ? "你" : v === "pre" ? "开局前大盘" : "上证综指")} wrapperStyle={{ fontSize: 12, color: "#8B95A3" }} />
-            <Line type="linear" dataKey="pre" stroke="#8C8C8C" strokeOpacity={0.6} strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} connectNulls />
-            <Line type="linear" dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={{ r: 2 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
-            <Line type="linear" dataKey="player" stroke="#FF4D4F" strokeWidth={2.5} dot={{ r: 2.5 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
+            <Legend formatter={(v) => (v === "player" ? "你" : v === "pre" ? "开局前大盘" : "上证综指")} wrapperStyle={{ fontSize: 12, color: "var(--color-sub)" }} />
+            <Line type="linear" dataKey="pre" stroke="var(--color-market)" strokeOpacity={0.6} strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} connectNulls />
+            <Line type="linear" dataKey="market" stroke="var(--color-market)" strokeWidth={2} dot={{ r: 2 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
+            <Line type="linear" dataKey="player" stroke="var(--color-up)" strokeWidth={2.5} dot={{ r: 2.5 }} isAnimationActive={!reduce} animationDuration={dur} animationEasing="ease-out" connectNulls={false} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

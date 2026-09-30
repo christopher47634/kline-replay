@@ -2,7 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
 import { MuteButton } from "@/components/ui/MuteButton";
+import { SettingsButton } from "@/components/ui/SettingsButton";
 import "./globals.css";
+import "./skins.css";
+import { PREFS_BOOT } from "@/lib/prefsBoot";
 
 const jb = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-jb", display: "swap" });
 
@@ -16,13 +19,16 @@ export const viewport: Viewport = { themeColor: "#07090D", width: "device-width"
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" className={`${jb.variable}`}>
+    <html lang="zh-CN" className={`${jb.variable}`} data-skin="pan" suppressHydrationWarning>
       <head>
         <link rel="preload" href="/fonts/smiley-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        {/* 阅读设置在首帧前生效：纸面主题不会先闪一下深色 */}
+        <script dangerouslySetInnerHTML={{ __html: PREFS_BOOT }} />
       </head>
       <body className="min-h-dvh flex flex-col">
         <AppShell>
           <MuteButton />
+          <SettingsButton />
           <div className="flex-1">{children}</div>
           <footer className="py-4 px-4 text-center text-xs text-sub border-t border-line">
             虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议

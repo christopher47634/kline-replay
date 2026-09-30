@@ -37,7 +37,7 @@ export function StatusBar({
   return (
     <motion.div initial={{ y: "-100%" }} animate={{ y: 0 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="sticky top-0 z-20 -mx-4 px-4 md:-mx-6 md:px-6 bg-bg/90 backdrop-blur border-b border-line">
       {/* Phone: one fixed 44px line so the bar never eats into the cards below. */}
-      <div className="md:hidden h-11 pr-10 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
+      <div className="md:hidden h-11 pr-20 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
         <span>
           第{" "}
           <b className="num">
@@ -63,14 +63,18 @@ export function StatusBar({
         <span className="text-sub">｜</span>
         <span>
           <span className="text-sub">总资产 </span>
-          <RollingNumber value={cash} format={yuan} className="text-base font-bold" />
+          <span data-zoom data-zoom-value={yuan(cash)} data-zoom-label={`总资产 · 累计 ${pct(totalRet)}`} data-zoom-tone={totalRet > 0 ? "up" : totalRet < 0 ? "down" : undefined}>
+            <RollingNumber value={cash} format={yuan} className="text-base font-bold" />
+          </span>
         </span>
         {lastPnl !== null && (
           <>
             <span className="text-sub">｜</span>
             <span>
               <span className="text-sub">上月 </span>
-              <span className={`num font-bold ${upDownColor(lastPnl)}`}>{pct(lastPnl)}</span>
+              <span className={`num font-bold ${upDownColor(lastPnl)}`} data-zoom data-zoom-label="上月盈亏" data-zoom-tone={lastPnl > 0 ? "up" : lastPnl < 0 ? "down" : undefined}>
+                {pct(lastPnl)}
+              </span>
             </span>
           </>
         )}

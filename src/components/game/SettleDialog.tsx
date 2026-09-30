@@ -12,6 +12,8 @@ import { pct, upDownColor, yuan } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import type { LastSettle } from "@/game/store";
 import { ASSET_IDS, type Script } from "@/game/types";
+import { useResolved } from "@/lib/prefs";
+import { plainSettle, proSettle, settleFacts } from "@/lib/voice";
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
@@ -34,6 +36,7 @@ function TypedComment({ text }: { text: string }) {
 
 export function SettleDialog({ script, last, open, onClose, isFinal }: { script: Script; last: LastSettle | null; open: boolean; onClose: () => void; isFinal: boolean }) {
   const { reduce } = useMotionPref();
+  const { voice } = useResolved();
   const [comment, setComment] = useState<string | null>(null);
   const [glow, setGlow] = useState(false);
 
@@ -43,6 +46,7 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
     let alive = true;
     setComment(null);
     setGlow(false);
+    if (voice !== "standard") return; // the veteran's comment belongs to the standard voice only
     fetchComment({
       scriptId: script.id,
       month: last.month,
@@ -54,7 +58,7 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
     return () => {
       alive = false;
     };
-  }, [open, last, script]);
+  }, [open, last, script, voice]);
 
   if (!last) return <Dialog open={false} onClose={onClose} label="本月结算">{null}</Dialog>;
   const month = script.months[last.month];
@@ -86,7 +90,7 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
           {yuan(last.cashBefore)} → <span className="text-ink">{yuan(last.cashAfter)}</span>
         </p>
 
-        <ul className="mt-5 divide-y divide-line border-y border-line">
+        {voice === "standard" && <ul className="mt-5 divide-y divide-line border-y border-line">
           {rows.map((r, i) => (
             <motion.li
               key={r.id}
@@ -106,9 +110,13 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
               </span>
             </motion.li>
           ))}
-        </ul>
+        </ul>}
 
-        <div className="mt-4 rounded-lg bg-bg p-3 text-sm leading-relaxed">
+        {voice === "plain" && <PlainBlock script={script} last={last} />}
+        {voice === "pro" && <ProBlock script={script} last={last} />}
+
+        {voice === "standard" && <>
+        <div className="mt-4 rounded-lg bg-bg p-3 text-sm leading-relaxed" data-prose>
           <p className="mb-1 text-xs text-sub">事后复盘</p>
           <Reveal as="p" delay={0.5}>
             {month.hindsight}
@@ -118,11 +126,69 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
           <span className="shrink-0 pt-0.5 text-xs text-sub">老股民说</span>
           {comment ? <TypedComment text={comment} /> : <span aria-label="点评加载中" className="mt-0.5 h-4 w-2/3 animate-pulse rounded bg-line" />}
         </div>
+        </>}
 
         <Button className="mt-6 h-11 w-full" onClick={onClose} autoFocus>
           {isFinal ? "查看年终结算 →" : "进入下个月 →"}
         </Button>
       </div>
     </Dialog>
+  );
+}
+
+/** 白话：一句话 + 为什么 + 下个月可以想想；当月发生了什么放在最后一行小字 */
+function PlainBlock({ script, last }: { script: Script; last: LastSettle }) {
+  const v = plainSettle(settleFacts(script, last));
+  return (
+    <div className="voice mt-5" data-testid="voice-plain">
+      <p className="vp-line">{v.line}</p>
+      <p className="text-sm">{v.why}</p>
+      <p className="text-sm text-sub">{v.next}</p>
+      <p className="mt-1 text-xs text-sub" data-prose>
+        当时发生了什么：{script.months[last.month].hindsight}
+      </p>
+    </div>
+  );
+}
+
+/** 研报：结论一行 + 收益归因表 + 敞口 / 回撤；当月市场事件 */
+function ProBlock({ script, last }: { script: Script; last: LastSettle }) {
+  const r = proSettle(settleFacts(script, last));
+  return (
+    <div className="voice mt-5" data-testid="voice-pro">
+      <p className="text-sm font-bold">{r.conclusion}</p>
+      <table className="vr-table num">
+        <thead>
+          <tr>
+            <th>资产</th>
+            <th className="r">仓位</th>
+            <th className="r">涨跌</th>
+            <th className="r">贡献</th>
+          </tr>
+        </thead>
+        <tbody>
+          {r.rows.map((x) => (
+            <tr key={x.id}>
+              <td className="font-sans">{x.name}</td>
+              <td className="r text-sub">{x.weight}%</td>
+              <td className={`r ${upDownColor(x.ret)}`}>{x.id === "margin" && last.liquidated ? "强平" : pct(x.ret)}</td>
+              <td className={`r font-bold ${upDownColor(x.contrib)}`}>{x.contribText}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-sub">
+        <span>
+          风险敞口 <b className="num text-ink">{r.exposure}</b>
+        </span>
+        <span>
+          月内最大回撤 <b className="num text-ink">{r.drawdown}</b>
+        </span>
+      </p>
+      <p className="text-xs text-sub" data-prose>
+        <span className="vr-k mr-2">市场事件</span>
+        {script.months[last.month].hindsight}
+      </p>
+    </div>
   );
 }

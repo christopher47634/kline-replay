@@ -5,6 +5,7 @@ import { Cursor } from "./Cursor";
 import { LenisProvider } from "./LenisProvider";
 import { ReducedMotionProvider } from "./MotionPref";
 import { SoundGate } from "./SoundGate";
+import { GlassLayer } from "./GlassLayer";
 
 /** Providers and always-on layers: motion preferences, smooth scroll, grain, cursor, sound prompt. */
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div aria-hidden className="grain" />
         {children}
         <Cursor />
+        <GlassLayer />
         <SoundGate />
       </LenisProvider>
       </LazyMotion>

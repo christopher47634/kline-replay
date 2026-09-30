@@ -7,10 +7,10 @@ import { allocSummary } from "@/game/persona";
 import type { RoundRecord } from "@/game/types";
 
 const LEGEND = [
-  { name: "你", color: "#FF4D4F", dash: false },
-  { name: "满仓大盘", color: "#8C8C8C", dash: false },
-  { name: "全程现金", color: "#4C8DFF", dash: true },
-  { name: "散户平均", color: "#3FB950", dash: true },
+  { name: "你", color: "var(--color-up)", dash: false },
+  { name: "满仓大盘", color: "var(--color-market)", dash: false },
+  { name: "全程现金", color: "var(--color-cash)", dash: true },
+  { name: "散户平均", color: "var(--color-down)", dash: true },
 ];
 const NAMES: Record<string, string> = { player: "你", market: "满仓大盘", cash: "全程现金", retail: "散户平均" };
 const signed = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%`;
@@ -52,23 +52,23 @@ export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries
       <div className="h-72 md:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 6, left: -12 }}>
-            <CartesianGrid stroke="#1C2431" vertical={false} />
+            <CartesianGrid stroke="var(--color-line)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#1C2431" }}
+              axisLine={{ stroke: "var(--color-line)" }}
               tick={(p) => (
                 <g transform={`translate(${p.x},${p.y})`}>
-                  <text y={12} textAnchor="middle" fill="#8B95A3" fontSize={11}>
+                  <text y={12} textAnchor="middle" fill="var(--color-sub)" fontSize={11}>
                     {p.payload.value}
                   </text>
-                  {liquidated(p.payload.value) && <circle cy={22} r={3} fill="#A855F7" />}
+                  {liquidated(p.payload.value) && <circle cy={22} r={3} fill="var(--color-bust)" />}
                 </g>
               )}
               height={34}
             />
-            <YAxis tickFormatter={(v) => `${v}%`} tick={{ fill: "#8B95A3", fontSize: 11 }} tickLine={false} axisLine={false} />
-            <ReferenceLine y={0} stroke="#3a4453" />
+            <YAxis tickFormatter={(v) => `${v}%`} tick={{ fill: "var(--color-sub)", fontSize: 11 }} tickLine={false} axisLine={false} />
+            <ReferenceLine y={0} stroke="var(--color-line-2)" />
             <Tooltip
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
@@ -91,11 +91,11 @@ export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries
                 );
               }}
             />
-            <Line dataKey="retail" stroke="#3FB950" strokeOpacity={0.35} strokeDasharray="6 5" strokeWidth={1.5} connectNulls dot={(p) =>
+            <Line dataKey="retail" stroke="var(--color-down)" strokeOpacity={0.35} strokeDasharray="6 5" strokeWidth={1.5} connectNulls dot={(p) =>
               p.index === last ? (
                 <g key="retail-end">
-                  <circle cx={p.cx} cy={p.cy} r={4} fill="#3FB950" />
-                  <text x={p.cx} y={(p.cy ?? 0) - 10} textAnchor="end" fill="#3FB950" fontSize={11}>
+                  <circle cx={p.cx} cy={p.cy} r={4} fill="var(--color-down)" />
+                  <text x={p.cx} y={(p.cy ?? 0) - 10} textAnchor="end" fill="var(--color-down)" fontSize={11}>
                     散户平均 {signed(retail)}
                   </text>
                 </g>
@@ -104,9 +104,9 @@ export function ReturnChart({ b, startCash, history = [] }: { b: BenchmarkSeries
               )
             } activeDot={false} isAnimationActive={false} />
             {/* drawn in order: you (0.3s) → market (0.6s) → cash (0.9s), 0.5s each, overlapping by 0.2s */}
-            <Line dataKey="cash" stroke="#4C8DFF" strokeDasharray="4 4" strokeWidth={1.5} dot={false} isAnimationActive={!reduce} animationBegin={900} animationDuration={500} animationEasing="ease-out" />
-            <Line dataKey="market" stroke="#8C8C8C" strokeWidth={2} dot={false} isAnimationActive={!reduce} animationBegin={600} animationDuration={500} animationEasing="ease-out" />
-            <Line dataKey="player" className="line-glow" stroke="#FF4D4F" strokeWidth={3} dot={{ r: 2.5 }} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={!reduce} animationBegin={300} animationDuration={500} animationEasing="ease-out" />
+            <Line dataKey="cash" stroke="var(--color-cash)" strokeDasharray="4 4" strokeWidth={1.5} dot={false} isAnimationActive={!reduce} animationBegin={900} animationDuration={500} animationEasing="ease-out" />
+            <Line dataKey="market" stroke="var(--color-market)" strokeWidth={2} dot={false} isAnimationActive={!reduce} animationBegin={600} animationDuration={500} animationEasing="ease-out" />
+            <Line dataKey="player" className="line-glow" stroke="var(--color-up)" strokeWidth={3} dot={{ r: 2.5 }} activeDot={{ r: 5, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={!reduce} animationBegin={300} animationDuration={500} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       </div>

@@ -18,10 +18,16 @@
   --color-gold: #f5b400;
   --color-paper: #e9e2d0;
   --color-paper-ink: #2a2622;
+  --color-line-2: #3a4453;
+  --color-market: #8c8c8c;
+  --color-cash: #4c8dff;
+  --color-bust: #a855f7;
 
   --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: var(--font-jb), ui-monospace, "Cascadia Mono", monospace;
   --font-display: "Smiley Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif-body: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-kai: "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -40,6 +46,20 @@
   font-display: swap;
 }
 
+/* Optional body fonts (阅读设置): subset to the site's characters by scripts/build_body_fonts.py, only fetched when chosen. */
+@font-face {
+  font-family: "LXGW WenKai Screen";
+  src: url("/fonts/wenkai-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url("/fonts/serif-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
 /* Fluid type scale (display / h1 / h2 / body / small / micro). */
 :root {
   --text-display: clamp(56px, 9vw, 128px);
@@ -54,7 +74,7 @@ body {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--body, var(--font-sans));
   font-size: 16px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
