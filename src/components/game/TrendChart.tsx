@@ -43,7 +43,7 @@ export function TrendChart({ script, history }: { script: Script; history: Round
   const hi = Math.ceil(Math.max(110, ...visible) / 10) * 10;
 
   return (
-    <section aria-label="走势" className="flex-1 flex flex-col rounded-xl bg-card border border-line p-4">
+    <section aria-label="走势" className="card-surface flex-1 flex flex-col p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="font-bold">走势</h2>
         <span className="text-xs text-sub">起点 = 100，月末值</span>

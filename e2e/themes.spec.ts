@@ -88,7 +88,13 @@ test("liquid glass keeps the fixed buttons fixed; the loupe magnifies a key numb
   await startGame(page);
   const mute = page.getByRole("button", { name: /静音/ });
   expect(await mute.evaluate((el) => getComputedStyle(el).position)).toBe("fixed");
-  expect(await mute.evaluate((el) => getComputedStyle(el, "::before").backgroundImage)).toContain("conic-gradient");
+  // Apple-style: a white specular rim (no rainbow ring) and a per-size lens filter in Chromium
+  const rim = await mute.evaluate((el) => getComputedStyle(el, "::before").backgroundImage);
+  expect(rim).toContain("linear-gradient");
+  expect(rim).not.toContain("conic-gradient");
+  await expect.poll(() => mute.evaluate((el) => el.style.getPropertyValue("--lg-filter"))).toMatch(/^url\(#lgf-\d+x\d+r\d+\)$/);
+  const status = page.getByTestId("status-compact").or(page.locator(".lg.relative")).first();
+  await expect(status).toBeVisible();
   const v = page.getByTestId("workbench").locator("[data-zoom]").first();
   const box = (await v.boundingBox())!;
   await page.mouse.move(box.x - 30, box.y + box.height / 2);
@@ -106,4 +112,35 @@ test("font size 130% scales the game board only", async ({ page }) => {
   expect(await page.locator("main[data-zoom-area]").evaluate((el) => getComputedStyle(el).zoom)).toBe("1.3");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test("more settings: glass level 2, up/down colours, loupe off, accent, reduced motion", async ({ page }) => {
+  await setPrefs(page, {});
+  await startGame(page);
+  const html = page.locator("html");
+  await page.getByRole("button", { name: /阅读设置/ }).click();
+  await page.getByRole("button", { name: /玻璃质感/ }).click();
+  await expect(page.getByRole("dialog", { name: "阅读设置 · 玻璃质感" })).toBeVisible();
+  await page.getByRole("radio", { name: /着色/ }).click();
+  await expect(html).toHaveAttribute("data-glass", "tinted");
+  await page.getByRole("button", { name: /‹ 阅读设置/ }).click();
+  const upBefore = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-up").trim());
+  await page.getByRole("radio", { name: "绿涨红跌" }).click();
+  await expect(html).toHaveAttribute("data-updown", "intl");
+  const upAfter = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-up").trim());
+  expect(upAfter).not.toBe(upBefore);
+  await page.getByRole("radiogroup", { name: "数据放大镜" }).getByRole("radio", { name: "关" }).click();
+  await expect(html).toHaveAttribute("data-loupe", "off");
+  await page.getByRole("radio", { name: /冰川蓝/ }).click();
+  await expect(html).toHaveAttribute("data-accent", "ice");
+  await page.getByRole("radio", { name: "减少" }).click();
+  await expect(html).toHaveAttribute("data-reduce-motion", "1");
+  await page.keyboard.press("Escape");
+  // loupe off: hovering a key number shows no lens
+  const v = page.getByTestId("workbench").locator("[data-zoom]").first();
+  const box = (await v.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 6 });
+  await expect(page.locator(".loupe")).not.toHaveClass(/is-on/);
+  // after 见微: this month's release calendar, values hidden
+  await expect(page.getByTestId("calendar")).toContainText("本月将公布");
 });

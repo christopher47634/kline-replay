@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Allocation, Script } from "@/game/types";
 import { TRADED_IDS } from "@/game/types";
 import { pct, upDownColor } from "@/lib/format";
-import { MACRO_FETCHED_AT, MACRO_SOURCE, fmtMacro, knownRows, macroFor, monthMinus, roundMonth, type MacroSeries } from "@/lib/macro";
+import { MACRO_FETCHED_AT, MACRO_SOURCE, dueThisRound, fmtMacro, knownRows, macroFor, monthMinus, position, roundMonth, type MacroSeries } from "@/lib/macro";
 import { Drawer, useDrawer } from "@/components/ui/Drawer";
 import { Spark } from "@/components/ui/Spark";
 
@@ -52,7 +52,9 @@ function Overview({ script, round }: { script: Script; round: number }) {
   return (
     <>
       <p className="dr-note">每个数字都按官方发布日期处理：本回合开始时还没公布的月份不显示，所以这里不会剧透。</p>
+      <Calendar script={script} round={round} />
       <div className="dr-group">
+        <h3 className="dr-h">已经公布的</h3>
         {series.map((s) => {
           const rows = knownRows(s, script.id, round);
           const last = rows[rows.length - 1];
@@ -60,7 +62,10 @@ function Overview({ script, round }: { script: Script; round: number }) {
             <button key={s.id} type="button" className="dr-row" style={{ gridTemplateColumns: "1fr 120px auto" }} onClick={() => push({ key: s.id, title: s.name, body: <Detail s={s} script={script} round={round} /> })}>
               <span className="grid gap-0.5">
                 <b className="text-[15px]">{s.name}</b>
-                <span className="dr-val num">{last ? `${mLabel(last.m)} ${fmtMacro(s, last.v)}` : "开局时还没有数据"}</span>
+                <span className="dr-val num">
+                  {last ? `${mLabel(last.m)} ${fmtMacro(s, last.v)}` : "开局时还没有数据"}
+                  <Pos rows={rows} />
+                </span>
               </span>
               <Spark rows={rows.map((r) => r.v)} base={s.base} future={s.rows.length - rows.length} />
               <span aria-hidden className="text-sub">
@@ -85,6 +90,7 @@ function Detail({ s, script, round }: { s: MacroSeries; script: Script; round: n
       <Spark rows={rows.map((r) => r.v)} base={s.base} big future={s.rows.length - rows.length} />
       <p className="dr-note">
         {s.note}。本回合开始时，最新能看到的是 {yLabel(cutoff)} 的数据；虚线之后是还没公布的月份。
+        {position(rows) ? ` 最新值处在${position(rows)!.text.replace("近", "最近 ")}的位置。` : ""}
       </p>
       <table className="vr-table num">
         <thead>
@@ -121,7 +127,7 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
   // what last month's moves would have done to the allocation you are setting now (known information only)
   const replay = prev ? TRADED_IDS.reduce((s, id) => s + (draft[id] / 100) * prev.returns[id], 0) + (draft.margin / 100) * (script.params.marginLeverage * prev.returns.sh50) : 0;
   return (
-    <section aria-label="专业工作台" className="rounded-xl border border-line bg-card p-4" data-testid="workbench">
+    <section aria-label="专业工作台" className="card-surface p-4" data-testid="workbench">
       <div className="flex items-baseline justify-between">
         <h2 className="font-bold">工作台</h2>
         <span className="text-xs text-sub">盘口主题 · 只用已知信息</span>
@@ -164,13 +170,61 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
                   "—"
                 )}
               </span>
-              <span className="block text-[10px] text-mute">{last ? mLabel(last.m) : "未公布"}</span>
+              <span className="block text-[10.5px] leading-snug text-sub">
+                {last ? mLabel(last.m) : "未公布"}
+                <Pos rows={rows} />
+              </span>
             </span>
           );
         })}
       </button>
+      <Calendar script={script} round={round} compact />
       <p className="mt-2 text-[11px] text-sub">「重演上月」＝上个月各资产的真实涨跌套在你现在的仓位上，只是一种压力测试，不是预测。</p>
       {drawer}
     </section>
+  );
+}
+
+/** 历史位置 tag after a value: 近 12 月最高 / 偏低 … */
+function Pos({ rows }: { rows: { m: string; v: number }[] }) {
+  const p = position(rows);
+  if (!p) return null;
+  return <span className={`pos pos-${p.tone}`}>{p.text}</span>;
+}
+
+/** 本月日程 (after 见微's 「下次验证」): what gets published this month. The value shows up next round. */
+function Calendar({ script, round, compact = false }: { script: Script; round: number; compact?: boolean }) {
+  const due = dueThisRound(script.id, round);
+  if (!due.length) return null;
+  const month = yLabel(roundMonth(script.id, round));
+  if (compact)
+    return (
+      <div className="cal mt-3" data-testid="calendar">
+        <span className="cal-k">本月将公布</span>
+        <ul>
+          {due.map((d) => (
+            <li key={d.id}>
+              <b>{mLabel(d.m)}</b> {d.name}
+              <span className="text-sub"> · {d.when}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  return (
+    <div className="dr-group" data-testid="calendar">
+      <h3 className="dr-h">{month}会公布的</h3>
+      <ul className="cal cal-list">
+        {due.map((d) => (
+          <li key={d.id}>
+            <span>
+              {yLabel(d.m)} {d.name}
+            </span>
+            <span className="text-sub">{d.when}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="dr-note">日程是事先公开的，数值要等公布以后才知道，下个回合开始时会出现在上面。</p>
+    </div>
   );
 }

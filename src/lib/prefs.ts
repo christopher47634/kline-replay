@@ -15,7 +15,10 @@ export type Skin = "pan" | "paper" | "plain";
 export type BodyFont = "auto" | "sans" | "serif" | "kai";
 export type Voice = "auto" | "plain" | "standard" | "pro";
 export type Leading = "auto" | "compact" | "normal" | "airy";
-export type Glass = "liquid" | "frost" | "off";
+export type Glass = "clear" | "tinted" | "frost" | "off";
+export type UpDown = "cn" | "intl";
+export type Accent = "gold" | "ice" | "violet";
+export type MotionLevel = "auto" | "reduce";
 
 export interface Prefs {
   skin: Skin;
@@ -24,10 +27,14 @@ export interface Prefs {
   scale: number;
   leading: Leading;
   glass: Glass;
+  updown: UpDown;
+  accent: Accent;
+  motion: MotionLevel;
+  loupe: boolean;
 }
 
 export const SCALES = [0.9, 1, 1.1, 1.2, 1.3] as const;
-export const DEFAULT_PREFS: Prefs = { skin: "pan", font: "auto", voice: "auto", scale: 1, leading: "auto", glass: "liquid" };
+export const DEFAULT_PREFS: Prefs = { skin: "pan", font: "auto", voice: "auto", scale: 1, leading: "auto", glass: "clear", updown: "cn", accent: "gold", motion: "auto", loupe: true };
 import { PREFS_KEY } from "./prefsBoot";
 export { PREFS_KEY };
 
@@ -66,6 +73,21 @@ export const LEADINGS: { id: Exclude<Leading, "auto">; name: string; value: numb
   { id: "airy", name: "宽松", value: 1.95 },
 ];
 
+/** Apple's two Liquid Glass looks (iOS 26.1 「清透 / 着色」) plus frosted glass and solid. */
+export const GLASSES: { id: Glass; name: string; note: string }[] = [
+  { id: "clear", name: "清透", note: "苹果液态玻璃的默认样子：几乎不上色，边缘像透镜一样把背后的内容弯进来，只有一道白色镜面高光。" },
+  { id: "tinted", name: "着色", note: "同样的透镜边缘，底色加深、模糊更重，文字对比度更高；背景花的时候更好读。" },
+  { id: "frost", name: "磨砂", note: "上一代毛玻璃：只模糊不折射，边缘一条细亮线。所有浏览器效果一致。" },
+  { id: "off", name: "关闭", note: "实色底。系统开了「降低透明度」时也会自动用这一档。" },
+];
+
+/** Accent for the 盘口 skin (buttons, focus rings, highlights); the light skins bring their own. */
+export const ACCENTS: { id: Accent; name: string; color: string }[] = [
+  { id: "gold", name: "琥珀金", color: "#f5b400" },
+  { id: "ice", name: "冰川蓝", color: "#5aa9ff" },
+  { id: "violet", name: "暮光紫", color: "#a48bff" },
+];
+
 export function sanitize(raw: unknown): Prefs {
   const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Prefs>;
   return {
@@ -74,21 +96,23 @@ export function sanitize(raw: unknown): Prefs {
     voice: r.voice === "plain" || r.voice === "standard" || r.voice === "pro" ? r.voice : "auto",
     scale: (SCALES as readonly number[]).includes(r.scale as number) ? (r.scale as number) : 1,
     leading: r.leading === "compact" || r.leading === "normal" || r.leading === "airy" ? r.leading : "auto",
-    glass: r.glass === "frost" || r.glass === "off" ? r.glass : "liquid",
+    glass: r.glass === "tinted" || r.glass === "frost" || r.glass === "off" ? r.glass : "clear",
+    updown: r.updown === "intl" ? "intl" : "cn",
+    accent: r.accent === "ice" || r.accent === "violet" ? r.accent : "gold",
+    motion: r.motion === "reduce" ? "reduce" : "auto",
+    loupe: r.loupe !== false,
   };
 }
 
-export type Resolved = { skin: Skin; font: Exclude<BodyFont, "auto">; voice: Exclude<Voice, "auto">; leading: Exclude<Leading, "auto">; scale: number; glass: Glass };
+export type Resolved = Omit<Prefs, "font" | "voice" | "leading"> & { font: Exclude<BodyFont, "auto">; voice: Exclude<Voice, "auto">; leading: Exclude<Leading, "auto"> };
 
 export function resolve(p: Prefs): Resolved {
   const m = skinMeta(p.skin);
   return {
-    skin: p.skin,
+    ...p,
     font: p.font === "auto" ? m.font : p.font,
     voice: p.voice === "auto" ? m.voice : p.voice,
     leading: p.leading === "auto" ? m.leading : p.leading,
-    scale: p.scale,
-    glass: p.glass,
   };
 }
 
@@ -148,6 +172,10 @@ export function applyPrefs(r: Resolved) {
   el.dataset.font = r.font;
   el.dataset.voice = r.voice;
   el.dataset.glass = r.glass;
+  el.dataset.updown = r.updown;
+  el.dataset.accent = r.accent;
+  el.dataset.motion = r.motion;
+  el.dataset.loupe = r.loupe ? "on" : "off";
   el.style.setProperty("--fs", String(r.scale));
   el.style.setProperty("--lh", String(LEADINGS.find((l) => l.id === r.leading)!.value));
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", r.skin === "pan" ? "#07090D" : r.skin === "paper" ? "#F6F4EF" : "#FAFAF7");

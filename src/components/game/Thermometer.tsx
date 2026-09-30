@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { pct } from "@/lib/format";
 
-const CELLS = ["#1F7A35", "#3E6B48", "#4B5563", "#8A4B4E", "#C93A3D"];
+// theme colours, so 阅读设置 → 涨跌颜色 flips them too
+const CELLS = [
+  "color-mix(in oklab, var(--color-down) 70%, black)",
+  "color-mix(in oklab, var(--color-down) 45%, var(--color-mute))",
+  "var(--color-mute)",
+  "color-mix(in oklab, var(--color-up) 45%, var(--color-mute))",
+  "color-mix(in oklab, var(--color-up) 80%, black)",
+];
 
 /** 0..4 bucket of last month's market return: <=-8% / -8~-2 / -2~2 / 2~8 / >=8%. */
 export function tempLevel(r: number): number {
@@ -45,7 +52,7 @@ export function Thermometer({ ret, monthNo }: { ret: number; monthNo: number }) 
               style={{
                 background: c,
                 opacity: on ? (target ? 1 : 0.55) : 0.16,
-                outline: target && on ? "1.5px solid #ECEEF2" : "none",
+                outline: target && on ? "1.5px solid var(--color-ink)" : "none",
                 outlineOffset: 1,
                 animation: target && lit === level && !reduce ? "pulse-once 400ms var(--ease-snap)" : undefined,
               }}

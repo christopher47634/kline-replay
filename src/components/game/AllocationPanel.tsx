@@ -38,7 +38,11 @@ const DampedSlider = forwardRef<HTMLInputElement, { id: string; value: number; c
 
   return (
     <div className="relative mt-2 hidden h-6 md:block">
-      <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-bg" />
+      {/* the empty track needs its own edge on dark themes, plus 25 / 50 / 75 marks to aim at */}
+      <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-bg ring-1 ring-inset ring-line-2/70" />
+      {[25, 50, 75].map((t) => (
+        <span key={t} aria-hidden className="absolute top-1/2 h-3.5 w-px -translate-y-1/2 bg-line-2" style={{ left: `${t}%` }} />
+      ))}
       <motion.div className="absolute left-0 top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ width, background: color }} />
       <motion.div className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-bg" style={{ left, background: color, boxShadow: `0 0 0 1px ${color}, 0 0 10px ${color}66` }} />
       <input

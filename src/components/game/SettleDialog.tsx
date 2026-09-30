@@ -14,6 +14,7 @@ import type { LastSettle } from "@/game/store";
 import { ASSET_IDS, type Script } from "@/game/types";
 import { useResolved } from "@/lib/prefs";
 import { plainSettle, proSettle, settleFacts } from "@/lib/voice";
+import { dueThisRound } from "@/lib/macro";
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
@@ -189,6 +190,14 @@ function ProBlock({ script, last }: { script: Script; last: LastSettle }) {
         <span className="vr-k mr-2">市场事件</span>
         {script.months[last.month].hindsight}
       </p>
+      {last.month < script.months.length - 1 && (
+        <p className="text-xs text-sub" data-testid="pro-track">
+          <span className="vr-k mr-2">下月跟踪</span>
+          {dueThisRound(script.id, last.month + 1)
+            .map((d) => `${+d.m.slice(5)} 月${d.name}（${d.when}）`)
+            .join("、")}
+        </p>
+      )}
     </div>
   );
 }

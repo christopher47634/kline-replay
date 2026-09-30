@@ -34,50 +34,71 @@ export function StatusBar({
 }) {
   const totalRet = cash / startCash - 1;
   const monthOnly = label.replace(/^\d+ 年 /, "");
+  const tone = (v: number) => (v > 0 ? "up" : v < 0 ? "down" : undefined);
   return (
-    <motion.div initial={{ y: "-100%" }} animate={{ y: 0 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="sticky top-0 z-20 -mx-4 px-4 md:-mx-6 md:px-6 bg-bg/90 backdrop-blur border-b border-line">
-      {/* Phone: one fixed 44px line so the bar never eats into the cards below. */}
-      <div className="md:hidden h-11 pr-20 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
-        <span>
-          第{" "}
-          <b className="num">
-            <Flip value={String(round)} />
-          </b>{" "}
-          回合 · <Flip value={monthOnly} />
-        </span>
-        <span className="flex items-center gap-2">
-          <RollingNumber value={cash} format={yuan} className="font-bold" />
-          <span className={`num font-bold ${upDownColor(totalRet)}`}>{pct(totalRet)}</span>
-        </span>
-      </div>
-      <div className="hidden md:flex flex-wrap items-center gap-x-5 gap-y-1 text-sm py-3">
-        <span>
-          第{" "}
-          <b className="num text-ink text-base">
-            <Flip value={String(round)} />
-          </b>{" "}
-          回合 <span className="text-sub num">/ {total}</span>
-        </span>
-        <span className="text-sub">｜</span>
-        <Flip value={label} className="font-medium" />
-        <span className="text-sub">｜</span>
-        <span>
-          <span className="text-sub">总资产 </span>
-          <span data-zoom data-zoom-value={yuan(cash)} data-zoom-label={`总资产 · 累计 ${pct(totalRet)}`} data-zoom-tone={totalRet > 0 ? "up" : totalRet < 0 ? "down" : undefined}>
-            <RollingNumber value={cash} format={yuan} className="text-base font-bold" />
+    <motion.div initial={{ y: "-100%" }} animate={{ y: 0 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="sticky top-0 z-20 -mx-4 px-2 pt-1.5 md:-mx-6 md:px-4 md:pt-2">
+      {/* A floating glass bar over the page (the content scrolls under it). Right margin: the two fixed buttons. */}
+      <div className="lg relative mr-[5.25rem] rounded-2xl border border-line bg-card/90 backdrop-blur xl:mr-0" style={{ "--lg-flex": 1.01 } as React.CSSProperties}>
+        {/* Phone: one fixed 40px line so the bar never eats into the cards below. */}
+        <div className="md:hidden h-10 px-3 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
+          <span>
+            第{" "}
+            <b className="num">
+              <Flip value={String(round)} />
+            </b>{" "}
+            回合 · <Flip value={monthOnly} />
           </span>
-        </span>
-        {lastPnl !== null && (
-          <>
-            <span className="text-sub">｜</span>
-            <span>
-              <span className="text-sub">上月 </span>
-              <span className={`num font-bold ${upDownColor(lastPnl)}`} data-zoom data-zoom-label="上月盈亏" data-zoom-tone={lastPnl > 0 ? "up" : lastPnl < 0 ? "down" : undefined}>
-                {pct(lastPnl)}
-              </span>
+          <span className="flex items-center gap-2">
+            <RollingNumber value={cash} format={yuan} className="font-bold" />
+            <span className={`num font-bold ${upDownColor(totalRet)}`}>{pct(totalRet)}</span>
+          </span>
+          <span className="sb-bar" aria-hidden>
+            <i style={{ width: `${(round / total) * 100}%` }} />
+          </span>
+        </div>
+        {/* Desktop: where you are on the left, how you are doing on the right; small label above each value. */}
+        <div className="hidden md:flex items-center gap-8 px-5 py-2">
+          <div>
+            <span className="sb-k">回合</span>
+            <span className="sb-v">
+              <b className="num text-lg text-ink">
+                <Flip value={String(round)} />
+              </b>
+              <span className="num text-sub"> / {total}</span>
             </span>
-          </>
-        )}
+          </div>
+          <div>
+            <span className="sb-k">现在是</span>
+            <span className="sb-v">
+              <Flip value={label} className="font-semibold" />
+            </span>
+            <span className="sb-ticks" role="img" aria-label={`第 ${round} 个月，共 ${total} 个月`}>
+              {Array.from({ length: total }, (_, i) => (
+                <i key={i} className={i + 1 < round ? "done" : i + 1 === round ? "now" : ""} />
+              ))}
+            </span>
+          </div>
+          <div className="ml-auto flex items-end gap-8 text-right">
+            {lastPnl !== null && (
+              <div>
+                <span className="sb-k">上月</span>
+                <span className={`sb-v num font-bold ${upDownColor(lastPnl)}`} data-zoom data-zoom-label="上月盈亏" data-zoom-tone={tone(lastPnl)}>
+                  {pct(lastPnl)}
+                </span>
+              </div>
+            )}
+            <div>
+              <span className="sb-k">累计</span>
+              <span className={`sb-v num font-bold ${upDownColor(totalRet)}`}>{pct(totalRet)}</span>
+            </div>
+            <div>
+              <span className="sb-k">总资产</span>
+              <span className="sb-v" data-zoom data-zoom-value={yuan(cash)} data-zoom-label={`总资产 · 累计 ${pct(totalRet)}`} data-zoom-tone={tone(totalRet)}>
+                <RollingNumber value={cash} format={yuan} className="text-lg font-bold" />
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

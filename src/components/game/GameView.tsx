@@ -190,6 +190,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
         {/* A new month replaces what is on screen: these entrances start at 0.6, never at 0, or the columns blink out for a frame. */}
         <Enter key={`head-${shownMonth}`} delay={0} from={TURN_FROM} y={10} className="md:col-span-2 lg:col-span-1">
           <section aria-label="本月头条" className="space-y-3">
+            <Step n={1}>看消息</Step>
             <h2 className="font-bold">
               {month.label}初 · 头条
             </h2>
@@ -207,6 +208,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
           </section>
         </Enter>
         <Enter delay={0.08} className="flex flex-col">
+          <Step n={2}>看数据</Step>
           <div className="flex flex-1 flex-col gap-4">
             <TrendChart script={script} history={chartHistory} />
             <div data-plain-hide>
@@ -217,6 +219,7 @@ export function GameView({ scriptId }: { scriptId: string }) {
           </div>
         </Enter>
         <Enter key={`alloc-${shownMonth}`} delay={0.08} from={TURN_FROM} y={10}>
+          <Step n={3}>做决定</Step>
           <div className="space-y-4">
             <AllocationPanel ref={panel} assets={script.assets} value={st.draft} onChange={st.setAlloc} previous={previous} onSubmit={goNext} />
             {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}
@@ -259,6 +262,16 @@ export function GameView({ scriptId }: { scriptId: string }) {
     </main>
       </motion.div>
     </div>
+  );
+}
+
+/** Reading order for the three columns (看消息 → 看数据 → 做决定); on phones the same order top to bottom. */
+function Step({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <p className="step">
+      <i>{n}</i>
+      {children}
+    </p>
   );
 }
 

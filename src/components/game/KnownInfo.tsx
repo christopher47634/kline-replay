@@ -11,7 +11,7 @@ export function KnownInfo({ script, round }: { script: Script; round: number }) 
   const scale = Math.max(0.1, ...rets.map(Math.abs));
   const monthNo = round === 0 ? 12 : round;
   return (
-    <section aria-label="本月已知信息" className="rounded-xl bg-card border border-line p-4">
+    <section aria-label="本月已知信息" className="card-surface p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="font-bold">本月已知信息</h2>
         <span className="text-xs text-sub">{monthNo} 月各资产涨跌</span>

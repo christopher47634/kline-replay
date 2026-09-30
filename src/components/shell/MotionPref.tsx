@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { usePrefs } from "@/lib/prefs";
 
 export interface MotionPref {
-  /** prefers-reduced-motion, or battery saver: no particles, no scroll binding, no odometer, fade-only transitions. */
+  /** prefers-reduced-motion, 阅读设置 动效「减少」, or battery saver: no particles, no scroll binding, no odometer, fade-only transitions. */
   reduce: boolean;
   /** Coarse pointer: no custom cursor, no magnetic buttons, no 3D tilt. */
   touch: boolean;
@@ -22,7 +23,10 @@ export function useMotionPref() {
 
 /** Reads media queries once and keeps them live. Everything animated in the app asks this instead of matchMedia. */
 export function ReducedMotionProvider({ children }: { children: React.ReactNode }) {
-  const [pref, setPref] = useState<MotionPref>(SSR);
+  const [media, setPref] = useState<MotionPref>(SSR);
+  // 阅读设置 → 动效「减少」counts the same as the system switch
+  const forced = usePrefs().motion === "reduce";
+  const pref = forced && !media.reduce ? { ...media, reduce: true } : media;
 
   useEffect(() => {
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)");

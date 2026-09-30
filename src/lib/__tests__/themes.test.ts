@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { settle } from "@/game/engine";
 import type { Allocation, Script } from "@/game/types";
 import { getScript } from "@/lib/scripts";
-import { knownRows, macroFor, monthMinus } from "@/lib/macro";
+import { dueThisRound, knownRows, macroFor, monthMinus, position } from "@/lib/macro";
 import { DEFAULT_PREFS, resolve, sanitize } from "@/lib/prefs";
 import { PREFS_BOOT, PREFS_KEY } from "@/lib/prefsBoot";
 import { plainSettle, proSettle, settleFacts, yearFacts } from "@/lib/voice";
@@ -25,6 +25,8 @@ describe("阅读设置", () => {
     expect(sanitize(null)).toEqual(DEFAULT_PREFS);
     expect(sanitize({ skin: "neon", font: "comic", scale: 7, glass: "x" })).toEqual(DEFAULT_PREFS);
     expect(DEFAULT_PREFS.skin).toBe("pan");
+    // v4 saved "liquid": now the clear variant
+    expect(sanitize({ glass: "liquid" }).glass).toBe("clear");
   });
   it("主题带默认字体与文风，单独设置优先", () => {
     expect(resolve(sanitize({ skin: "plain" }))).toMatchObject({ font: "kai", voice: "plain", leading: "airy" });
@@ -32,12 +34,12 @@ describe("阅读设置", () => {
     expect(resolve(sanitize({ skin: "paper", voice: "pro", font: "serif" }))).toMatchObject({ font: "serif", voice: "pro" });
   });
   it("首帧脚本和 React 里的解析结果一致（不会先闪一种主题再换）", () => {
-    const cases: unknown[] = [undefined, {}, { skin: "paper" }, { skin: "plain", font: "serif", voice: "pro", scale: 1.2, leading: "compact", glass: "off" }, { skin: "bad", scale: 9 }];
+    const cases: unknown[] = [undefined, {}, { skin: "paper" }, { skin: "plain", font: "serif", voice: "pro", scale: 1.2, leading: "compact", glass: "off" }, { skin: "bad", scale: 9 }, { glass: "tinted", updown: "intl", accent: "ice", motion: "reduce", loupe: false }, { glass: "liquid", accent: "red", loupe: 0 }];
     const lh = { compact: "1.55", normal: "1.75", airy: "1.95" };
     for (const c of cases) {
       const r = resolve(sanitize(c));
       const { dataset, style } = boot(c);
-      expect(dataset).toEqual({ skin: r.skin, font: r.font, voice: r.voice, glass: r.glass });
+      expect(dataset).toEqual({ skin: r.skin, font: r.font, voice: r.voice, glass: r.glass, updown: r.updown, accent: r.accent, motion: r.motion, loupe: r.loupe ? "on" : "off" });
       expect(style["--fs"]).toBe(String(r.scale));
       expect(style["--lh"]).toBe(lh[r.leading]);
     }
@@ -110,5 +112,31 @@ describe("宏观与资金面：不剧透", () => {
     const margin = macroFor("2015").find((x) => x.id === "margin")!;
     expect(margin.rows.find((r) => r.m === "2015-05")?.v).toBeGreaterThan(20000);
     expect(monthMinus("2015-01", 2)).toBe("2014-11");
+  });
+});
+
+describe("借鉴见微：发布日程与历史位置", () => {
+  it("本月日程里的数据月份，正好是下个回合第一次能看到的那一个月，而且现在还看不到", () => {
+    for (const id of ["2015", "2020"]) {
+      for (let r = 0; r < 11; r++) {
+        for (const d of dueThisRound(id, r)) {
+          const s = macroFor(id).find((x) => x.id === d.id)!;
+          expect(knownRows(s, id, r).some((row) => row.m === d.m)).toBe(false);
+          const next = knownRows(s, id, r + 1);
+          if (s.rows.some((row) => row.m === d.m)) expect(next.at(-1)?.m).toBe(d.m);
+        }
+      }
+    }
+    const jan = dueThisRound("2015", 0);
+    expect(jan.find((d) => d.id === "pmi")?.m).toBe("2015-01");
+    expect(jan.find((d) => d.id === "cpi")?.m).toBe("2014-12");
+  });
+  it("历史位置：最高、最低、居中，少于 4 期不下结论", () => {
+    const rows = (vs: number[]) => vs.map((v, i) => ({ m: `2015-${String(i + 1).padStart(2, "0")}`, v }));
+    expect(position(rows([1, 2, 3]))).toBeNull();
+    expect(position(rows([1, 2, 3, 4]))?.text).toBe("近 4 月最高");
+    expect(position(rows([4, 3, 2, 1]))?.text).toBe("近 4 月最低");
+    expect(position(rows([1, 3, 5, 2, 4, 3]))?.tone).toBe("mid");
+    expect(position(rows(Array.from({ length: 20 }, (_, i) => i)))?.n).toBe(12);
   });
 });

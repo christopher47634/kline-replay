@@ -1,6 +1,6 @@
 "use client";
 
-import { FONTS, LEADINGS, SCALES, SKINS, VOICES, resetPrefs, resolve, setPrefs, skinMeta, usePrefs } from "@/lib/prefs";
+import { ACCENTS, FONTS, GLASSES, LEADINGS, SCALES, SKINS, VOICES, resetPrefs, resolve, setPrefs, skinMeta, usePrefs } from "@/lib/prefs";
 import { Drawer, useDrawer } from "./Drawer";
 
 /** The 阅读设置 drawer itself: loaded on first open so it stays out of every page's first-load bundle. */
@@ -54,6 +54,19 @@ function Body() {
           ))}
         </div>
         <p className="dr-note">{skinMeta(p.skin).traits.join(" · ")}。主题带一套默认字体和复盘文风，下面可以单独改。</p>
+        {p.skin === "pan" && (
+          <div className="dr-line">
+            <span>强调色</span>
+            <div className="seg" role="radiogroup" aria-label="强调色">
+              {ACCENTS.map((a) => (
+                <button key={a.id} type="button" role="radio" aria-checked={p.accent === a.id} onClick={() => setPrefs({ accent: a.id })}>
+                  <span className="swatch" style={{ background: a.color }} aria-hidden />
+                  {a.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="dr-group">
@@ -98,9 +111,25 @@ function Body() {
       </div>
 
       <div className="dr-group">
-        <h3 className="dr-h">玻璃质感</h3>
-        <Seg label="玻璃质感" value={p.glass} items={[["liquid", "液态"], ["frost", "磨砂"], ["off", "关闭"]] as const} onPick={(v) => setPrefs({ glass: v })} />
-        <p className="dr-note">液态：折射、彩虹边、跟随光标的高光，只用在浮层按钮和放大镜上。系统开启「降低透明度」时自动关闭。</p>
+        <h3 className="dr-h">外观与交互</h3>
+        <button type="button" className="dr-row" onClick={() => push({ key: "glass", title: "玻璃质感", body: <GlassPage /> })}>
+          <span>玻璃质感</span>
+          <span className="dr-val">{GLASSES.find((g) => g.id === p.glass)!.name}</span>
+          <Chevron />
+        </button>
+        <div className="dr-line">
+          <span>涨跌颜色</span>
+          <Seg label="涨跌颜色" value={p.updown} items={[["cn", "红涨绿跌"], ["intl", "绿涨红跌"]] as const} onPick={(v) => setPrefs({ updown: v })} />
+        </div>
+        <div className="dr-line">
+          <span>数据放大镜</span>
+          <Seg label="数据放大镜" value={p.loupe ? "on" : "off"} items={[["on", "开"], ["off", "关"]] as const} onPick={(v) => setPrefs({ loupe: v === "on" })} />
+        </div>
+        <div className="dr-line">
+          <span>动效</span>
+          <Seg label="动效" value={p.motion} items={[["auto", "完整"], ["reduce", "减少"]] as const} onPick={(v) => setPrefs({ motion: v })} />
+        </div>
+        <p className="dr-note">放大镜：鼠标停在关键数字上时放大显示，触屏不启用。动效「减少」：不翻页、不弹跳、不跑数字，和系统的「减少动态效果」一样。</p>
       </div>
 
       <button type="button" className="dr-row" onClick={resetPrefs}>
@@ -169,6 +198,37 @@ function VoicePage() {
         ))}
       </div>
       <p className="dr-note">样张是示意；游戏里的每个数字都由你当月的真实仓位和真实行情算出来。</p>
+    </>
+  );
+}
+
+function GlassPage() {
+  const p = usePrefs();
+  const lens = typeof navigator !== "undefined" && /Chrome\/|Edg\//.test(navigator.userAgent) && !/Firefox\//.test(navigator.userAgent);
+  return (
+    <>
+      <div className="glass-demo" aria-hidden>
+        <span className="glass-demo-t num">5178.19</span>
+        <span className="lg">
+          <span>按住试试</span>
+        </span>
+      </div>
+      <p className="dr-note">
+        参照苹果的液态玻璃：玻璃本身不带颜色，边缘像一圈透镜，把后面的内容放大、弯进来，所以边上看到的颜色是后面内容的颜色；一道白色高光沿边缘走，朝向跟着光标；按下时从按的位置亮起来，旁边的玻璃也跟着亮。
+        {lens ? "" : "当前浏览器不支持透镜折射，只有模糊和高光；用 Chrome 或 Edge 能看到完整效果。"}
+      </p>
+      <div className="dr-group" role="radiogroup" aria-label="玻璃质感">
+        {GLASSES.map((g) => (
+          <button key={g.id} type="button" role="radio" aria-checked={p.glass === g.id} className="opt" onClick={() => setPrefs({ glass: g.id })}>
+            <span className="opt-head">
+              <b>{g.name}</b>
+              <span>{g.id === "clear" ? "默认" : ""}</span>
+            </span>
+            <span className="opt-note">{g.note}</span>
+          </button>
+        ))}
+      </div>
+      <p className="dr-note">玻璃只用在浮在内容上面的控件：顶部状态栏、右上角按钮、放大镜。正文和数据卡保持实底，读起来不花。</p>
     </>
   );
 }

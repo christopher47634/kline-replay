@@ -57,7 +57,7 @@ export function SoundGate() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
           transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-          className="glass fixed bottom-5 right-5 z-[80] rounded-full border border-line px-4 py-2 text-sm text-ink shadow-lg hover:border-gold"
+          className="lg glass fixed bottom-5 right-5 z-[80] rounded-full border border-line px-4 py-2 text-sm text-ink shadow-lg hover:border-gold"
         >
           🔊 开启声音，体验更完整
         </motion.button>
