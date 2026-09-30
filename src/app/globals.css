@@ -184,6 +184,21 @@ html.has-cursor * {
   cursor: none !important;
 }
 
+/* Custom cursor colours per skin (light skins: a solid dark dot with a white halo, dark ring). */
+:root { --cur-dot: #eceef2; --cur-blend: difference; --cur-halo: none; --cur-ring: rgb(236 238 242 / 0.5); }
+:root:is([data-skin="paper"], [data-skin="plain"]) { --cur-dot: #17191e; --cur-blend: normal; --cur-halo: 0 0 0 2px rgb(255 255 255 / 0.95), 0 1px 4px rgb(0 0 0 / 0.35); --cur-ring: rgb(23 25 30 / 0.62); }
+.cur-dot { background: var(--cur-dot); mix-blend-mode: var(--cur-blend); box-shadow: var(--cur-halo); }
+.cur-ring { border-color: var(--cur-ring); }
+.cur-ring.is-hover { border-color: var(--color-gold); border-width: 1.5px; }
+
+/* While a modal <dialog> is open (it sits in the browser's top layer, above the custom cursor), use the native cursor
+   everywhere, backdrop included, and hide the custom one. */
+html.has-cursor:has(dialog[open]),
+html.has-cursor:has(dialog[open]) * {
+  cursor: auto !important;
+}
+html:has(dialog[open]) :is(.cur-dot, .cur-ring) { display: none; }
+
 /* A modal <dialog> lives in the browser's top layer, above the custom cursor: give it the native cursor back. */
 html.has-cursor dialog[open],
 html.has-cursor dialog[open] * {

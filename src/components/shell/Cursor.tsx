@@ -44,15 +44,15 @@ export function Cursor() {
     if (ring.current) {
       const s = p.hover ? 1.5 : 1;
       ring.current.style.transform = `translate3d(${p.rx - 16}px, ${p.ry - 16}px, 0) scale(${s})`;
-      ring.current.style.borderColor = p.hover ? "#F5B400" : "rgb(236 238 242 / 0.5)";
+      ring.current.classList.toggle("is-hover", p.hover);
     }
   }, on);
 
   if (!on) return null;
   return (
     <>
-      <div ref={ring} aria-hidden className="pointer-events-none fixed left-0 top-0 z-[100] h-8 w-8 rounded-full border transition-[border-color] duration-150" />
-      <div ref={dot} aria-hidden className="pointer-events-none fixed left-0 top-0 z-[100] h-3 w-3 rounded-full bg-ink mix-blend-difference" />
+      <div ref={ring} aria-hidden className="cur-ring pointer-events-none fixed left-0 top-0 z-[100] h-8 w-8 rounded-full border transition-[border-color] duration-150" />
+      <div ref={dot} aria-hidden className="cur-dot pointer-events-none fixed left-0 top-0 z-[100] h-3 w-3 rounded-full" />
     </>
   );
 }

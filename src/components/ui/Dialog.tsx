@@ -41,6 +41,10 @@ export function Dialog({
     const d = ref.current;
     if (!d) return;
     const reduce = document.documentElement.dataset.reduceMotion === "1";
+    // Clear every earlier animation first. The close animation fills forwards (so the card does not flash back at
+    // full size before close()); if it were left in place, the next open would end at opacity 0 / scale 0.5 —
+    // a grey backdrop with no card from the second settlement on.
+    d.getAnimations().forEach((a) => a.cancel());
     if (open) {
       setMounted(true);
       closing.current = false;
@@ -54,6 +58,7 @@ export function Dialog({
       closing.current = true;
       const finish = () => {
         d.close();
+        d.getAnimations().forEach((a) => a.cancel());
         setMounted(false);
         closing.current = false;
       };

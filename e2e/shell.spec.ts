@@ -89,3 +89,38 @@ test("turning the month never blanks the page: the headline and allocation colum
   });
   expect(min).toBeGreaterThanOrEqual(0.5);
 });
+
+// Regression: the close animation filled forwards and was never cleared, so from the second month on the settle card
+// stayed at opacity 0 (only the grey backdrop showed, with no cursor). Playwright's toBeVisible ignores opacity,
+// so check what is actually painted, every month.
+test("the settle card is fully shown every month, not just the first", async ({ page }) => {
+  await page.goto("/play/2015");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.getByRole("button", { name: /开始第 1 回合/ }).click();
+  for (let m = 0; m < 4; m++) {
+    if (await page.getByTestId("moment-card").isVisible().catch(() => false)) await page.getByRole("button", { name: "不动" }).click();
+    await page.getByTestId("next-month").click();
+    const dialog = page.getByRole("dialog", { name: "本月结算" });
+    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(700); // the 320ms grow animation is over
+    const shown = await dialog.evaluate((d) => ({ opacity: getComputedStyle(d).opacity, transform: getComputedStyle(d).transform, anims: d.getAnimations().length }));
+    expect(shown, `month ${m + 1}`).toEqual({ opacity: "1", transform: "none", anims: 0 });
+    // native cursor over the backdrop too
+    expect(await page.evaluate(() => getComputedStyle(document.body).cursor)).not.toBe("none");
+    await dialog.getByRole("button", { name: /进入下个月/ }).click();
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(400);
+  }
+});
+
+test("light skins: the cursor dot is dark and solid, the ring dark", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("kline:prefs", JSON.stringify({ skin: "paper" })));
+  await page.goto("/about");
+  await page.mouse.move(200, 200);
+  const dot = page.locator(".cur-dot");
+  await expect(dot).toBeAttached();
+  const s = await dot.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, blend: getComputedStyle(el).mixBlendMode }));
+  expect(s).toEqual({ bg: "rgb(23, 25, 30)", blend: "normal" });
+  expect(await page.locator(".cur-ring").evaluate((el) => getComputedStyle(el).borderTopColor)).toMatch(/rgba\(23, 25, 30/);
+});
