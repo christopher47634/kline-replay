@@ -44,9 +44,9 @@ export function TrendChart({ script, history }: { script: Script; history: Round
 
   return (
     <section aria-label="走势" className="card-surface flex-1 flex flex-col p-4">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-bold">走势</h2>
-        <span className="text-xs text-sub">起点 = 100，月末值</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="shrink-0 font-bold">走势</h2>
+        <span className="text-right text-xs text-sub">起点 = 100，月末值</span>
       </div>
       <div className="mt-2 h-64 md:h-auto md:min-h-64 md:flex-1">
         <ResponsiveContainer width="100%" height="100%">

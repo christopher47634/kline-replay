@@ -12,9 +12,9 @@ export function KnownInfo({ script, round }: { script: Script; round: number }) 
   const monthNo = round === 0 ? 12 : round;
   return (
     <section aria-label="本月已知信息" className="card-surface p-4">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-bold">本月已知信息</h2>
-        <span className="text-xs text-sub">{monthNo} 月各资产涨跌</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="shrink-0 font-bold">本月已知信息</h2>
+        <span className="text-right text-xs text-sub">{monthNo} 月各资产涨跌</span>
       </div>
       <ul className="mt-3 space-y-2">
         {ROWS.map((id, k) => {

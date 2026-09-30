@@ -43,15 +43,16 @@ export function StatusBar({
         {/* Phone: one fixed 40px line so the bar never eats into the cards below. */}
         <div className="md:hidden h-10 px-3 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
           <span>
-            第{" "}
+            <span className="max-[359px]:hidden">第 </span>
             <b className="num">
               <Flip value={String(round)} />
-            </b>{" "}
-            回合 · <Flip value={monthOnly} />
+            </b>
+            <span className="max-[359px]:hidden"> 回合</span>
+            <span className="num text-sub min-[360px]:hidden">/{total}</span> · <Flip value={monthOnly} />
           </span>
           <span className="flex items-center gap-2">
             <RollingNumber value={cash} format={yuan} className="font-bold" />
-            <span className={`num font-bold ${upDownColor(totalRet)}`}>{pct(totalRet)}</span>
+            <span className={`num font-bold max-[359px]:hidden ${upDownColor(totalRet)}`}>{pct(totalRet)}</span>
           </span>
           <span className="sb-bar" aria-hidden>
             <i style={{ width: `${(round / total) * 100}%` }} />

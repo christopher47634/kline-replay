@@ -137,7 +137,7 @@ export const AllocationPanel = forwardRef<
                 aria-label={`${a.name} 说明`}
                 aria-expanded={help === a.id}
                 onClick={() => setHelp(help === a.id ? null : a.id)}
-                className="grid h-5 w-5 place-items-center rounded-full border border-line text-[11px] text-sub hover:border-sub hover:text-ink"
+                className="relative grid h-5 w-5 place-items-center rounded-full border border-line text-[11px] text-sub before:absolute before:-inset-2 before:content-[''] hover:border-sub hover:text-ink"
               >
                 ?
               </button>

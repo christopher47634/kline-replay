@@ -28,7 +28,8 @@ export function YearVoice({ script, history, daily, marketRet, cashRet }: { scri
     );
   }
 
-  const cells: { k: string; v: string; tone?: number; note?: string }[] = [
+  const monthOf = (label: string) => label.replace(/^\d+ 年 /, "");
+  const cells: { k: string; v: React.ReactNode; tone?: number; note?: string }[] = [
     { k: "年度收益", v: pct(f.ret), tone: f.ret },
     { k: "超额（对满仓大盘）", v: `${f.excessMarket >= 0 ? "+" : "−"}${Math.abs(f.excessMarket * 100).toFixed(1)}pp`, tone: f.excessMarket },
     { k: "最大回撤", v: pct(f.maxDrawdown), tone: f.maxDrawdown, note: "按日线路径" },
@@ -36,13 +37,26 @@ export function YearVoice({ script, history, daily, marketRet, cashRet }: { scri
     { k: "年化波动", v: `${(f.volatility * 100).toFixed(1)}%`, note: "月收益标准差 × √12" },
     { k: "夏普比率", v: f.sharpe === null ? "—" : f.sharpe.toFixed(2), note: "无风险利率取全程现金" },
     { k: "平均风险敞口", v: `${Math.round(f.avgExposure)}%`, note: "非现金仓位" },
-    { k: "最好 / 最差月", v: `${pct(f.best.pnl)} / ${pct(f.worst.pnl)}` },
+    {
+      // two short lines instead of one long "a / b" that wraps mid-number on phones
+      k: "最好 / 最差月",
+      v: (
+        <>
+          <span className={`block ${upDownColor(f.best.pnl)}`}>
+            {pct(f.best.pnl)} <small className="font-sans text-xs font-normal text-sub">{monthOf(f.best.label)}</small>
+          </span>
+          <span className={`block ${upDownColor(f.worst.pnl)}`}>
+            {pct(f.worst.pnl)} <small className="font-sans text-xs font-normal text-sub">{monthOf(f.worst.label)}</small>
+          </span>
+        </>
+      ),
+    },
   ];
   return (
     <section aria-label="年度指标" className="card-surface mt-6 p-5 md:p-7" data-testid="year-pro">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-bold">年度指标</h2>
-        <span className="text-xs text-sub">研报体 · 由你的 12 次仓位与真实行情计算</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="shrink-0 font-bold">年度指标</h2>
+        <span className="text-right text-xs text-sub">研报体 · 由你的 12 次仓位与真实行情计算</span>
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
         {cells.map((c) => (

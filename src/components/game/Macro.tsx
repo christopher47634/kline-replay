@@ -128,9 +128,9 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
   const replay = prev ? TRADED_IDS.reduce((s, id) => s + (draft[id] / 100) * prev.returns[id], 0) + (draft.margin / 100) * (script.params.marginLeverage * prev.returns.sh50) : 0;
   return (
     <section aria-label="专业工作台" className="card-surface p-4" data-testid="workbench">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-bold">工作台</h2>
-        <span className="text-xs text-sub">盘口主题 · 只用已知信息</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="shrink-0 font-bold">工作台</h2>
+        <span className="text-right text-xs text-sub">盘口主题 · 只用已知信息</span>
       </div>
       <dl className="mt-3 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line text-center">
         <div className="bg-bg p-2">
@@ -154,7 +154,7 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
           </dd>
         </div>
       </dl>
-      <button type="button" onClick={open} className="mt-3 grid w-full grid-cols-3 gap-2 text-left" aria-label="宏观与资金面：打开明细">
+      <button type="button" onClick={open} className="mt-3 grid w-full grid-cols-2 gap-2 text-left min-[400px]:grid-cols-3" aria-label="宏观与资金面：打开明细">
         {series.map((s) => {
           const rows = knownRows(s, script.id, round);
           const last = rows[rows.length - 1];

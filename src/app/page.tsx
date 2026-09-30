@@ -26,11 +26,11 @@ export default function Home() {
       <Marquee />
       <div className="mx-auto max-w-[1120px] px-6 pb-10 pt-8 text-xs text-sub">
         <p className="flex flex-wrap gap-x-5 gap-y-2">
-          <Link href="/about" className="underline underline-offset-4 hover:text-ink">
+          <Link href="/about" className="inline-block py-2 underline underline-offset-4 hover:text-ink">
             玩法与数据说明
           </Link>
           {board && (
-            <Link href="/board/2015" className="text-gold underline underline-offset-4">
+            <Link href="/board/2015" className="inline-block py-2 text-gold underline underline-offset-4">
               排行榜
             </Link>
           )}

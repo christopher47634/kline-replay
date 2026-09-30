@@ -31,7 +31,7 @@ export default function About() {
   const sources = SCRIPT_IDS.flatMap((id) => getScript(id)!.sources.map((s) => ({ ...s, year: id })));
   return (
     <main className="mx-auto max-w-[760px] px-4 py-12 leading-relaxed">
-      <Link href="/" className="text-sm text-sub hover:text-ink">
+      <Link href="/" className="text-sm text-sub hover:text-ink -my-2 inline-block py-2">
         ← 回首页
       </Link>
       <Reveal as="h1" className="mt-4 font-display text-h1">玩法与数据说明</Reveal>
@@ -51,7 +51,7 @@ export default function About() {
           {sources.map((s) => (
             <li key={s.year + s.label}>
               <span className="num text-sub mr-2">{s.year}</span>
-              <a href={s.url} className="underline underline-offset-4 hover:text-gold" target="_blank" rel="noreferrer">
+              <a href={s.url} className="inline-block py-1.5 underline underline-offset-4 hover:text-gold" target="_blank" rel="noreferrer">
                 {s.label}
               </a>
             </li>

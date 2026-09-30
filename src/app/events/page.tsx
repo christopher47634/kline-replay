@@ -16,7 +16,7 @@ export default function EventsHome() {
   const decks = allDecks();
   return (
     <main className="mx-auto max-w-[1080px] px-4 py-14 md:py-20">
-      <Link href="/" className="text-sm text-sub hover:text-ink">
+      <Link href="/" className="text-sm text-sub hover:text-ink -my-2 inline-block py-2">
         ← 回首页
       </Link>
       <h1 className="mt-4 text-4xl md:text-5xl font-black tracking-tight">大事件猜涨跌</h1>

@@ -25,7 +25,7 @@ export default async function Board({ params }: { params: Promise<{ script: stri
   }
   return (
     <main className="mx-auto max-w-[760px] px-4 py-12">
-      <Link href="/" className="text-sm text-sub hover:text-ink">
+      <Link href="/" className="text-sm text-sub hover:text-ink -my-2 inline-block py-2">
         ← 回首页
       </Link>
       <Reveal as="h1" className="mt-4 font-display text-h1">{`${script.title} · 排行榜`}</Reveal>

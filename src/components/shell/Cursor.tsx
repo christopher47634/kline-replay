@@ -17,13 +17,23 @@ export function Cursor() {
   useEffect(() => {
     if (!on) return;
     document.documentElement.classList.add("has-cursor");
+    // touchscreen laptops and phones that report a fine pointer: the custom cursor only follows a mouse or pen
+    const show = (e: PointerEvent) => {
+      const v = e.pointerType === "touch" ? "0" : "";
+      if (dot.current) dot.current.style.opacity = v;
+      if (ring.current) ring.current.style.opacity = v;
+    };
     const move = (e: PointerEvent) => {
+      show(e);
       const p = pos.current;
       p.x = e.clientX;
       p.y = e.clientY;
       p.hover = !!(e.target as Element | null)?.closest?.(HOVERABLE);
     };
-    const down = () => (pos.current.down = true);
+    const down = (e: PointerEvent) => {
+      show(e);
+      pos.current.down = true;
+    };
     const up = () => (pos.current.down = false);
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerdown", down);
