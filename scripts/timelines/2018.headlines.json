@@ -1,0 +1,176 @@
+{
+  "title": "2018：贸易战熊市",
+  "subtitle": "外部冲击一轮接一轮，你守得住吗？",
+  "intro": "2017 年沪指涨了 6.6%，白马蓝筹大涨，‘漂亮 50’风头正劲，年末收在 3307 点。你带着 10 万元回到 2018 年元旦。",
+  "assets": [
+    { "id": "sh50", "name": "上证50", "risk": "中", "desc": "大盘蓝筹指数，银行保险为主" },
+    { "id": "cyb", "name": "创业板指", "risk": "高", "desc": "成长股，涨得快跌得也快" },
+    { "id": "bank", "name": "银行板块", "risk": "低", "desc": "估值低，波动小" },
+    { "id": "baijiu", "name": "白酒板块", "risk": "中", "desc": "消费龙头" },
+    { "id": "cash", "name": "货币基金", "risk": "无", "desc": "年化约 3.6%，稳稳的" },
+    { "id": "margin", "name": "融资加杠杆", "risk": "极高", "desc": "2 倍做多上证50，年息 8.4%，亏 50% 强平" }
+  ],
+  "params": { "cashMonthly": 0.003, "marginLeverage": 2, "marginCostMonthly": 0.007, "marginLiquidation": -0.5 },
+  "retailAvg": -0.3,
+  "retailAvgNote": "2018 年缺少权威的散户平均收益统计；沪指跌 24.6%、创业板跌近三成，中小市值个股跌幅更深，粗估取 −30%，仅作参照",
+  "sources": [
+    { "label": "行情：新浪财经 / 中证指数（via akshare）", "url": "https://github.com/akfamily/akshare" },
+    { "label": "事件：新浪财经《2018 年 A 股市场大事记》", "url": "https://finance.sina.com.cn/stock/marketresearch/2018-12-25/doc-ihqhqcir9997539.shtml" },
+    { "label": "事件：财联社《复盘 2008 年以来 A 股 5 次政策底》", "url": "https://www.cls.cn/detail/1437989" }
+  ],
+  "months": [
+    {
+      "headlines": [
+        { "text": "沪指2017年上涨6.6%，收于3307点", "tone": "bull", "day": 29 },
+        { "text": "白酒、家电龙头股全年大涨，'漂亮50'走红", "tone": "bull", "day": 29 },
+        { "text": "中央经济工作会议：打好防范金融风险攻坚战", "tone": "neutral", "day": 20 }
+      ],
+      "rumor": "我在银行上班的同学说，开年资金都在往银行股里跑。",
+      "rumorIsSignal": true,
+      "hindsight": "1 月沪指一度冲到 3587 点，银行股涨 12.5%；月末开始回落，全月涨 5.3%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指1月29日盘中触及3587点", "tone": "bull", "day": 29 },
+        { "text": "银行、保险股领涨，上证50单月涨9%", "tone": "bull", "day": 31 },
+        { "text": "美债收益率快速上升，美股高位震荡", "tone": "bear", "day": 30 }
+      ],
+      "rumor": "我朋友在美国，说那边股市最近吓人，咱们也得小心。",
+      "rumorIsSignal": true,
+      "hindsight": "2 月初美股暴跌引发全球抛售，沪指一周跌近 10%；春节前后企稳，全月跌 6.4%。"
+    },
+    {
+      "headlines": [
+        { "text": "美股单日暴跌，全球股市连锁下挫", "tone": "bear", "day": 6 },
+        { "text": "沪指2月一度跌破3100点", "tone": "bear", "day": 9 },
+        { "text": "春节后市场企稳回升", "tone": "neutral", "day": 28 }
+      ],
+      "rumor": "我表弟说两会期间必有大涨，这个月要重仓银行。",
+      "rumorIsSignal": false,
+      "hindsight": "3 月 22 日美方签署对华贸易备忘录，次日沪指跌 3.4%；创业板逆势涨 8.4%。"
+    },
+    {
+      "headlines": [
+        { "text": "美方宣布对华加征关税，中方回应", "tone": "bear", "day": 23 },
+        { "text": "3月23日沪指跌3.4%", "tone": "bear", "day": 23 },
+        { "text": "'独角兽'回归A股预期升温，创业板走强", "tone": "bull", "day": 28 }
+      ],
+      "rumor": "我同事说降准就在这几天，一降就大涨。",
+      "rumorIsSignal": false,
+      "hindsight": "4 月 16 日美国对中兴实施禁令，17 日央行宣布降准；沪指全月跌 2.7%。",
+      "moment": {
+        "date": "2018-03-23",
+        "title": "3 月 23 日：贸易摩擦打响",
+        "text": "美方宣布对约 600 亿美元中国商品加征关税，中方随即回应。周五沪指跌 3.4%，创业板却在‘独角兽回归’的热情中逆势走强。",
+        "question": "贸易摩擦来了，你怎么调？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "美国宣布禁止企业向中兴出售零部件", "tone": "bear", "day": 16 },
+        { "text": "央行宣布4月25日起定向降准", "tone": "bull", "day": 17 },
+        { "text": "沪指4月失守3100点", "tone": "bear", "day": 27 }
+      ],
+      "rumor": "我一个酒商朋友说，高端白酒又开始涨价了，货都不好拿。",
+      "rumorIsSignal": true,
+      "hindsight": "5 月中美磋商释放缓和信号，沪指基本收平；白酒板块大涨 22%，领跑全市场。"
+    },
+    {
+      "headlines": [
+        { "text": "中美经贸磋商发表联合声明", "tone": "bull", "day": 19 },
+        { "text": "白酒板块5月大涨超两成", "tone": "bull", "day": 31 },
+        { "text": "MSCI将于6月起纳入A股", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我朋友说美国那边的关税清单马上要公布，这回是来真的。",
+      "rumorIsSignal": true,
+      "hindsight": "6 月 15 日美方公布 500 亿美元加征关税清单，19 日沪指跌 3.8%，月末一度跌破 2800 点。"
+    },
+    {
+      "headlines": [
+        { "text": "美方公布500亿美元加征关税清单", "tone": "bear", "day": 15 },
+        { "text": "6月19日沪指跌3.8%，失守3000点", "tone": "bear", "day": 19 },
+        { "text": "央行宣布7月5日起定向降准", "tone": "bull", "day": 24 }
+      ],
+      "rumor": "我听说下个月要跌破 2500 点，赶紧全部换成现金。",
+      "rumorIsSignal": false,
+      "hindsight": "7 月 6 日美国对 340 亿美元中国商品加征关税生效；国常会部署积极财政，沪指全月涨 1%。",
+      "moment": {
+        "date": "2018-06-19",
+        "title": "6 月 19 日：沪指跌 3.8%，失守 3000 点",
+        "text": "美方公布 500 亿美元加征关税清单后，又威胁对 2000 亿美元商品加税。周二沪指跌 3.8%，跌破 3000 点整数关，千股跌停。",
+        "question": "要不要割肉离场？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "美对华340亿美元商品加征关税生效", "tone": "bear", "day": 6 },
+        { "text": "国务院常务会议：财政政策要更加积极", "tone": "bull", "day": 23 },
+        { "text": "沪指7月小幅反弹，站回2800点", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我在券商的朋友说，股权质押快到平仓线的公司越来越多了。",
+      "rumorIsSignal": true,
+      "hindsight": "8 月人民币贬值、股权质押平仓担忧升温，沪指跌 5.3%，白酒跌 15%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指8月跌破2700点", "tone": "bear", "day": 17 },
+        { "text": "人民币对美元汇率逼近6.9", "tone": "bear", "day": 15 },
+        { "text": "个税起征点提高至每月5000元", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我邻居说国庆长假前必跌，节前一定要清仓。",
+      "rumorIsSignal": false,
+      "hindsight": "9 月 24 日 2000 亿美元关税生效，但减税预期和外资流入推动沪指反弹 3.5%。"
+    },
+    {
+      "headlines": [
+        { "text": "美对2000亿美元中国商品加征关税生效", "tone": "bear", "day": 24 },
+        { "text": "富时罗素宣布将A股纳入其指数体系", "tone": "bull", "day": 27 },
+        { "text": "沪指9月反弹3.5%，重回2800点", "tone": "bull", "day": 28 }
+      ],
+      "rumor": "我朋友公司的老板把股票都质押了，说再跌就要被强平。",
+      "rumorIsSignal": true,
+      "hindsight": "10 月 11 日沪指暴跌 5.2%，19 日盘中跌至 2449 点后‘一行两会’齐发声；白酒跌 28%。"
+    },
+    {
+      "headlines": [
+        { "text": "10月11日沪指暴跌5.2%", "tone": "bear", "day": 11 },
+        { "text": "刘鹤及'一行两会'负责人就股市发声", "tone": "bull", "day": 19 },
+        { "text": "多地设立纾困基金化解股权质押风险", "tone": "bull", "day": 25 }
+      ],
+      "rumor": "我表哥说贸易战谈成了，下个月必定大涨。",
+      "rumorIsSignal": false,
+      "hindsight": "11 月 5 日宣布设立科创板，创业板涨 4.2%；沪指在 2600 点附近横盘，全月跌 0.6%。",
+      "moment": {
+        "date": "2018-10-19",
+        "title": "10 月 19 日：一行两会齐发声",
+        "text": "沪指盘中跌至 2449 点，创四年新低。午间刘鹤副总理和‘一行两会’负责人密集表态稳定市场，下午沪指收涨 2.6%。",
+        "question": "政策底来了吗？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "上交所将设立科创板并试点注册制", "tone": "bull", "day": 5 },
+        { "text": "民营企业座谈会召开，释放支持信号", "tone": "bull", "day": 1 },
+        { "text": "沪指11月在2600点附近窄幅震荡", "tone": "neutral", "day": 30 }
+      ],
+      "rumor": "我同事说元首会晤后要大涨，年底翻红没问题。",
+      "rumorIsSignal": false,
+      "hindsight": "12 月 1 日中美元首会晤同意暂停加征新关税，但市场没有起色；沪指全年跌 24.6%。"
+    }
+  ]
+}

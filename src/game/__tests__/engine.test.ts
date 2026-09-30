@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { allCash, benchmarks, playAll, rank, settle, simulateDaily, totalReturn } from "../engine";
 import { APPENDIX_B } from "../fixtures";
-import { getScript } from "@/lib/scripts";
+import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 import type { Allocation, Script, ScriptMonth } from "../types";
 
 const s2015 = getScript("2015") as Script;
@@ -40,7 +40,7 @@ describe("settle / playAll", () => {
       Array.from({ length: 12 }, () => ({ sh50: 20, cyb: 20, bank: 15, baijiu: 15, cash: 15, margin: 15 })),
       Array.from({ length: 12 }, () => ({ ...allCash(), cash: 50, margin: 50 })),
     ];
-    for (const script of [s2015, s2020]) {
+    for (const script of SCRIPT_IDS.map((id) => getScript(id) as Script)) {
       for (const allocs of plays) {
         const h = playAll(script, allocs);
         const daily = simulateDaily(h, script);
@@ -79,5 +79,27 @@ describe("benchmarks and rank", () => {
     expect(rank(-0.2, false).label).toBe("韭菜本菜");
     expect(rank(0.9, true).label).toBe("杠杆的代价");
     expect(rank(totalReturn(s2015, playAll(s2015, APPENDIX_B)), false).id).toBe("legend");
+  });
+});
+
+describe("the added years (2007, 2008, 2018, 2024) are built from real prices", () => {
+  const year = (id: string) => getScript(id) as Script;
+  it("all-in-market over the year matches the index's own year-end closes", () => {
+    // SSE Composite year ends: 2006 2675.47 → 2007 5261.56; 2007 → 2008 1820.81; 2017 3307.17 → 2018 2493.90; 2023 2974.93 → 2024 3351.76
+    const expected: Record<string, number> = { "2007": 5261.56 / 2675.47 - 1, "2008": 1820.81 / 5261.56 - 1, "2018": 2493.9 / 3307.17 - 1, "2024": 3351.76 / 2974.93 - 1 };
+    for (const [id, r] of Object.entries(expected)) expect(Math.abs(year(id).benchmarks.allInMarket - r)).toBeLessThan(0.001);
+  });
+  it("each has 12 months, 3 headlines a month, 3 moment cards, and the same six asset slots", () => {
+    for (const id of ["2007", "2008", "2018", "2024"]) {
+      const s = year(id);
+      expect(s.months).toHaveLength(12);
+      expect(s.months.every((m) => m.headlines.length === 3)).toBe(true);
+      expect(s.months.filter((m) => m.moment)).toHaveLength(3);
+      expect(s.assets.map((a) => a.id)).toEqual(["sh50", "cyb", "bank", "baijiu", "cash", "margin"]);
+    }
+  });
+  it("2024: September is the 924 rally (+17%), 2008: October the crash (−25%)", () => {
+    expect(year("2024").months[8].marketReturn).toBeGreaterThan(0.17);
+    expect(year("2008").months[9].marketReturn).toBeLessThan(-0.24);
   });
 });

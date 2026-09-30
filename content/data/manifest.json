@@ -1,139 +1,373 @@
 {
- "files": {
-  "sh50_2015.json": {
-   "source": "akshare.fund_etf_hist_em:510050",
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 287,
-   "tradingDaysInYear": 244,
-   "first": "2014-11-03",
-   "last": "2015-12-31",
-   "fetchedAt": "2026-09-28T06:57:00Z"
+  "files": {
+    "sh50_2015.json": {
+      "source": "akshare.fund_etf_hist_em:510050",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2014-11-03",
+      "last": "2015-12-31",
+      "fetchedAt": "2026-09-28T06:57:00Z"
+    },
+    "cyb_2015.json": {
+      "source": "akshare.fund_etf_hist_em:159915",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2014-11-03",
+      "last": "2015-12-31",
+      "fetchedAt": "2026-09-28T06:57:00Z"
+    },
+    "bank_2015.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2014-11-03",
+      "last": "2015-12-31",
+      "fetchedAt": "2026-09-28T06:58:24Z"
+    },
+    "baijiu_2015.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399997",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2014-11-03",
+      "last": "2015-12-31",
+      "fetchedAt": "2026-09-28T06:59:26Z"
+    },
+    "market_2015.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2014-11-03",
+      "last": "2015-12-31",
+      "fetchedAt": "2026-09-28T07:00:26Z"
+    },
+    "sh50_2020.json": {
+      "source": "akshare.fund_etf_hist_em:510050",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2019-11-01",
+      "last": "2020-12-31",
+      "fetchedAt": "2026-09-28T07:00:26Z"
+    },
+    "cyb_2020.json": {
+      "source": "akshare.fund_etf_hist_em:159915",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2019-11-01",
+      "last": "2020-12-31",
+      "fetchedAt": "2026-09-28T07:00:27Z"
+    },
+    "bank_2020.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2019-11-01",
+      "last": "2020-12-31",
+      "fetchedAt": "2026-09-28T07:01:44Z"
+    },
+    "baijiu_2020.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399997",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2019-11-01",
+      "last": "2020-12-31",
+      "fetchedAt": "2026-09-28T07:02:43Z"
+    },
+    "market_2020.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2019-11-01",
+      "last": "2020-12-31",
+      "fetchedAt": "2026-09-28T07:03:40Z"
+    },
+    "sh50_2007.json": {
+      "source": "akshare.stock_zh_index_daily:sh000016",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:510050: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:000016: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2006-11-01",
+      "last": "2007-12-28",
+      "fetchedAt": "2026-09-30T13:24:16Z"
+    },
+    "cyb_2007.json": {
+      "source": "akshare.fund_etf_hist_sina:sz159902",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2006-11-01",
+      "last": "2007-12-28",
+      "fetchedAt": "2026-09-30T13:24:17Z"
+    },
+    "bank_2007.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2006-11-01",
+      "last": "2007-12-28",
+      "fetchedAt": "2026-09-30T13:24:17Z"
+    },
+    "baijiu_2007.json": {
+      "source": "akshare.stock_zh_a_daily:sh600519",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 279,
+      "tradingDaysInYear": 237,
+      "first": "2006-11-01",
+      "last": "2007-12-28",
+      "fetchedAt": "2026-09-30T13:24:18Z"
+    },
+    "market_2007.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2006-11-01",
+      "last": "2007-12-28",
+      "fetchedAt": "2026-09-30T13:25:11Z"
+    },
+    "sh50_2008.json": {
+      "source": "akshare.stock_zh_index_daily:sh000016",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:510050: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:000016: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 288,
+      "tradingDaysInYear": 246,
+      "first": "2007-11-01",
+      "last": "2008-12-31",
+      "fetchedAt": "2026-09-30T13:26:44Z"
+    },
+    "cyb_2008.json": {
+      "source": "akshare.fund_etf_hist_sina:sz159902",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 288,
+      "tradingDaysInYear": 246,
+      "first": "2007-11-01",
+      "last": "2008-12-31",
+      "fetchedAt": "2026-09-30T13:26:45Z"
+    },
+    "bank_2008.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 287,
+      "tradingDaysInYear": 245,
+      "first": "2007-11-01",
+      "last": "2008-12-30",
+      "fetchedAt": "2026-09-30T13:26:45Z"
+    },
+    "baijiu_2008.json": {
+      "source": "akshare.stock_zh_a_daily:sh600519",
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 286,
+      "tradingDaysInYear": 245,
+      "first": "2007-11-01",
+      "last": "2008-12-31",
+      "fetchedAt": "2026-09-30T13:26:46Z"
+    },
+    "market_2008.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 288,
+      "tradingDaysInYear": 246,
+      "first": "2007-11-01",
+      "last": "2008-12-31",
+      "fetchedAt": "2026-09-30T13:27:38Z"
+    },
+    "sh50_2018.json": {
+      "source": "akshare.stock_zh_index_daily:sh000016",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:510050: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:000016: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2017-11-01",
+      "last": "2018-12-28",
+      "fetchedAt": "2026-09-30T13:29:04Z"
+    },
+    "cyb_2018.json": {
+      "source": "akshare.stock_zh_index_daily:sz399006",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:159915: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:399006: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2017-11-01",
+      "last": "2018-12-28",
+      "fetchedAt": "2026-09-30T13:30:31Z"
+    },
+    "bank_2018.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2017-11-01",
+      "last": "2018-12-28",
+      "fetchedAt": "2026-09-30T13:31:26Z"
+    },
+    "baijiu_2018.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399997",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 287,
+      "tradingDaysInYear": 244,
+      "first": "2017-11-01",
+      "last": "2018-12-28",
+      "fetchedAt": "2026-09-30T13:32:20Z"
+    },
+    "market_2018.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 286,
+      "tradingDaysInYear": 243,
+      "first": "2017-11-01",
+      "last": "2018-12-28",
+      "fetchedAt": "2026-09-30T13:33:14Z"
+    },
+    "sh50_2024.json": {
+      "source": "akshare.stock_zh_index_daily:sh000016",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:510050: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:000016: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2023-11-01",
+      "last": "2024-12-31",
+      "fetchedAt": "2026-09-30T13:34:39Z"
+    },
+    "cyb_2024.json": {
+      "source": "akshare.stock_zh_index_daily:sz399006",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.fund_etf_hist_em:159915: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "akshare.index_zh_a_hist:399006: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2023-11-01",
+      "last": "2024-12-31",
+      "fetchedAt": "2026-09-30T13:36:03Z"
+    },
+    "bank_2024.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399986",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2023-11-01",
+      "last": "2024-12-31",
+      "fetchedAt": "2026-09-30T13:36:57Z"
+    },
+    "baijiu_2024.json": {
+      "source": "akshare.stock_zh_index_hist_csindex:399997",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2023-11-01",
+      "last": "2024-12-31",
+      "fetchedAt": "2026-09-30T13:37:51Z"
+    },
+    "market_2024.json": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "fallbackUsed": true,
+      "primaryErrors": [
+        "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+      ],
+      "rows": 285,
+      "tradingDaysInYear": 242,
+      "first": "2023-11-01",
+      "last": "2024-12-31",
+      "fetchedAt": "2026-09-30T13:38:44Z"
+    }
   },
-  "cyb_2015.json": {
-   "source": "akshare.fund_etf_hist_em:159915",
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 287,
-   "tradingDaysInYear": 244,
-   "first": "2014-11-03",
-   "last": "2015-12-31",
-   "fetchedAt": "2026-09-28T06:57:00Z"
-  },
-  "bank_2015.json": {
-   "source": "akshare.stock_zh_index_hist_csindex:399986",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 287,
-   "tradingDaysInYear": 244,
-   "first": "2014-11-03",
-   "last": "2015-12-31",
-   "fetchedAt": "2026-09-28T06:58:24Z"
-  },
-  "baijiu_2015.json": {
-   "source": "akshare.stock_zh_index_hist_csindex:399997",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 287,
-   "tradingDaysInYear": 244,
-   "first": "2014-11-03",
-   "last": "2015-12-31",
-   "fetchedAt": "2026-09-28T06:59:26Z"
-  },
-  "market_2015.json": {
-   "source": "akshare.stock_zh_index_daily:sh000001",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 287,
-   "tradingDaysInYear": 244,
-   "first": "2014-11-03",
-   "last": "2015-12-31",
-   "fetchedAt": "2026-09-28T07:00:26Z"
-  },
-  "sh50_2020.json": {
-   "source": "akshare.fund_etf_hist_em:510050",
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 286,
-   "tradingDaysInYear": 243,
-   "first": "2019-11-01",
-   "last": "2020-12-31",
-   "fetchedAt": "2026-09-28T07:00:26Z"
-  },
-  "cyb_2020.json": {
-   "source": "akshare.fund_etf_hist_em:159915",
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 286,
-   "tradingDaysInYear": 243,
-   "first": "2019-11-01",
-   "last": "2020-12-31",
-   "fetchedAt": "2026-09-28T07:00:27Z"
-  },
-  "bank_2020.json": {
-   "source": "akshare.stock_zh_index_hist_csindex:399986",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:399986: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 286,
-   "tradingDaysInYear": 243,
-   "first": "2019-11-01",
-   "last": "2020-12-31",
-   "fetchedAt": "2026-09-28T07:01:44Z"
-  },
-  "baijiu_2020.json": {
-   "source": "akshare.stock_zh_index_hist_csindex:399997",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:399997: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 286,
-   "tradingDaysInYear": 243,
-   "first": "2019-11-01",
-   "last": "2020-12-31",
-   "fetchedAt": "2026-09-28T07:02:43Z"
-  },
-  "market_2020.json": {
-   "source": "akshare.stock_zh_index_daily:sh000001",
-   "fallbackUsed": true,
-   "primaryErrors": [
-    "akshare.index_zh_a_hist:000001: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
-   ],
-   "rows": 286,
-   "tradingDaysInYear": 243,
-   "first": "2019-11-01",
-   "last": "2020-12-31",
-   "fetchedAt": "2026-09-28T07:03:40Z"
+  "updatedAt": "2026-09-30T13:38:44Z",
+  "long": {
+    "market_long": {
+      "source": "akshare.stock_zh_index_daily:sh000001",
+      "available": true,
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 8734,
+      "first": "1990-12-19",
+      "last": "2026-09-28",
+      "fetchedAt": "2026-09-29T03:17:27Z"
+    },
+    "spx_long": {
+      "source": "yahoo.chart:^GSPC",
+      "available": true,
+      "fallbackUsed": false,
+      "primaryErrors": [],
+      "rows": 24802,
+      "first": "1927-12-30",
+      "last": "2026-09-28",
+      "fetchedAt": "2026-09-29T03:17:28Z"
+    }
   }
- },
- "updatedAt": "2026-09-28T07:03:40Z",
- "long": {
-  "market_long": {
-   "source": "akshare.stock_zh_index_daily:sh000001",
-   "available": true,
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 8734,
-   "first": "1990-12-19",
-   "last": "2026-09-28",
-   "fetchedAt": "2026-09-29T03:17:27Z"
-  },
-  "spx_long": {
-   "source": "yahoo.chart:^GSPC",
-   "available": true,
-   "fallbackUsed": false,
-   "primaryErrors": [],
-   "rows": 24802,
-   "first": "1927-12-30",
-   "last": "2026-09-28",
-   "fetchedAt": "2026-09-29T03:17:28Z"
-  }
- }
 }

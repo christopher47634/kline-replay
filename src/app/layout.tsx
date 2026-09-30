@@ -13,7 +13,7 @@ const jb = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"], variable
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "穿越 K 线",
-  description: "回到 2015 年，用真实行情玩 12 个月，结算出投资人格，再把这一年演奏成一段音乐。",
+  description: "回到 2007、2008、2015、2018、2020、2024 年，用真实行情玩 12 个月，结算出投资人格，再把这一年演奏成一段音乐。",
 };
 
 export const viewport: Viewport = { themeColor: "#07090D", width: "device-width", initialScale: 1 };

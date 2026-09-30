@@ -195,7 +195,8 @@ export const AllocationPanel = forwardRef<
             {a.id === "margin" && value.margin > 0 && (
               <p className="mt-1.5 flex items-center gap-1.5 text-xs text-up/90">
                 <TriangleAlert size={14} strokeWidth={2.2} aria-hidden className={`shrink-0 ${reduce ? "" : "animate-pulse"}`} />
-                2 倍杠杆，年息 8.4%，亏 50% 强平
+                {/* the terms differ by year (2007–08: off-exchange 配资 at ~1% a month; 2024: ~6% a year) */}
+                {a.desc}
               </p>
             )}
           </li>

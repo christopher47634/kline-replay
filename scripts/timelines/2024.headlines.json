@@ -1,0 +1,176 @@
+{
+  "title": "2024：924 行情",
+  "subtitle": "熬过八个月阴跌，行情来的那天你还在场吗？",
+  "intro": "2023 年沪指跌了 3.7%，年末收在 2975 点，‘3000 点保卫战’打了一整年。你带着 10 万元回到 2024 年元旦。",
+  "assets": [
+    { "id": "sh50", "name": "上证50", "risk": "中", "desc": "大盘蓝筹指数，银行保险为主" },
+    { "id": "cyb", "name": "创业板指", "risk": "高", "desc": "成长股，涨得快跌得也快" },
+    { "id": "bank", "name": "银行板块", "risk": "低", "desc": "高股息，波动小" },
+    { "id": "baijiu", "name": "白酒板块", "risk": "中", "desc": "消费龙头" },
+    { "id": "cash", "name": "货币基金", "risk": "无", "desc": "年化约 1.8%，稳稳的" },
+    { "id": "margin", "name": "融资加杠杆", "risk": "极高", "desc": "2 倍做多上证50，年息约 6%，亏 50% 强平" }
+  ],
+  "params": { "cashMonthly": 0.0015, "marginLeverage": 2, "marginCostMonthly": 0.005, "marginLiquidation": -0.5 },
+  "retailAvg": 0.0,
+  "retailAvgNote": "券商投资者调查：2024 年约四成个人投资者全年盈利，多数盈亏在 10% 以内；粗估取 0%，仅作参照",
+  "sources": [
+    { "label": "行情：新浪财经 / 中证指数（via akshare）", "url": "https://github.com/akfamily/akshare" },
+    { "label": "事件：每日经济新闻《2024 资本市场十大新闻》", "url": "https://finance.sina.com.cn/roll/2024-12-21/doc-ineaeumx5066824.shtml" },
+    { "label": "事件：财联社《924 新政这一年（政策篇）》", "url": "https://www.cls.cn/detail/2152228" }
+  ],
+  "months": [
+    {
+      "headlines": [
+        { "text": "沪指2023年下跌3.7%，收于2975点", "tone": "bear", "day": 29 },
+        { "text": "中央经济工作会议：以进促稳、先立后破", "tone": "neutral", "day": 12 },
+        { "text": "多家国有大行下调存款利率", "tone": "neutral", "day": 22 }
+      ],
+      "rumor": "我在私募的朋友说，小盘股里的雪球产品快敲入了，最近别碰。",
+      "rumorIsSignal": true,
+      "hindsight": "1 月小盘股、微盘股踩踏式下跌，雪球产品集中敲入；创业板跌 16.8%，银行逆势涨 6%。"
+    },
+    {
+      "headlines": [
+        { "text": "小盘股、微盘股1月接连暴跌", "tone": "bear", "day": 31 },
+        { "text": "央行宣布2月5日起降准0.5个百分点", "tone": "bull", "day": 24 },
+        { "text": "沪指1月跌破2800点", "tone": "bear", "day": 31 }
+      ],
+      "rumor": "我朋友说国家队这几天在大举买入 ETF，春节前会有行情。",
+      "rumorIsSignal": true,
+      "hindsight": "2 月 5 日沪指探至 2635 点，此后‘国家队’入场、证监会换帅，沪指全月大涨 8.1%。",
+      "moment": {
+        "date": "2024-01-22",
+        "title": "1 月 22 日：沪指 2756 点",
+        "text": "小微盘股踩踏、雪球产品敲入，1 月 22 日沪指收于 2756 点，创近五年新低。当天国务院常务会议强调提振信心，市场仍在往下找底。",
+        "question": "底在哪里？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "吴清接任证监会主席", "tone": "neutral", "day": 7 },
+        { "text": "中央汇金宣布扩大ETF增持范围", "tone": "bull", "day": 6 },
+        { "text": "沪指2月涨8%，重回3000点", "tone": "bull", "day": 29 }
+      ],
+      "rumor": "我同事说两会一开完就要大跌，先全部卖掉。",
+      "rumorIsSignal": false,
+      "hindsight": "3 月沪指在 3000 点上方窄幅震荡，全月涨 0.9%；白酒涨 3.5%。"
+    },
+    {
+      "headlines": [
+        { "text": "政府工作报告：经济增长目标5%左右", "tone": "neutral", "day": 5 },
+        { "text": "证监会出台严打财务造假、违规减持等文件", "tone": "neutral", "day": 15 },
+        { "text": "沪指3月站稳3000点", "tone": "neutral", "day": 29 }
+      ],
+      "rumor": "我在银行的朋友说，高股息的银行股最近机构抢着买。",
+      "rumorIsSignal": true,
+      "hindsight": "4 月 12 日新‘国九条’发布，退市新规加码，小盘股再度下挫；高股息银行股涨 4.9%。"
+    },
+    {
+      "headlines": [
+        { "text": "国务院发布资本市场新'国九条'", "tone": "bull", "day": 12 },
+        { "text": "退市新规加码，ST股连续跌停", "tone": "bear", "day": 15 },
+        { "text": "沪指4月站上3100点", "tone": "bull", "day": 30 }
+      ],
+      "rumor": "我听说房地产要全面放开，这个月地产股能翻倍。",
+      "rumorIsSignal": false,
+      "hindsight": "5 月 17 日地产新政出台，20 日沪指冲上 3174 点后回落，全月跌 0.6%。"
+    },
+    {
+      "headlines": [
+        { "text": "取消首套房贷利率下限、下调首付比例", "tone": "bull", "day": 17 },
+        { "text": "沪指5月20日盘中触及3174点", "tone": "bull", "day": 20 },
+        { "text": "证监会发布上市公司股东减持新规", "tone": "neutral", "day": 24 }
+      ],
+      "rumor": "我一个卖酒的朋友说，茅台的批发价这个月掉得厉害。",
+      "rumorIsSignal": true,
+      "hindsight": "6 月白酒批价下跌，白酒板块跌 14%；沪指失守 3000 点，全月跌 3.9%。"
+    },
+    {
+      "headlines": [
+        { "text": "飞天茅台批发价明显回落", "tone": "bear", "day": 14 },
+        { "text": "证监会发布'科创板八条'", "tone": "bull", "day": 19 },
+        { "text": "沪指6月跌破3000点", "tone": "bear", "day": 28 }
+      ],
+      "rumor": "我同学说三中全会一开完就大涨，现在就该满仓。",
+      "rumorIsSignal": false,
+      "hindsight": "7 月三中全会召开，22 日央行下调政策利率；市场仍然低迷，沪指全月跌 1%。"
+    },
+    {
+      "headlines": [
+        { "text": "二十届三中全会在京召开", "tone": "neutral", "day": 18 },
+        { "text": "央行下调7天逆回购利率0.1个百分点", "tone": "bull", "day": 22 },
+        { "text": "沪指7月小幅回落，徘徊在2900点", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我在券商的朋友说，最近成交少得可怜，营业部都没人了。",
+      "rumorIsSignal": true,
+      "hindsight": "8 月两市成交额多次跌破 5000 亿元，沪指跌 3.3%，月末收于 2842 点。"
+    },
+    {
+      "headlines": [
+        { "text": "两市成交额跌破5000亿元，创数年新低", "tone": "bear", "day": 26 },
+        { "text": "沪指8月跌3.3%，逼近2800点", "tone": "bear", "day": 30 },
+        { "text": "半年报披露完毕，中期分红公司增多", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我朋友说上面要出大招稳市场了，下个月别空仓。",
+      "rumorIsSignal": true,
+      "hindsight": "9 月 24 日央行等推出降准、降息、互换便利等一揽子政策，沪指 5 天涨超 20%，全月涨 17.4%。",
+      "moment": {
+        "date": "2024-08-30",
+        "title": "8 月末：成交跌破 5000 亿",
+        "text": "沪指跌到 2800 点附近，两市成交额多次跌破 5000 亿元，创四年多新低。很多人已经不打开账户了，也有人说‘越冷越该买’。",
+        "question": "要不要干脆离场？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "央行等推出一揽子稳市政策", "tone": "bull", "day": 24 },
+        { "text": "政治局会议：努力提振资本市场", "tone": "bull", "day": 26 },
+        { "text": "9月30日沪指大涨8%，成交创纪录", "tone": "bull", "day": 30 }
+      ],
+      "rumor": "我邻居说节后开盘还要翻倍，他借钱也要上。",
+      "rumorIsSignal": false,
+      "hindsight": "10 月 8 日节后首日沪指高开 10% 后回落，9 日跌 6.6%；全月跌 1.7%，白酒跌 11%。",
+      "moment": {
+        "date": "2024-09-30",
+        "title": "9 月 30 日：成交 2.6 万亿",
+        "text": "9 月 24 日一揽子政策出台，沪指 5 天涨超 20%，9 月 30 日两市成交约 2.6 万亿元创纪录。国庆长假前，人人都在问：还能上车吗？",
+        "question": "长假后开盘前，你怎么做？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "国庆后首日沪指高开10%后回落", "tone": "neutral", "day": 8 },
+        { "text": "10月9日沪指下跌6.6%", "tone": "bear", "day": 9 },
+        { "text": "证券基金保险公司互换便利首批落地", "tone": "bull", "day": 21 }
+      ],
+      "rumor": "我表哥说人大要发 10 万亿，下个月必定暴涨。",
+      "rumorIsSignal": false,
+      "hindsight": "11 月 8 日人大常委会批准 10 万亿元化债方案，市场高位震荡，沪指涨 1.4%。"
+    },
+    {
+      "headlines": [
+        { "text": "人大常委会批准增加6万亿元债务限额", "tone": "bull", "day": 8 },
+        { "text": "多部门出台房地产交易税收优惠", "tone": "bull", "day": 13 },
+        { "text": "沪指11月在3300点附近高位震荡", "tone": "neutral", "day": 29 }
+      ],
+      "rumor": "我朋友说年底基金都在卖，一定大跌。",
+      "rumorIsSignal": false,
+      "hindsight": "12 月 9 日政治局会议提出‘适度宽松’货币政策，沪指全年涨 12.7%，收于 3352 点。"
+    }
+  ]
+}

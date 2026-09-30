@@ -12,9 +12,13 @@ import spark from "@/components/hero/spark.json";
 import { Star } from "lucide-react";
 
 const SCRIPTS = [
+  // chronological, like a timeline
+  { id: "2007", title: "2007：大牛市", note: "沪指 2675 → 6124 → 5262", stars: 3, minutes: 6, open: true },
+  { id: "2008", title: "2008：金融海啸", note: "沪指 5262 → 1664 → 1821", stars: 5, minutes: 6, open: true },
   { id: "2015", title: "2015：疯牛与股灾", note: "沪指 3200 → 5178 → 2850", stars: 4, minutes: 6, open: true },
+  { id: "2018", title: "2018：贸易战熊市", note: "关税、质押爆仓、政策底", stars: 4, minutes: 6, open: true },
   { id: "2020", title: "2020：疫情与核心资产", note: "黑天鹅、零利率、抱团白酒", stars: 3, minutes: 6, open: true },
-  { id: "2007", title: "2007：大牛市", note: "敬请期待", stars: 0, minutes: 0, open: false },
+  { id: "2024", title: "2024：924 行情", note: "阴跌八个月，一周涨两成", stars: 4, minutes: 6, open: true },
 ];
 
 function sparkPath(id: string) {

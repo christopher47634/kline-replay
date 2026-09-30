@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ script: s
 }
 
 export default async function PlayPage({ params }: { params: Promise<{ script: string }> }) {
-  const { script } = await params;
-  if (!getScript(script)) notFound();
-  return <GameView scriptId={script} />;
+  const s = getScript((await params).script);
+  if (!s) notFound();
+  // only this year's data goes to the client (six years bundled together would add ~45 KB to every page)
+  return <GameView script={s} />;
 }

@@ -35,7 +35,7 @@ def downsample(v, n=40):
     return [round((v[i] - lo) / (hi - lo), 3) for i in idx]
 
 
-spark = {str(y): downsample(closes_of(y)) for y in (2015, 2020)}
+spark = {str(y): downsample(closes_of(y)) for y in (2007, 2008, 2015, 2018, 2020, 2024)}
 (dst.parent / "spark.json").write_text(json.dumps(spark, separators=(",", ":")), "utf-8")
 
 script = json.loads((ROOT / "content" / "scripts" / "2015.json").read_text("utf-8"))

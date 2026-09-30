@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { settle } from "@/game/engine";
 import type { Allocation, Script } from "@/game/types";
-import { getScript } from "@/lib/scripts";
+import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 import { dueThisRound, knownRows, macroFor, monthMinus, position } from "@/lib/macro";
 import { DEFAULT_PREFS, resolve, sanitize } from "@/lib/prefs";
 import { PREFS_BOOT, PREFS_KEY } from "@/lib/prefsBoot";
@@ -94,14 +94,16 @@ describe("复盘文风", () => {
 
 describe("宏观与资金面：不剧透", () => {
   it("每个回合只显示当时已经公布的月份", () => {
-    for (const id of ["2015", "2020"]) {
+    for (const id of SCRIPT_IDS) {
       for (const series of macroFor(id)) {
         for (let r = 0; r < 12; r++) {
           const start = `${id}-${String(r + 1).padStart(2, "0")}`;
           for (const row of knownRows(series, id, r)) expect(row.m <= monthMinus(start, series.lag)).toBe(true);
-          // PMI of the previous month is visible (published on its last day); CPI of the previous month is not yet
-          if (series.id === "pmi") expect(knownRows(series, id, r).at(-1)?.m).toBe(monthMinus(start, 1));
-          if (series.id === "cpi") expect(knownRows(series, id, r).at(-1)?.m).toBe(monthMinus(start, 2));
+          // PMI of the previous month is visible (published on its last day); CPI of the previous month is not yet.
+          // (Only where the feed has that month: Eastmoney's series start in 2008-01, so early 2008 rounds see less.)
+          const has = (m: string) => series.rows.some((row) => row.m === m);
+          if (series.id === "pmi" && has(monthMinus(start, 1))) expect(knownRows(series, id, r).at(-1)?.m).toBe(monthMinus(start, 1));
+          if (series.id === "cpi" && has(monthMinus(start, 2))) expect(knownRows(series, id, r).at(-1)?.m).toBe(monthMinus(start, 2));
         }
       }
     }
@@ -117,7 +119,7 @@ describe("宏观与资金面：不剧透", () => {
 
 describe("借鉴见微：发布日程与历史位置", () => {
   it("本月日程里的数据月份，正好是下个回合第一次能看到的那一个月，而且现在还看不到", () => {
-    for (const id of ["2015", "2020"]) {
+    for (const id of SCRIPT_IDS) {
       for (let r = 0; r < 11; r++) {
         for (const d of dueThisRound(id, r)) {
           const s = macroFor(id).find((x) => x.id === d.id)!;

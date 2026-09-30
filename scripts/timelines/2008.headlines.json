@@ -1,0 +1,176 @@
+{
+  "title": "2008：金融海啸",
+  "subtitle": "从 5261 点一路往下，你敢在哪里抄底？",
+  "intro": "2007 年沪指涨了 97%，年末收在 5262 点，人人都在聊‘奥运行情’和 8000 点。你带着 10 万元回到 2008 年元旦。",
+  "assets": [
+    { "id": "sh50", "name": "上证50", "risk": "中", "desc": "大盘蓝筹指数，银行、保险、石化为主" },
+    { "id": "cyb", "name": "中小板 ETF", "risk": "高", "desc": "中小盘成长股；那时还没有创业板" },
+    { "id": "bank", "name": "银行板块", "risk": "低", "desc": "中证银行指数" },
+    { "id": "baijiu", "name": "贵州茅台", "risk": "中", "desc": "白酒龙头个股；那时还没有白酒指数" },
+    { "id": "cash", "name": "货币基金", "risk": "无", "desc": "年化约 3%，稳稳的" },
+    { "id": "margin", "name": "场外配资", "risk": "极高", "desc": "借钱 2 倍做多上证50，月息约 1%，亏 50% 强平；那时还没有融资融券" }
+  ],
+  "params": { "cashMonthly": 0.0025, "marginLeverage": 2, "marginCostMonthly": 0.01, "marginLiquidation": -0.5 },
+  "retailAvg": -0.5,
+  "retailAvgNote": "新浪财经 2008 年末调查：82.56% 的投资者亏损，多数亏 20%–70%；取 −50%，仅作参照",
+  "sources": [
+    { "label": "行情：新浪财经 / 中证指数（via akshare）", "url": "https://github.com/akfamily/akshare" },
+    { "label": "事件：中新网《今年大多数股民损失惨重》（2008-12-30）", "url": "https://www.chinanews.com.cn/cj/agyw/news/2008/12-30/1509163.shtml" },
+    { "label": "事件：第一财经《2008 不堪回首，奥运行情胎死腹中》", "url": "https://www.yicai.com/news/997821.html" }
+  ],
+  "months": [
+    {
+      "headlines": [
+        { "text": "沪指2007年大涨97%，收于5262点", "tone": "bull", "day": 28 },
+        { "text": "央行12月21日起年内第六次加息", "tone": "bear", "day": 20 },
+        { "text": "机构普遍看好2008年'奥运行情'", "tone": "bull", "day": 25 }
+      ],
+      "rumor": "我在保险公司的朋友说，平安要找股民要一大笔钱，先别碰。",
+      "rumorIsSignal": true,
+      "hindsight": "1 月 21、22 日连续暴跌，平安公告巨额再融资、美股大跌；沪指全月跌 16.7%。"
+    },
+    {
+      "headlines": [
+        { "text": "中国平安拟再融资1600亿元，市场哗然", "tone": "bear", "day": 21 },
+        { "text": "1月22日沪指暴跌7.2%", "tone": "bear", "day": 22 },
+        { "text": "南方雨雪冰冻灾害，交通电力受阻", "tone": "bear", "day": 28 }
+      ],
+      "rumor": "我同学说两会前一定有大利好，现在是抄底的好时机。",
+      "rumorIsSignal": false,
+      "hindsight": "2 月指数在 4200 点上方震荡，全月跌 0.8%；中小板 ETF 逆势涨 6.4%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指2月在4200至4600点间震荡", "tone": "neutral", "day": 29 },
+        { "text": "大小非解禁高峰将至，减持压力引关注", "tone": "bear", "day": 26 },
+        { "text": "美国次贷危机蔓延，全球股市承压", "tone": "bear", "day": 28 }
+      ],
+      "rumor": "我表哥是上市公司高管，说他们大股东排着队等解禁卖股票。",
+      "rumorIsSignal": true,
+      "hindsight": "3 月沪指暴跌 20.1%，跌破 3500 点；大小非减持和海外次贷危机双重压顶。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指3月跌20%，跌破3500点", "tone": "bear", "day": 31 },
+        { "text": "贝尔斯登被摩根大通低价收购", "tone": "bear", "day": 17 },
+        { "text": "多方呼吁出台稳定股市的措施", "tone": "neutral", "day": 28 }
+      ],
+      "rumor": "听说上面马上要下调印花税，我先抄一点。",
+      "rumorIsSignal": true,
+      "hindsight": "4 月 24 日印花税从 3‰ 降回 1‰，当天沪指涨 9.3%；月中探到 3000 点附近，全月涨 6.3%。"
+    },
+    {
+      "headlines": [
+        { "text": "财政部：印花税4月24日起降至1‰", "tone": "bull", "day": 23 },
+        { "text": "4月24日沪指大涨9.3%", "tone": "bull", "day": 24 },
+        { "text": "证监会发布大小非减持指导意见", "tone": "neutral", "day": 20 }
+      ],
+      "rumor": "我邻居说奥运前股市只会涨，五月该满仓。",
+      "rumorIsSignal": false,
+      "hindsight": "5 月 12 日汶川地震，市场震荡回落；沪指全月跌 7%，银行跌 14%。",
+      "moment": {
+        "date": "2008-04-24",
+        "title": "4 月 24 日：印花税下调，沪指涨 9.3%",
+        "text": "财政部深夜宣布印花税从 3‰ 降回 1‰，第二天沪指大涨 9.3%，近千股涨停。有人喊‘政策底到了’，也有人说这是逃命的机会。",
+        "question": "反弹来了，你怎么办？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "四川汶川发生8.0级地震", "tone": "bear", "day": 12 },
+        { "text": "4月CPI同比上涨8.5%，通胀压力未减", "tone": "bear", "day": 12 },
+        { "text": "沪指5月回落7%，重回3400点附近", "tone": "bear", "day": 30 }
+      ],
+      "rumor": "银行里的朋友说又要上调准备金了，我先卖掉一半。",
+      "rumorIsSignal": true,
+      "hindsight": "6 月 7 日央行上调准备金率 1 个百分点，10 日沪指跌 7.7%；全月暴跌 20%，失守 2800 点。"
+    },
+    {
+      "headlines": [
+        { "text": "央行上调存款准备金率1个百分点", "tone": "bear", "day": 7 },
+        { "text": "6月10日沪指暴跌7.7%", "tone": "bear", "day": 10 },
+        { "text": "沪指跌破2800点，较高点已腰斩", "tone": "bear", "day": 30 }
+      ],
+      "rumor": "我朋友说奥运前一定跌到 2000 点，他已经全部清仓了。",
+      "rumorIsSignal": false,
+      "hindsight": "7 月沪指微涨 1.4%，在 2700 至 2900 点间反复；茅台反弹 15%。"
+    },
+    {
+      "headlines": [
+        { "text": "奥运会即将开幕，'奥运行情'讨论升温", "tone": "neutral", "day": 30 },
+        { "text": "上半年GDP增速回落至10.4%", "tone": "bear", "day": 17 },
+        { "text": "沪指7月在2700点上方企稳", "tone": "neutral", "day": 31 }
+      ],
+      "rumor": "我朋友说奥运会期间一定有大行情，他满仓等着。",
+      "rumorIsSignal": false,
+      "hindsight": "8 月 8 日奥运开幕，‘奥运行情’没有来，沪指全月跌 13.6%，跌破 2400 点。"
+    },
+    {
+      "headlines": [
+        { "text": "北京奥运会8月8日开幕", "tone": "neutral", "day": 8 },
+        { "text": "沪指8月跌13.6%，跌破2400点", "tone": "bear", "day": 29 },
+        { "text": "美国房贷巨头'两房'股价暴跌", "tone": "bear", "day": 20 }
+      ],
+      "rumor": "我同事说国家不会让股市跌破 2000 点，现在满仓不会错。",
+      "rumorIsSignal": false,
+      "hindsight": "9 月 15 日雷曼兄弟破产，18 日沪指跌到 1802 点；19 日三大利好全线涨停，全月跌 4.3%。"
+    },
+    {
+      "headlines": [
+        { "text": "雷曼兄弟申请破产保护", "tone": "bear", "day": 15 },
+        { "text": "央行宣布降息，六年来首次", "tone": "bull", "day": 15 },
+        { "text": "印花税改为单边征收，汇金增持银行股", "tone": "bull", "day": 18 }
+      ],
+      "rumor": "我在外贸厂的表姐说，海外订单全停了，年底可能要裁员。",
+      "rumorIsSignal": true,
+      "hindsight": "10 月全球股市崩跌，28 日沪指盘中探至 1664 点；全月暴跌 24.6%，茅台跌 30%。",
+      "moment": {
+        "date": "2008-09-19",
+        "title": "9 月 19 日：三大利好，全线涨停",
+        "text": "印花税改为只向卖方征收、汇金增持工中建三行、国资委支持央企回购。周五两市几乎全部涨停，沪指涨 9.5%。",
+        "question": "‘政策底’来了吗？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "全球多家央行联手降息应对危机", "tone": "bull", "day": 8 },
+        { "text": "沪指10月28日盘中跌至1664点", "tone": "bear", "day": 28 },
+        { "text": "央行月内第二次降息", "tone": "bull", "day": 29 }
+      ],
+      "rumor": "我叔在发改委附近上班，说要出大手笔的投资计划了。",
+      "rumorIsSignal": true,
+      "hindsight": "11 月 9 日四万亿计划公布，10 日沪指涨 7.3%；全月反弹 8.2%，中小板 ETF 涨 18%。"
+    },
+    {
+      "headlines": [
+        { "text": "国务院推出四万亿元投资计划", "tone": "bull", "day": 9 },
+        { "text": "央行大幅降息1.08个百分点", "tone": "bull", "day": 26 },
+        { "text": "沪指11月反弹8%，重回1800点上方", "tone": "bull", "day": 28 }
+      ],
+      "rumor": "我同事说明年经济更差，年底还要跌到 1000 点。",
+      "rumorIsSignal": false,
+      "hindsight": "12 月沪指小幅回落，全年收于 1821 点、跌 65%；中小板 ETF 逆势涨近 10%。",
+      "moment": {
+        "date": "2008-11-10",
+        "title": "11 月 10 日：四万亿刺激计划",
+        "text": "国务院推出扩大内需十项措施，两年投资约 4 万亿元。消息公布后第一个交易日沪指涨 7.3%，基建、钢铁股成片涨停。",
+        "question": "经济还在下滑，你信这次反弹吗？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    }
+  ]
+}

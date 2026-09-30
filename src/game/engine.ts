@@ -116,7 +116,21 @@ export function simulateDaily(history: RoundRecord[], script: Script): DailyPoin
         liquidated: liqToday,
       });
     });
-    // Carry the authoritative monthly figure forward so path drift never compounds across months.
+    // Daily-rebalanced 2x leverage drifts from the monthly 2x the game settles with, most in wild months
+    // (October 2008: 2.5%). Spread the gap geometrically over the month's days so the curve ends exactly on the
+    // settled amount (no jump at the next month), then carry that figure forward.
+    const first = out.length - n;
+    const monthStart = first > 0 ? out[first - 1].value : script.startCash;
+    if (n > 0 && value > 0 && rec.cashAfter > 0 && monthStart > 0) {
+      const k = rec.cashAfter / value;
+      let prev = monthStart;
+      for (let j = 0; j < n; j++) {
+        const p = out[first + j];
+        p.value *= k ** ((j + 1) / n);
+        p.r = prev > 0 ? p.value / prev - 1 : 0;
+        prev = p.value;
+      }
+    }
     value = rec.cashAfter;
   }
   return out;

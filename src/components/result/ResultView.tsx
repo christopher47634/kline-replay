@@ -13,9 +13,8 @@ import { decodeGame } from "@/game/encode";
 import { benchmarks, everLiquidated, isBusted, playAll, rank as rankOf, simulateDaily, totalReturn } from "@/game/engine";
 import { judgePersona, keyMoves, pickQuote, PERSONAS } from "@/game/persona";
 import { gameStore } from "@/game/store";
-import type { Allocation } from "@/game/types";
+import type { Allocation, Script } from "@/game/types";
 import { pct, pp, upDownColor } from "@/lib/format";
-import { getScript } from "@/lib/scripts";
 import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
@@ -32,11 +31,11 @@ const ReturnChart = dynamic(() => import("./ReturnChart").then((m) => m.ReturnCh
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
-export function ResultView({ code, boardOn, openMusic = false }: { code: string; boardOn: boolean; openMusic?: boolean }) {
+/** `script` is looked up on the server from the code, so only that year's data reaches the browser. */
+export function ResultView({ code, script, boardOn, openMusic = false }: { code: string; script: Script | null; boardOn: boolean; openMusic?: boolean }) {
   const decoded = useMemo(() => decodeGame(code), [code]);
-  const script = decoded.ok ? getScript(decoded.scriptId) : null;
-  if (!decoded.ok || !script) return <InvalidLink reason={decoded.ok ? "剧本不存在" : decoded.error} />;
-  return <Result code={code} scriptId={script.id} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} />;
+  if (!decoded.ok || !script || script.id !== decoded.scriptId) return <InvalidLink reason={decoded.ok ? "剧本不存在" : decoded.error} />;
+  return <Result code={code} script={script} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} />;
 }
 
 /** A share button that turns green with a ✓ for 0.8s after it succeeds. */
@@ -77,8 +76,7 @@ function Equaliser() {
   );
 }
 
-function Result({ code, scriptId, allocs, boardOn, openMusic }: { code: string; scriptId: string; allocs: Allocation[]; boardOn: boolean; openMusic: boolean }) {
-  const script = getScript(scriptId)!;
+function Result({ code, script, allocs, boardOn, openMusic }: { code: string; script: Script; allocs: Allocation[]; boardOn: boolean; openMusic: boolean }) {
   const router = useRouter();
   const { reduce } = useMotionPref();
   const poster = useRef<HTMLDivElement>(null);

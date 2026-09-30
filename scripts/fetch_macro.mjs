@@ -15,6 +15,7 @@ async function get(url) {
       const r = await fetch(url, { headers: { "user-agent": UA } });
       const j = await r.json();
       if (j.success) return j.result?.data ?? [];
+      if (j.code === 9201) return []; // 返回数据为空: the series starts later (Eastmoney's macro data begins 2008-01)
     } catch {
       /* retry */
     }
@@ -23,7 +24,14 @@ async function get(url) {
   throw new Error("fetch failed: " + url);
 }
 
-const YEARS = { 2015: ["2014-09", "2015-12"], 2020: ["2019-09", "2020-12"] };
+const YEARS = {
+  2007: ["2006-09", "2007-12"],
+  2008: ["2007-09", "2008-12"],
+  2015: ["2014-09", "2015-12"],
+  2018: ["2017-09", "2018-12"],
+  2020: ["2019-09", "2020-12"],
+  2024: ["2023-09", "2024-12"],
+};
 const inRange = (m, [a, b]) => m >= a && m <= b;
 
 const MONTHLY = [

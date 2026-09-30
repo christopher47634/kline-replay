@@ -68,8 +68,10 @@ def _sina_index(code):
 
 # asset id -> ordered list of (source label, fetcher)
 SOURCES = {
-    "sh50": [("akshare.fund_etf_hist_em:510050", _etf("510050")), ("akshare.index_zh_a_hist:000016", _index("000016"))],
-    "cyb": [("akshare.fund_etf_hist_em:159915", _etf("159915")), ("akshare.index_zh_a_hist:399006", _index("399006"))],
+    "sh50": [("akshare.fund_etf_hist_em:510050", _etf("510050")), ("akshare.index_zh_a_hist:000016", _index("000016")),
+             ("akshare.stock_zh_index_daily:sh000016", lambda s, e: _sina_index("sh000016")(s, e))],
+    "cyb": [("akshare.fund_etf_hist_em:159915", _etf("159915")), ("akshare.index_zh_a_hist:399006", _index("399006")),
+            ("akshare.stock_zh_index_daily:sz399006", lambda s, e: _sina_index("sz399006")(s, e))],
     "bank": [
         ("akshare.index_zh_a_hist:399986", _index("399986")),
         ("akshare.stock_zh_index_hist_csindex:399986", _csindex("399986")),
@@ -93,10 +95,32 @@ def _retry(fn, start, end, attempts=4):
     raise last
 
 
+def _sina_etf(code):
+    def f(s, e):
+        df = ak.fund_etf_hist_sina(symbol=code)
+        df = df.rename(columns={"date": "日期", "close": "收盘", "volume": "成交量"})
+        df["日期"] = df["日期"].astype(str)
+        return df[(df["日期"] >= f"{s[:4]}-{s[4:6]}-{s[6:]}") & (df["日期"] <= f"{e[:4]}-{e[4:6]}-{e[6:]}")]
+    return f
+
+
+# Before 2010 there was no ChiNext (创业板) and no liquor index: the growth slot is the SME-board ETF (中小板ETF 159902,
+# listed 2006-09) and the liquor slot is Kweichow Moutai. The script's asset names say so (scripts/timelines/*.headlines.json).
+EARLY = {
+    "cyb": [("akshare.fund_etf_hist_sina:sz159902", _sina_etf("sz159902")), ("akshare.fund_etf_hist_em:159902", _etf("159902"))],
+    "bank": [("akshare.stock_zh_index_hist_csindex:399986", _csindex("399986")), ("akshare.index_zh_a_hist:399986", _index("399986"))],
+    "baijiu": [("akshare.stock_zh_a_daily:sh600519", _sina_stock("sh600519")), ("akshare.stock_zh_a_hist:600519", _stock("600519"))],
+}
+
+
+def sources_for(asset: str, year: int):
+    return EARLY.get(asset, SOURCES[asset]) if year < 2010 else SOURCES[asset]
+
+
 def fetch(asset: str, year: int):
     start, end = f"{year - 1}1101", f"{year}1231"
     errors = []
-    for i, (label, fn) in enumerate(SOURCES[asset]):
+    for i, (label, fn) in enumerate(sources_for(asset, year)):
         try:
             df = _retry(fn, start, end)
             if df is None or len(df) == 0:

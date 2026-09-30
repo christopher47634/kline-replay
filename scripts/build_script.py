@@ -64,7 +64,26 @@ def main():
     for a in TRADED:
         closes[a], sources[a] = load_closes(a, year)
 
-    # Use the intersection of trading dates so every asset has a value each day.
+    # The market's trading calendar is the calendar. A day an asset has no close (a suspended stock such as Moutai
+    # in 2007, or a gap in an index feed) carries its last close forward: unchanged that day. Rows on non-trading
+    # days (csindex sometimes emits a holiday row) are dropped. 2015 and 2020 have no gaps, so they are unaffected.
+    common = sorted(d for d in closes["market"])
+    for a in TRADED:
+        own = sorted(closes[a])
+        filled, last = {}, None
+        for d in common:
+            if d in closes[a]:
+                last = closes[a][d]
+            elif last is None:
+                earlier = [x for x in own if x < d]
+                if not earlier:
+                    continue
+                last = closes[a][earlier[-1]]
+            filled[d] = last
+        gaps = [d for d in common if d not in closes[a] and d in filled]
+        if gaps:
+            print(f"  [fill] {a}: {len(gaps)} day(s) carried forward: {', '.join(gaps[:6])}")
+        closes[a] = filled
     common = sorted(set.intersection(*(set(c) for c in closes.values())))
     prev_year = [d for d in common if d < f"{year}-01-01"]
     in_year = [d for d in common if d.startswith(str(year))]

@@ -1,0 +1,176 @@
+{
+  "title": "2007：大牛市",
+  "subtitle": "全民炒股的一年，你能在高处全身而退吗？",
+  "intro": "2006 年沪指涨了 130%，年末收在 2675 点，菜市场里都在聊股票和基金。你带着 10 万元回到 2007 年元旦。这一年怎么走，没人知道。",
+  "assets": [
+    { "id": "sh50", "name": "上证50", "risk": "中", "desc": "大盘蓝筹指数，银行、保险、石化为主" },
+    { "id": "cyb", "name": "中小板 ETF", "risk": "高", "desc": "中小盘成长股；那时还没有创业板" },
+    { "id": "bank", "name": "银行板块", "risk": "低", "desc": "中证银行指数，当年的大热门" },
+    { "id": "baijiu", "name": "贵州茅台", "risk": "中", "desc": "白酒龙头个股；那时还没有白酒指数" },
+    { "id": "cash", "name": "货币基金", "risk": "无", "desc": "年化约 2.4%，稳稳的" },
+    { "id": "margin", "name": "场外配资", "risk": "极高", "desc": "借钱 2 倍做多上证50，月息约 1%，亏 50% 强平；那时还没有融资融券" }
+  ],
+  "params": { "cashMonthly": 0.002, "marginLeverage": 2, "marginCostMonthly": 0.01, "marginLiquidation": -0.5 },
+  "retailAvg": 0.5,
+  "retailAvgNote": "2007 年缺少权威的散户收益统计；大盘涨 97%、偏股基金平均涨超一倍，散户普遍跑输指数，粗估取 +50%，仅作参照",
+  "sources": [
+    { "label": "行情：新浪财经 / 中证指数（via akshare）", "url": "https://github.com/akfamily/akshare" },
+    { "label": "事件：维基百科 2007 年中国股市泡沫", "url": "https://zh.wikipedia.org/wiki/2007年中国股市泡沫" },
+    { "label": "事件：每日经济新闻《年轮 2007：大牛市，上证指数巅峰 6124 点》", "url": "https://www.nbd.com.cn/articles/2022-11-30/2574955.html" }
+  ],
+  "months": [
+    {
+      "headlines": [
+        { "text": "沪指2006年大涨130%，收于2675点", "tone": "bull", "day": 29 },
+        { "text": "工行、国寿等大盘蓝筹股持续领涨", "tone": "bull", "day": 14 },
+        { "text": "偏股基金发行火爆，多只新基金提前结募", "tone": "bull", "day": 20 }
+      ],
+      "rumor": "我同事上个月刚开户，说今年闭着眼买什么都涨。",
+      "rumorIsSignal": true,
+      "hindsight": "1 月沪指涨 4.1%，一度冲到 2975 点后回落；中小板 ETF 涨 24.5%，茅台涨 17.5%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指1月一度逼近3000点", "tone": "bull", "day": 31 },
+        { "text": "央行宣布上调存款准备金率0.5个百分点", "tone": "bear", "day": 5 },
+        { "text": "基金开户数激增，'储蓄搬家'话题升温", "tone": "bull", "day": 20 }
+      ],
+      "rumor": "楼下大爷说春节红包行情必涨，他已经全仓了。",
+      "rumorIsSignal": false,
+      "hindsight": "2 月 27 日沪指单日暴跌 8.8%，全球股市跟跌；次日即反弹，全月反而涨 3.4%，茅台跌 15%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指2月27日暴跌8.8%，全球股市连锁下挫", "tone": "bear", "day": 27 },
+        { "text": "央行宣布再次上调存款准备金率", "tone": "bear", "day": 16 },
+        { "text": "暴跌次日沪指企稳，成交依然活跃", "tone": "neutral", "day": 28 }
+      ],
+      "rumor": "我表舅在基金公司，说他们这几天在抄底，让我别割肉。",
+      "rumorIsSignal": true,
+      "hindsight": "3 月沪指涨 10.5%，站上 3100 点；18 日央行加息，市场几乎没理会。",
+      "moment": {
+        "date": "2007-02-27",
+        "title": "2 月 27 日：沪指单日暴跌 8.8%",
+        "text": "午后放量跳水，沪指收跌 8.8%，创十年来最大单日跌幅；当晚美股跟跌超 3%。可就在前一天，沪指刚创下新高。",
+        "question": "牛市还在吗？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "央行宣布3月18日起上调存贷款利率", "tone": "bear", "day": 17 },
+        { "text": "沪指3月涨超10%，站上3100点", "tone": "bull", "day": 30 },
+        { "text": "开户热潮升温，营业部大厅人满为患", "tone": "bull", "day": 26 }
+      ],
+      "rumor": "我梦见大盘跌回 2000 点，吓醒了，这个月我空仓。",
+      "rumorIsSignal": false,
+      "hindsight": "4 月沪指大涨 20.6%，站上 3800 点；上证50 同步涨两成，茅台只涨 1%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指4月站上3800点，单月涨两成", "tone": "bull", "day": 30 },
+        { "text": "央行年内第三次上调存款准备金率", "tone": "bear", "day": 5 },
+        { "text": "新股民涌入，单周开户数屡创纪录", "tone": "bull", "day": 27 }
+      ],
+      "rumor": "听说要上调印花税，我先把一半落袋。",
+      "rumorIsSignal": true,
+      "hindsight": "5 月 30 日凌晨印花税从 1‰ 上调至 3‰，当天沪指跌 6.5%；月初冲过 4000 点，全月仍涨 7%。"
+    },
+    {
+      "headlines": [
+        { "text": "财政部：5月30日起印花税上调至3‰", "tone": "bear", "day": 30 },
+        { "text": "5月30日沪指暴跌6.5%，近千股跌停", "tone": "bear", "day": 30 },
+        { "text": "央行宣布加息、升准并扩大汇率浮动", "tone": "bear", "day": 18 }
+      ],
+      "rumor": "我老丈人说银行股太笨重，这个月要满仓小盘股。",
+      "rumorIsSignal": false,
+      "hindsight": "6 月初题材股成片跌停，4 日沪指再跌 8.3%；资金躲进蓝筹，银行涨 4%，茅台涨 17%。",
+      "moment": {
+        "date": "2007-05-30",
+        "title": "5 月 30 日：半夜宣布印花税上调",
+        "text": "财政部凌晨宣布印花税从 1‰ 上调到 3‰。当天近千股跌停，沪指跌 6.5%；大盘蓝筹跌得少，基金经理还在说‘长期看好’。",
+        "question": "接下来怎么办？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "6月4日沪指跌8.3%，题材股成片跌停", "tone": "bear", "day": 4 },
+        { "text": "资金抱团蓝筹，银行、白酒逆势走强", "tone": "neutral", "day": 29 },
+        { "text": "1.55万亿元特别国债获批发行", "tone": "neutral", "day": 29 }
+      ],
+      "rumor": "我算命的朋友说七月不吉利，股市必跌，赶紧跑。",
+      "rumorIsSignal": false,
+      "hindsight": "7 月沪指涨 17%，站上 4400 点；20 日央行年内第三次加息，市场继续上攻。"
+    },
+    {
+      "headlines": [
+        { "text": "央行加息，利息税由20%降至5%", "tone": "neutral", "day": 20 },
+        { "text": "沪指7月大涨17%，重回4400点上方", "tone": "bull", "day": 31 },
+        { "text": "大盘蓝筹接力上涨，基金重仓股创新高", "tone": "bull", "day": 30 }
+      ],
+      "rumor": "银行理财经理跟我说港股直通车要来了，A 股也会被带着涨。",
+      "rumorIsSignal": true,
+      "hindsight": "8 月沪指再涨 16.7%，23 日站上 5000 点；20 日宣布试点‘港股直通车’。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指8月23日站上5000点", "tone": "bull", "day": 23 },
+        { "text": "外汇局宣布试点境内个人直接投资港股", "tone": "bull", "day": 20 },
+        { "text": "央行年内第四次加息", "tone": "bear", "day": 21 }
+      ],
+      "rumor": "我同事说中秋前要跌一波，他已经清仓去旅游了。",
+      "rumorIsSignal": false,
+      "hindsight": "9 月沪指涨 6.4%，逼近 5600 点，涨幅集中在大盘权重股；中小板和茅台小幅下跌。"
+    },
+    {
+      "headlines": [
+        { "text": "央行宣布9月15日起年内第五次加息", "tone": "bear", "day": 14 },
+        { "text": "沪指9月冲上5500点，权重股领涨", "tone": "bull", "day": 28 },
+        { "text": "大盘股密集回归A股，'A+H'股受追捧", "tone": "neutral", "day": 26 }
+      ],
+      "rumor": "我朋友说十七大前后要维稳，这个月不会大跌。",
+      "rumorIsSignal": true,
+      "hindsight": "10 月 16 日沪指创 6124 点历史最高，月末收 5955 点，全月涨 7.2%；茅台涨 27%。"
+    },
+    {
+      "headlines": [
+        { "text": "沪指10月16日创6124点历史新高", "tone": "bull", "day": 16 },
+        { "text": "中国石油A股定于11月5日上市", "tone": "neutral", "day": 26 },
+        { "text": "股指期货推出预期升温", "tone": "neutral", "day": 22 }
+      ],
+      "rumor": "我在油田上班的亲戚说，中石油上市那天千万别追。",
+      "rumorIsSignal": true,
+      "hindsight": "11 月 5 日中石油上市开盘 48.6 元后一路下跌，拖累大盘；沪指全月跌 18.2%。",
+      "moment": {
+        "date": "2007-10-16",
+        "title": "10 月 16 日：沪指 6124 点",
+        "text": "沪指盘中冲上 6124 点，市盈率超过 50 倍，新基金‘一日售罄’还在上演；也有人小声说，今年的顶可能就在这里。",
+        "question": "站在历史最高点，你怎么做？",
+        "options": [
+          { "label": "减半仓", "effect": { "scale": 0.5 } },
+          { "label": "不动", "effect": null },
+          { "label": "加杠杆", "effect": { "marginPlus": 20 } }
+        ]
+      }
+    },
+    {
+      "headlines": [
+        { "text": "中国石油上市首日开盘48.6元", "tone": "neutral", "day": 5 },
+        { "text": "沪指11月跌18%，失守5000点", "tone": "bear", "day": 30 },
+        { "text": "'港股直通车'暂缓，港股大幅回落", "tone": "bear", "day": 3 }
+      ],
+      "rumor": "我邻居说年底机构要结账，一定砸盘，赶紧空仓过年。",
+      "rumorIsSignal": false,
+      "hindsight": "12 月沪指反弹 8%，全年收于 5262 点、涨 97%；21 日央行年内第六次加息。"
+    }
+  ]
+}

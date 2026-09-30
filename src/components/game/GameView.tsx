@@ -8,7 +8,6 @@ import { btn, Button } from "@/components/ui/Button";
 import { encodeGame } from "@/game/encode";
 import { gameStore } from "@/game/store";
 import type { Script } from "@/game/types";
-import { getScript } from "@/lib/scripts";
 import { AllocationPanel, isValidAlloc, type AllocationPanelHandle } from "./AllocationPanel";
 import { HeadlineCard, RumorCard } from "./HeadlineCard";
 import { Intro } from "./Intro";
@@ -36,8 +35,7 @@ import { tick } from "@/lib/sfx";
 /** Starting opacity for the columns that re-enter when the month turns (see the Enter comment). */
 const TURN_FROM = 0.6;
 
-export function GameView({ scriptId }: { scriptId: string }) {
-  const script = getScript(scriptId) as Script;
+export function GameView({ script }: { script: Script }) {
   const useGame = useMemo(() => gameStore(script), [script]);
   const st = useGame();
   const [hydrated, setHydrated] = useState(false);

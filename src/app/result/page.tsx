@@ -26,5 +26,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function ResultPage({ searchParams }: Props) {
   const sp = await searchParams;
-  return <ResultView code={sp.s ?? ""} boardOn={boardEnabled()} openMusic={sp.play === "1"} />;
+  const d = decodeGame(sp.s ?? "");
+  return <ResultView code={sp.s ?? ""} script={d.ok ? getScript(d.scriptId) : null} boardOn={boardEnabled()} openMusic={sp.play === "1"} />;
 }
