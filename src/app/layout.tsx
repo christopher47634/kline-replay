@@ -5,6 +5,7 @@ import { MuteButton } from "@/components/ui/MuteButton";
 import { SettingsButton } from "@/components/ui/SettingsButton";
 import "./globals.css";
 import "./skins.css";
+import "./motion.css";
 import { PREFS_BOOT } from "@/lib/prefsBoot";
 
 const jb = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-jb", display: "swap" });

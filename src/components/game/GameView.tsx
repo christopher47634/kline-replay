@@ -226,14 +226,16 @@ export function GameView({ scriptId }: { scriptId: string }) {
             <div className="sticky bottom-0 z-30 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-4 pt-8 md:static md:mx-0 md:bg-none md:p-0">
             <MagneticButton
               data-testid="next-month"
-              className="h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
+              className="shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
               disabled={!valid || settling}
               onClick={goNext}
               sound={false}
             >
+              {/* Border Beam: a light runs round the button while it is the next thing to do */}
+              {valid && !settling && <span aria-hidden className="beam" style={{ "--beam": "#ffffff" } as React.CSSProperties} />}
               {settling ? (
                 <span className="inline-flex items-center gap-1">
-                  结算中
+                  <span className="shimmer-text">结算中</span>
                   <span className="dots" aria-hidden>
                     <i />
                     <i />

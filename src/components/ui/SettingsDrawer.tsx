@@ -14,7 +14,7 @@ export default function SettingsDrawer({ onClose }: { onClose: () => void }) {
 
 function Seg<T extends string | number>({ label, value, items, onPick }: { label: string; value: T; items: readonly (readonly [T, string])[]; onPick: (v: T) => void }) {
   return (
-    <div className="seg" role="radiogroup" aria-label={label}>
+    <div className="seg" role="radiogroup" aria-label={label} style={{ "--n": items.length, "--i": items.findIndex(([v]) => v === value) } as React.CSSProperties}>
       {items.map(([v, l]) => (
         <button key={String(v)} type="button" role="radio" aria-checked={value === v} onClick={() => onPick(v)}>
           {l}
@@ -41,7 +41,7 @@ function Body() {
         <h3 className="dr-h">主题</h3>
         <div className="skin-cards" role="radiogroup" aria-label="主题">
           {SKINS.map((k) => (
-            <button key={k.id} type="button" role="radio" aria-checked={p.skin === k.id} className="skin-card" onClick={() => setPrefs({ skin: k.id })}>
+            <button key={k.id} type="button" role="radio" aria-checked={p.skin === k.id} className="skin-card press" onClick={() => setPrefs({ skin: k.id })}>
               <span className={`skin-mini mini-${k.id}`} aria-hidden>
                 <i />
                 <i />
@@ -57,7 +57,7 @@ function Body() {
         {p.skin === "pan" && (
           <div className="dr-line">
             <span>强调色</span>
-            <div className="seg" role="radiogroup" aria-label="强调色">
+            <div className="seg" role="radiogroup" aria-label="强调色" style={{ "--n": ACCENTS.length, "--i": ACCENTS.findIndex((a) => a.id === p.accent) } as React.CSSProperties}>
               {ACCENTS.map((a) => (
                 <button key={a.id} type="button" role="radio" aria-checked={p.accent === a.id} onClick={() => setPrefs({ accent: a.id })}>
                   <span className="swatch" style={{ background: a.color }} aria-hidden />
@@ -153,7 +153,7 @@ function FontPage() {
       <p className="dr-note">样张用同一段话。字体改正文和复盘；按钮、数字和标题不变。</p>
       <div className="dr-group" role="radiogroup" aria-label="正文字体">
         {FONTS.map((f) => (
-          <button key={f.id} type="button" role="radio" aria-checked={r.font === f.id} className="opt" onClick={() => setPrefs({ font: f.id === auto ? "auto" : f.id })}>
+          <button key={f.id} type="button" role="radio" aria-checked={r.font === f.id} className="opt press" onClick={() => setPrefs({ font: f.id === auto ? "auto" : f.id })}>
             <span className="opt-head">
               <b>{f.name}</b>
               <span>
@@ -187,7 +187,7 @@ function VoicePage() {
       <p className="dr-note">每个月的结算弹窗和年终结算页都按这里的文风写。三种写法用的是同一组数字，只是说法不同。</p>
       <div className="dr-group" role="radiogroup" aria-label="复盘文风">
         {VOICES.map((v) => (
-          <button key={v.id} type="button" role="radio" aria-checked={r.voice === v.id} className="opt" onClick={() => setPrefs({ voice: v.id === auto ? "auto" : v.id })}>
+          <button key={v.id} type="button" role="radio" aria-checked={r.voice === v.id} className="opt press" onClick={() => setPrefs({ voice: v.id === auto ? "auto" : v.id })}>
             <span className="opt-head">
               <b>{v.name}</b>
               <span>{v.id === auto ? "当前主题默认" : ""}</span>
@@ -219,7 +219,7 @@ function GlassPage() {
       </p>
       <div className="dr-group" role="radiogroup" aria-label="玻璃质感">
         {GLASSES.map((g) => (
-          <button key={g.id} type="button" role="radio" aria-checked={p.glass === g.id} className="opt" onClick={() => setPrefs({ glass: g.id })}>
+          <button key={g.id} type="button" role="radio" aria-checked={p.glass === g.id} className="opt press" onClick={() => setPrefs({ glass: g.id })}>
             <span className="opt-head">
               <b>{g.name}</b>
               <span>{g.id === "clear" ? "默认" : ""}</span>

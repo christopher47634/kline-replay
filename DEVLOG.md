@@ -114,3 +114,9 @@
 - 浅色主题光标：原来是 difference 混合的点 + 半透明白环，在白底上几乎看不见；改为实心深色点加白色描边、深色环。
 - 全面走查：三个主题 × 桌面/手机 × 两个剧本，逐月检查弹窗真实可见、可点、按钮没被遮挡、结果页正常、无报错。发现并修掉一处：手机上「开启声音」提示正好盖住吸底的「进入下个月」按钮中间，挪到按钮上方。
 
+## 2026-09-30：v5 动效层
+
+- 调研并采用 Magic UI（Magic Card、Border Beam、Dot Pattern、Blur Fade、Shimmer、Animated List、Confetti）和 Motion Primitives（Animated Background、Text Effect、Text Shimmer），两者都是 MIT；按项目规矩改成 CSS 为主，出处写进 THIRD_PARTY_NOTICES.md。
+- 新增：聚光卡片、点阵底纹、下一步按钮的边框流光与扫光、全局按压回弹、头条逐字显影、结算中流光、设置分段的滑动选中块、结算表与抽屉的依次进入、强势月份与全年跑赢的彩带、滑条数值气泡、风险构成环、涨跌条生长、状态栏呼吸与换月扫光。
+- 验证：Vitest 59、Playwright 25 全过；三主题 × 桌面/手机 × 两剧本逐月走查无问题；Lighthouse 全部达标（手机游戏页三次 99/87/89，单次偶有 83，同机波动）。
+

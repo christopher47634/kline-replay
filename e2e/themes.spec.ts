@@ -36,7 +36,8 @@ test("settings drawer: skin applies at once, font opens a second level, Esc step
   await expect(drawer).toBeVisible();
   await drawer.getByRole("radio", { name: /纸面/ }).click();
   await expect(page.locator("html")).toHaveAttribute("data-skin", "paper");
-  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(246, 244, 239)");
+  // the page colour lives on <html> (the canvas), so the fixed dot field can sit between it and the content
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe("rgb(246, 244, 239)");
 
   await drawer.getByRole("button", { name: /^字体/ }).click();
   const l2 = page.getByRole("dialog", { name: "阅读设置 · 正文字体" });

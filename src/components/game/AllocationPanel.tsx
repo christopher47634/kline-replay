@@ -35,6 +35,19 @@ const DampedSlider = forwardRef<HTMLInputElement, { id: string; value: number; c
   const width = useTransform(shown, (v) => `${v}%`);
   const left = useTransform(shown, (v) => `calc(${v}% - ${(v / 100) * 16}px)`);
   useEffect(() => target.set(value), [value, target]);
+  // while dragging: the thumb swells and a value bubble rides above it
+  const [drag, setDrag] = useState(false);
+  useEffect(() => {
+    if (!drag) return;
+    const up = () => setDrag(false);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  }, [drag]);
+  const bubble = useTransform(shown, (v) => `calc(${v}% - ${(v / 100) * 16}px + 8px)`);
 
   return (
     <div className="relative mt-2 hidden h-6 md:block">
@@ -44,7 +57,15 @@ const DampedSlider = forwardRef<HTMLInputElement, { id: string; value: number; c
         <span key={t} aria-hidden className="absolute top-1/2 h-3.5 w-px -translate-y-1/2 bg-line-2" style={{ left: `${t}%` }} />
       ))}
       <motion.div className="absolute left-0 top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ width, background: color }} />
-      <motion.div className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-bg" style={{ left, background: color, boxShadow: `0 0 0 1px ${color}, 0 0 10px ${color}66` }} />
+      <motion.div
+        className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-bg transition-[scale,box-shadow] duration-200"
+        style={{ left, background: color, scale: drag ? 1.3 : 1, boxShadow: drag ? `0 0 0 1px ${color}, 0 0 0 7px color-mix(in oklab, ${color} 22%, transparent), 0 0 16px ${color}` : `0 0 0 1px ${color}, 0 0 10px ${color}66` }}
+      />
+      {drag && (
+        <motion.span aria-hidden className="slider-bubble" style={{ left: bubble, "--bubble": color } as never} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
+          {value}%
+        </motion.span>
+      )}
       <input
         id={id}
         ref={ref}
@@ -55,6 +76,7 @@ const DampedSlider = forwardRef<HTMLInputElement, { id: string; value: number; c
         step={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
+        onPointerDown={() => setDrag(true)}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       />
     </div>
@@ -90,7 +112,10 @@ export const AllocationPanel = forwardRef<
 
   return (
     <section aria-label="分配仓位" className="card-surface p-4">
-      <h2 className="font-bold">分配仓位</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-bold">分配仓位</h2>
+        <RiskRing assets={assets} value={value} sum={sum} />
+      </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <QuickBtn onClick={() => previous && onChange(previous)} disabled={!previous}>
           同上月
@@ -203,3 +228,47 @@ function QuickBtn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 }
 
 export const isValidAlloc = (a: Allocation) => allocSum(a) === 100 && ASSET_IDS.every((id) => a[id] >= 0);
+
+/**
+ * Risk ring: the allocation as one ring, each slice in its asset's risk colour, so dragging a slider visibly
+ * reshapes the whole portfolio; the centre shows the running total (red until it reaches 100%).
+ */
+function RiskRing({ assets, value, sum }: { assets: ScriptAsset[]; value: Allocation; sum: number }) {
+  const R = 19;
+  const C = 2 * Math.PI * R;
+  let acc = 0;
+  const risky = 100 - value.cash;
+  return (
+    <span className="flex items-center gap-2" role="img" aria-label={`仓位构成：风险资产 ${risky}%，合计 ${sum}%`}>
+      <span className="text-right text-[11px] leading-tight text-sub">
+        风险资产
+        <b className="num block text-[13px] text-ink">{risky}%</b>
+      </span>
+      <svg viewBox="0 0 48 48" className="donut h-12 w-12 -rotate-90" aria-hidden>
+        <circle cx="24" cy="24" r={R} fill="none" stroke="var(--color-line)" strokeWidth="5" />
+        {assets.map((a) => {
+          const v = Math.max(0, value[a.id]);
+          const len = (v / 100) * C;
+          const el = (
+            <circle
+              key={a.id}
+              cx="24"
+              cy="24"
+              r={R}
+              fill="none"
+              stroke={RISK_FILL[a.risk] ?? "var(--color-sub)"}
+              strokeWidth="5"
+              strokeDasharray={`${Math.max(0, len - (v > 0 && v < 100 ? 1.2 : 0))} ${C}`}
+              strokeDashoffset={-acc}
+            />
+          );
+          acc += len;
+          return el;
+        })}
+        <text x="24" y="24" textAnchor="middle" dominantBaseline="central" transform="rotate(90 24 24)" className="num" fontSize="11" fontWeight="700" fill={sum === 100 ? "var(--color-ink)" : "var(--color-up)"}>
+          {sum}
+        </text>
+      </svg>
+    </span>
+  );
+}

@@ -281,7 +281,8 @@
   --color-line: #1d2531;
   --color-line-hi: rgb(255 255 255 / 0.055);
 }
-:root[data-skin="pan"] body {
+/* on <html> (the canvas), so the fixed dot field (z-index −1, motion.css) can sit between it and the page */
+:root[data-skin="pan"] {
   background:
     radial-gradient(1000px 520px at 88% -12%, color-mix(in oklab, var(--color-gold) 7%, transparent), transparent 70%),
     radial-gradient(900px 620px at -12% 8%, rgb(64 108 196 / 0.075), transparent 70%),

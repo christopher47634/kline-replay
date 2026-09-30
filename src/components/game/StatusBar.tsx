@@ -39,6 +39,7 @@ export function StatusBar({
     <motion.div initial={{ y: "-100%" }} animate={{ y: 0 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="sticky top-0 z-20 -mx-4 px-2 pt-1.5 md:-mx-6 md:px-4 md:pt-2">
       {/* A floating glass bar over the page (the content scrolls under it). Right margin: the two fixed buttons. */}
       <div className="lg relative mr-[5.25rem] rounded-2xl border border-line bg-card/90 backdrop-blur xl:mr-0" style={{ "--lg-flex": 1.01 } as React.CSSProperties}>
+        <span key={round} aria-hidden className="sb-sweep" />
         {/* Phone: one fixed 40px line so the bar never eats into the cards below. */}
         <div className="md:hidden h-10 px-3 flex items-center justify-between gap-2 text-sm whitespace-nowrap overflow-hidden" data-testid="status-compact">
           <span>

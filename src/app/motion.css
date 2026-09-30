@@ -1,0 +1,124 @@
+/* =========================================================
+ * 动效层 v5：从成熟的开源组件库里挑出来、改成纯 CSS 的一组交互（MIT，见 THIRD_PARTY_NOTICES.md）。
+ *   Magic UI       — Magic Card（光标聚光）、Border Beam（沿边框跑的光）、Dot Pattern（点阵底纹）、Blur Fade、Confetti
+ *   Motion Primitives — Animated Background（滑动选中块）、Text Effect（逐字显影）、Text Shimmer（文字流光）
+ * 原则：动效只做「提示下一步」和「给反馈」，内容永远不从完全透明开始（避免换月闪白、弹窗隐身这类事故）；
+ * 系统或设置里「减少动效」时全部静止。
+ * ========================================================= */
+
+/* ---------- 聚光卡片（Magic Card）：光标所在的面板里跟着一团柔光，边框亮起一段 ---------- */
+.card-surface:not(.absolute), .spot { position: relative; isolation: isolate; }
+:is(.card-surface, .spot)::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(440px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--color-gold) 8%, transparent), transparent 62%);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+:is(.card-surface, .spot)::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: radial-gradient(240px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--color-gold) 75%, transparent), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.spot-on::after, .spot-on::before { opacity: 1; transition-duration: 0.2s; }
+:root:is([data-skin="paper"], [data-skin="plain"]) :is(.card-surface, .spot)::after { background: radial-gradient(440px circle at var(--sx, 50%) var(--sy, 50%), color-mix(in oklab, var(--color-gold) 6%, transparent), transparent 62%); }
+
+html body { background: transparent; }
+
+/* ---------- 点阵底纹（Dot Pattern）：盘面空白处一层很淡的点阵，光标附近的点亮起来 ---------- */
+.dotfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.dotfield::before, .dotfield::after { content: ""; position: absolute; inset: 0; background-size: 24px 24px; }
+.dotfield::before { background-image: radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1.3px); mask-image: linear-gradient(180deg, #000, transparent 85%); }
+.dotfield::after {
+  background-image: radial-gradient(color-mix(in oklab, var(--color-gold) 70%, white) 1px, transparent 1.4px);
+  -webkit-mask-image: radial-gradient(170px circle at var(--dx, -500px) var(--dy, -500px), rgb(0 0 0 / 0.55), transparent 75%);
+  mask-image: radial-gradient(170px circle at var(--dx, -500px) var(--dy, -500px), rgb(0 0 0 / 0.55), transparent 75%);
+}
+:root:is([data-skin="paper"], [data-skin="plain"]) .dotfield::before { background-image: radial-gradient(rgb(23 25 30 / 0.07) 1px, transparent 1.3px); }
+:root[data-skin="plain"] .dotfield { display: none; }
+
+/* ---------- 沿边框跑的光（Border Beam）：只放在「下一步」按钮上 ---------- */
+.beam {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none; border: 1.5px solid transparent;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0) border-box;
+}
+.beam::before {
+  content: ""; position: absolute; width: 90px; aspect-ratio: 1;
+  offset-path: rect(0 auto auto 0 round 14px); offset-anchor: 100% 50%;
+  background: linear-gradient(to left, rgb(255 255 255 / 0.95), color-mix(in oklab, var(--beam, var(--color-gold)) 60%, white), transparent);
+  animation: beam-run 4.8s linear infinite;
+}
+@keyframes beam-run { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+/* ---------- 流光按钮（Shimmer / Shine）：悬停时一道斜光扫过 ---------- */
+.shine { position: relative; overflow: hidden; isolation: isolate; }
+.shine::after {
+  content: ""; position: absolute; inset: -20% auto -20% -60%; width: 45%; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  transform: skewX(-18deg) translateX(0); opacity: 0;
+}
+.shine:hover::after, .shine.shine-once::after { animation: shine-sweep 0.9s var(--ease-out); }
+@keyframes shine-sweep { 0% { opacity: 1; transform: skewX(-18deg) translateX(0); } 100% { opacity: 1; transform: skewX(-18deg) translateX(420%); } }
+
+/* ---------- 按压反馈：所有按钮按下去有「压下去」的手感 ---------- */
+.press { transition: transform 0.18s var(--ease-snap), background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s; }
+.press:active:not(:disabled) { transform: scale(0.965); transition-duration: 0.06s; }
+
+/* ---------- 文字流光（Text Shimmer）：等待中的文字 ---------- */
+.shimmer-text {
+  background: linear-gradient(90deg, currentColor 0 35%, color-mix(in oklab, currentColor 30%, white) 50%, currentColor 65% 100%);
+  background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: shimmer-move 1.6s linear infinite;
+}
+@keyframes shimmer-move { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+
+/* ---------- 逐字显影（Text Effect + Blur Fade）：新一个月的头条一字一字清晰起来，不从完全透明开始 ---------- */
+.tfx > span { display: inline-block; animation: tfx-in 0.55s var(--ease-out) both; animation-delay: calc(var(--i) * 16ms + 120ms); }
+@keyframes tfx-in { from { opacity: 0.3; filter: blur(5px); transform: translateY(3px); } to { opacity: 1; filter: none; transform: none; } }
+
+/* ---------- 列表依次进入（Animated List）：结算表格、抽屉里的行 ---------- */
+.stagger > * { animation: stagger-in 0.42s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 55ms + 180ms); }
+@keyframes stagger-in { from { opacity: 0.2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.drawer-body > * { animation: stagger-in 0.4s var(--ease-out) both; }
+.drawer-body > :nth-child(2) { animation-delay: 40ms; } .drawer-body > :nth-child(3) { animation-delay: 80ms; }
+.drawer-body > :nth-child(4) { animation-delay: 120ms; } .drawer-body > :nth-child(5) { animation-delay: 160ms; }
+.drawer-body > :nth-child(n + 6) { animation-delay: 200ms; }
+
+/* ---------- 滑动选中块（Animated Background）：设置里的分段按钮，选中块滑过去 ---------- */
+.seg { position: relative; isolation: isolate; overflow: hidden; }
+.seg::before {
+  content: ""; position: absolute; z-index: -1; top: 3px; bottom: 3px; left: 3px; border-radius: 8px;
+  width: calc((100% - 6px) / var(--n, 1)); transform: translateX(calc(100% * var(--i, 0)));
+  background: var(--color-elev); box-shadow: inset 0 1px 0 var(--color-line-hi), 0 1px 3px rgb(0 0 0 / 0.25);
+  transition: transform 0.4s cubic-bezier(0.3, 1.2, 0.5, 1);
+}
+.seg[style*="--i: -1"]::before { opacity: 0; }
+.seg button[aria-checked="true"] { background: transparent !important; box-shadow: none !important; }
+
+/* ---------- 盘面细节 ---------- */
+/* 已知信息的涨跌条每个月从中线长出来 */
+.bar-grow { animation: bar-grow 0.7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms + 150ms); }
+.bar-grow.from-left { transform-origin: left center; } .bar-grow.from-right { transform-origin: right center; }
+@keyframes bar-grow { from { transform: scaleX(0.05); } to { transform: none; } }
+/* 状态栏：当前月的进度格呼吸；换月时一道光扫过整条 */
+.sb-ticks i.now { animation: tick-breathe 2.4s ease-in-out infinite; }
+@keyframes tick-breathe { 50% { box-shadow: 0 0 14px color-mix(in oklab, var(--color-gold) 85%, transparent); } }
+:root .lg > .sb-sweep { position: absolute !important; z-index: 1 !important; }
+.sb-sweep { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.sb-sweep::after { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-gold) 22%, transparent), transparent); animation: sb-sweep 1.1s var(--ease-out) 0.15s both; }
+@keyframes sb-sweep { from { transform: translateX(0); } to { transform: translateX(480%); } }
+/* 仓位滑条：拖动时拇指外圈发光、上方浮出数值 */
+.slider-bubble { position: absolute; bottom: calc(100% + 4px); translate: -50% 0; padding: 1px 7px; border-radius: 7px; font: 700 12px/1.6 var(--font-mono); color: var(--color-bg); background: var(--bubble, var(--color-gold)); pointer-events: none; white-space: nowrap; }
+/* 仓位环：拖动时各段平滑变长变短 */
+.donut circle { transition: stroke-dasharray 0.5s var(--ease-out), stroke-dashoffset 0.5s var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .beam, .dotfield::after { display: none; }
+  .shine::after, .shimmer-text, .tfx > span, .stagger > *, .drawer-body > *, .bar-grow, .sb-ticks i.now, .sb-sweep::after { animation: none !important; }
+  .shimmer-text { -webkit-text-fill-color: currentColor; background: none; }
+}
+:root[data-motion="reduce"] .beam, :root[data-motion="reduce"] .dotfield::after { display: none; }
+:root[data-motion="reduce"] .shimmer-text { -webkit-text-fill-color: currentColor; background: none; }

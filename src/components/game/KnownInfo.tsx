@@ -26,9 +26,10 @@ export function KnownInfo({ script, round }: { script: Script; round: number }) 
               <span className="relative flex-1 h-2 rounded bg-bg">
                 <span aria-hidden className="absolute top-0 bottom-0 left-1/2 w-px bg-line" />
                 <span
+                  key={round}
                   aria-hidden
-                  className={`absolute top-0 bottom-0 rounded ${r >= 0 ? "bg-up left-1/2" : "bg-down right-1/2"}`}
-                  style={{ width: `${(Math.min(1, Math.abs(r) / scale) * 50).toFixed(1)}%` }}
+                  className={`bar-grow absolute top-0 bottom-0 rounded ${r >= 0 ? "from-left bg-up left-1/2" : "from-right bg-down right-1/2"}`}
+                  style={{ width: `${(Math.min(1, Math.abs(r) / scale) * 50).toFixed(1)}%`, "--i": k } as React.CSSProperties}
                 />
               </span>
               <span className={`w-16 text-right num ${upDownColor(r)}`}>

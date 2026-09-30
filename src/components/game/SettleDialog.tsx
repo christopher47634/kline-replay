@@ -15,6 +15,7 @@ import { ASSET_IDS, type Script } from "@/game/types";
 import { useResolved } from "@/lib/prefs";
 import { plainSettle, proSettle, settleFacts } from "@/lib/voice";
 import { dueThisRound } from "@/lib/macro";
+import { celebrate } from "@/lib/celebrate";
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
@@ -76,6 +77,7 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
     if (last.liquidated) return; // the bust sound already played with the screen effects
     play(last.pnl >= 0 ? "up" : "down");
     haptic("settle");
+    if (last.pnl >= 0.06) void celebrate("month", document.querySelector("[data-testid='settle-pnl']"));
   };
   const glowColor = last.pnl >= 0 ? "var(--color-up-glow)" : "var(--color-down-glow)";
 
@@ -167,9 +169,9 @@ function ProBlock({ script, last }: { script: Script; last: LastSettle }) {
             <th className="r">贡献</th>
           </tr>
         </thead>
-        <tbody>
-          {r.rows.map((x) => (
-            <tr key={x.id}>
+        <tbody className="stagger">
+          {r.rows.map((x, i) => (
+            <tr key={x.id} style={{ "--i": i } as React.CSSProperties}>
               <td className="font-sans">{x.name}</td>
               <td className="r text-sub">{x.weight}%</td>
               <td className={`r ${upDownColor(x.ret)}`}>{x.id === "margin" && last.liquidated ? "强平" : pct(x.ret)}</td>

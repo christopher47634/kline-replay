@@ -44,14 +44,21 @@ function Typed({ text, ms = 400, delay = 0 }: { text: string; ms?: number; delay
 export function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; lead?: boolean; monthNo: number }) {
   const stamp = `${monthNo}月${headline.day}日`;
   return (
-    <article className="group relative overflow-hidden rounded-xl border border-line bg-card py-3 pl-4 pr-4 transition-[transform,background-color,border-color] duration-150 hover:-translate-y-0.5 hover:bg-elev hover:border-mute" style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi)" }}>
+    <article className="spot group relative overflow-hidden rounded-xl border border-line bg-card py-3 pl-4 pr-4 transition-[transform,background-color,border-color] duration-150 hover:-translate-y-0.5 hover:bg-elev hover:border-mute" style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi)" }}>
       <span aria-hidden className={`absolute bottom-3 left-0 top-3 w-[3px] rounded-r transition-[width] duration-150 group-hover:w-[5px] ${BAR[headline.tone]}`} />
       <div className="flex items-center gap-2 text-xs text-sub">
         {lead && <span className="rounded bg-up/15 px-1.5 py-0.5 font-medium text-up">头条</span>}
         <span>{headline.outlet}</span>
         <span className="num ml-auto">{lead ? <Typed text={stamp} ms={400} delay={350} /> : stamp}</span>
       </div>
-      <p className={`mt-1.5 font-bold leading-snug ${lead ? "text-[17px]" : "text-[15px]"}`}>{headline.text}</p>
+      <p className={`tfx mt-1.5 font-bold leading-snug ${lead ? "text-[17px]" : "text-[15px]"}`} aria-label={headline.text}>
+        {/* Text Effect: each character sharpens in turn when the month's headlines arrive */}
+        {Array.from(headline.text).map((c, i) => (
+          <span key={i} aria-hidden style={{ "--i": i } as React.CSSProperties}>
+            {c}
+          </span>
+        ))}
+      </p>
       <span className="sr-only">{TONE_LABEL[headline.tone]}</span>
     </article>
   );
@@ -84,7 +91,7 @@ function Laoge() {
 
 export function RumorCard({ text }: { text: string }) {
   return (
-    <article className="rounded-xl border border-dashed border-line bg-card p-4">
+    <article className="spot rounded-xl border border-dashed border-line bg-card p-4">
       <div className="flex items-center gap-3">
         <Laoge />
         <span className="text-sm font-medium">股吧老哥</span>

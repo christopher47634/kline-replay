@@ -118,6 +118,26 @@ flowchart LR
 - **借鉴见微**：「历史位置」——每个宏观数值后面标出它在最近 12 个已公布月份里偏高 / 偏低 / 最高 / 最低；「本月日程」（见微的「下次验证」）——工作台和宏观抽屉列出这个月会公布哪些数据、大概哪天，数值要到下个回合才出现；研报体结算多一行「下月跟踪」。
 - **数据放大镜**：有精确指针的设备上，光标停在关键数字（总资产、上月盈亏、已知信息涨跌、工作台指标、年度指标、跑赢跑输）上，数字弹性放大，旁边浮出玻璃透镜放大显示数值和名称。结算弹窗在浏览器顶层，透镜盖不上去，所以弹窗里没有。
 
+## 动效层（v5）
+
+从两套成熟的开源组件库里挑效果，按本项目的规矩改成大多是纯 CSS 的实现（`src/app/motion.css`、`src/components/shell/Interact.tsx`、`src/lib/celebrate.ts`，出处和许可证见 `THIRD_PARTY_NOTICES.md`）：
+
+| 效果 | 参考 | 用在哪 |
+|---|---|---|
+| 聚光卡片 | Magic UI · Magic Card | 所有面板和头条卡：光标所在处一团柔光，边框亮起一段 |
+| 点阵底纹 | Magic UI · Dot Pattern | 盘面空白处的淡点阵，光标附近的点亮起来（简约主题不显示） |
+| 边框流光 | Magic UI · Border Beam | 「进入下个月」和首页「开始穿越」：一道光沿边框跑，提示下一步 |
+| 斜光扫过 / 按压回弹 | Magic UI · Shimmer Button | 主按钮悬停扫光；所有按钮按下去有「压下去」的手感 |
+| 逐字显影 | Motion Primitives · Text Effect + Magic UI · Blur Fade | 每个月的头条一字一字从模糊变清楚 |
+| 文字流光 | Motion Primitives · Text Shimmer | 「结算中」 |
+| 滑动选中块 | Motion Primitives · Animated Background | 设置里的分段按钮，选中块滑过去 |
+| 列表依次进入 | Magic UI · Animated List | 研报体结算的归因表、设置抽屉的各行 |
+| 彩带 | Magic UI · Confetti（canvas-confetti） | 单月赚 6% 以上从大数字处喷一次；全年跑赢大盘两侧礼炮一次 |
+
+另外：仓位滑条拖动时拇指外圈发光、上方浮出数值；「分配仓位」右上角的风险构成环随拖动实时变形，中间是合计（不到 100% 显示红色）；已知信息的涨跌条每月从中线长出来；状态栏当前月的进度格呼吸，换月时一道光扫过整条。
+
+规矩：内容永远不从完全透明开始（换月闪白、弹窗隐身都吃过亏）；触屏不开光标类效果；系统或设置里「减少动效」时全部静止；彩带库只在触发时才下载。
+
 ## 技术栈与架构
 
 Next.js 15（App Router）· React 19 · TypeScript · Tailwind CSS v4 · Zustand（persist 到 localStorage）· Recharts · Tone.js 15 · html-to-image · Supabase（可选）· DeepSeek（可选）· Vitest · Playwright · Python + akshare（仅开发期数据管线）
