@@ -108,7 +108,8 @@ function InkLine() {
   const hi = Math.max(...c);
   const pk = c.indexOf(hi);
   const x = (i: number) => 380 + (i / (c.length - 1)) * 600;
-  const y = (v: number) => 360 - ((v - lo) / (hi - lo)) * 250;
+  // the peak sits at mid height, beside the subtitle: higher up it ran into the end of the 「穿越 K 线」 title
+  const y = (v: number) => 392 - ((v - lo) / (hi - lo)) * 190;
   return (
     <svg className="hero-ink absolute inset-0 h-full w-full" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid slice">
       <polyline points={c.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")} fill="none" stroke="var(--color-ink)" strokeOpacity="0.28" strokeWidth="1.4" strokeLinejoin="round" />

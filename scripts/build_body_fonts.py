@@ -79,3 +79,5 @@ if __name__ == "__main__":
     build(wk / "lxgwwenkaigbscreen.css", wk / "files", ROOT / "public" / "fonts" / "wenkai-subset.woff2", cps)
     ns = NM / "@fontsource" / "noto-serif-sc"
     build(ns / "400.css", ns / "files", ROOT / "public" / "fonts" / "serif-subset.woff2", cps)
+    # 纸面主题的标题和头条用真粗体（不是浏览器合成的假粗体）；只有用到时浏览器才会下载
+    build(ns / "700.css", ns / "files", ROOT / "public" / "fonts" / "serif-bold-subset.woff2", cps)

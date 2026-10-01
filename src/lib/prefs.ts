@@ -55,9 +55,9 @@ export interface SkinMeta {
 }
 
 export const SKINS: SkinMeta[] = [
-  { id: "pan", name: "盘口", who: "专业玩家", traits: ["深夜盘口配色", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
-  { id: "paper", name: "纸面", who: "一般玩家", traits: ["纸面编辑部（借鉴见微）", "思源宋体标题", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
-  { id: "plain", name: "简约", who: "轻松玩", traits: ["头条、走势和仓位在前，其余折叠", "霞鹜文楷", "白话复盘"], font: "kai", voice: "plain", leading: "airy", density: "compact" },
+  { id: "pan", name: "盘口", who: "专业玩家", traits: ["交易终端：深色面板、等宽数字、利落小圆角", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
+  { id: "paper", name: "纸面", who: "一般玩家", traits: ["报纸编辑部：栏线、宋体粗标题、朱红印章段位", "头条像剪报、小道消息像读者来信", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
+  { id: "plain", name: "简约", who: "轻松玩", traits: ["轻松留白：大圆角、无边框、圆润数字", "霞鹜文楷；头条、走势和仓位在前，其余折叠", "白话复盘"], font: "kai", voice: "plain", leading: "airy", density: "compact" },
 ];
 export const skinMeta = (id: Skin) => SKINS.find((s) => s.id === id)!;
 

@@ -159,3 +159,11 @@
 - 内容：`scripts/patch_rumors.mjs` 一次性改写 2015、2020 的 9 条小道消息并给 72 条全部加方向标注，2020 补第三张历史时刻（3 月 18 日美股十天四次熔断）；`validate_script.py` 新增 rumorCall 检查、拒绝逐月交替的真假顺序。
 - 代码：`src/game/{tasks,notes,link,replay,rumor}.ts`、`src/events/seen.ts`、`src/components/result/Overview.tsx`；改了 store（v2 存档迁移）、GameView、AllocationPanel、Intro、MomentCard、RumorCard、SettleDialog、Macro、TrendChart、ResultView、MusicModal、player、compose、EventGame、Hero、StoryPinned。
 - 验证：Vitest 83（新增任务可解性、理由编码、回放与反事实、小道消息三分、高光分段、音域、抽题顺序）；Playwright 新增 v8.spec（任务链接到结果、高光、盲盒后续、首页跨断点、简约折叠、事件幅度）；三主题桌面 + 手机逐月截图走查。
+
+## 2026-10-02：三套主题做出各自的性格
+
+- 用户问「各个主题有没有做出特点」。并排截图（同页面、同状态、同尺寸，桌面 9 页 + 手机 3 页）后结论：盘口有自己的样子，纸面和简约版式完全一样，只差强调色和标题字。
+- 做法：`themes.css` 一组 token + 少量语义类（btn-primary、headline-card、rumor-card、rank-stamp、only-pan/paper/plain）。纸面：近直角、墨线栏、宋体真粗体、报头日期栏、朱红印章段位、读者来信、纸纹；简约：大圆角、无边框柔影、圆润数字、胶囊步骤和按钮；盘口：更利落的小圆角、等宽元数据、关键数字微光、首页行情代码行。
+- 顺手修：浅色主题首页墨线的 5178 标注压在标题上；大事件画布在浅色主题是黑块；纸面结算大数字没换上宋体；简约中栏步骤胶囊被拉满整列。
+- 对比度：写了逐对计算脚本，简约 7 对、纸面 2 对低于 AA，调深后全部 ≥ 4.5。
+- 验证：Vitest 83、Playwright 34 全过；手机游戏页 Lighthouse 86–87，和上一个提交在同一时段实测的 87 一致（这台机器当时整体偏慢，两者都比前一天低）。

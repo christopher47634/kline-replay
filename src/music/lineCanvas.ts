@@ -1,10 +1,16 @@
-const BG = "#07090D";
-const GRAY = "#8C8C8C";
-const GOLD = "#F5B400";
-const RED = "#FF4D4F";
-const GREEN = "#3FB950";
-const SUB = "#8B95A3";
-const GRID = "#1C2431";
+import { palette } from "./palette";
+
+// colours follow the current skin (music/palette.ts); these are the dark defaults until the first draw
+let HATCH_BG = "#10151c";
+let HATCH = "#1c2430";
+let DOT = "#fff";
+let BG = "#07090D";
+let GRAY = "#8C8C8C";
+let GOLD = "#F5B400";
+let RED = "#FF4D4F";
+let GREEN = "#3FB950";
+let SUB = "#8B95A3";
+let GRID = "#1C2431";
 
 export interface LineData {
   /** 60 closes up to and including the event day. */
@@ -75,6 +81,7 @@ export class LineCanvas {
   }
 
   draw() {
+    ({ bg: BG, gray: GRAY, gold: GOLD, up: RED, down: GREEN, sub: SUB, grid: GRID, hatchBg: HATCH_BG, hatch: HATCH, dot: DOT } = palette());
     const { ctx, w, h } = this;
     const { before, after, revealed } = this.data;
     const p = this.plot();
@@ -99,9 +106,9 @@ export class LineCanvas {
     ctx.beginPath();
     ctx.rect(xToday, p.top, p.right - xToday, p.bottom - p.top);
     ctx.clip();
-    ctx.fillStyle = "#10151c";
+    ctx.fillStyle = HATCH_BG;
     ctx.fillRect(xToday, p.top, p.right - xToday, p.bottom - p.top);
-    ctx.strokeStyle = "#1c2430";
+    ctx.strokeStyle = HATCH;
     ctx.lineWidth = 3;
     for (let s = -h; s < w; s += 9) {
       ctx.beginPath();
@@ -152,7 +159,7 @@ export class LineCanvas {
       ctx.moveTo(xToday, this.y(before[before.length - 1]));
       for (let k = 0; k < shown; k++) ctx.lineTo(this.x(before.length + k), this.y(after[k]));
       ctx.stroke();
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = DOT;
       ctx.shadowColor = color;
       ctx.shadowBlur = performance.now() < this.pulseUntil ? 18 : 8;
       ctx.beginPath();

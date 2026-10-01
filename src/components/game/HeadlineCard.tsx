@@ -44,7 +44,7 @@ function Typed({ text, ms = 400, delay = 0 }: { text: string; ms?: number; delay
 export const HeadlineCard = memo(function HeadlineCard({ headline, lead, monthNo }: { headline: Headline; lead?: boolean; monthNo: number }) {
   const stamp = `${monthNo}月${headline.day}日`;
   return (
-    <article className="spot group relative overflow-hidden rounded-xl border border-line bg-card py-3 pl-4 pr-4 transition-[transform,background-color,border-color] duration-150 hover:-translate-y-0.5 hover:bg-elev hover:border-mute" style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi)" }}>
+    <article className="headline-card spot group relative overflow-hidden rounded-xl border border-line bg-card py-3 pl-4 pr-4 transition-[transform,background-color,border-color] duration-150 hover:-translate-y-0.5 hover:bg-elev hover:border-mute" style={{ boxShadow: "inset 0 1px 0 var(--color-line-hi)" }}>
       <span aria-hidden className={`absolute bottom-3 left-0 top-3 w-[3px] rounded-r transition-[width] duration-150 group-hover:w-[5px] ${BAR[headline.tone]}`} />
       <div className="flex items-center gap-2 text-xs text-sub">
         {lead && <span className="rounded bg-up/15 px-1.5 py-0.5 font-medium text-up">头条</span>}
@@ -100,7 +100,7 @@ export const RumorCard = memo(function RumorCard({
 }) {
   const pick = (v: Stance) => month !== undefined && onStance?.(month, { rumor: stance === v ? undefined : v });
   return (
-    <article className="spot rounded-xl border border-dashed border-line bg-card p-4">
+    <article className="rumor-card spot rounded-xl border border-dashed border-line bg-card p-4">
       <div className="flex items-center gap-3">
         <Laoge />
         <span className="text-sm font-medium">股吧老哥</span>

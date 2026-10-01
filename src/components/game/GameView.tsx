@@ -254,7 +254,7 @@ export function GameView({ script }: { script: Script }) {
             </p>
             <MagneticButton
               data-testid="next-month"
-              className="shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
+              className="btn-primary shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
               disabled={!valid || settling}
               onClick={goNext}
               sound={false}

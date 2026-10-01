@@ -271,7 +271,7 @@ function Result({
           </span>
         </h1>
         <motion.span
-          className="mb-1 rounded-full border-2 px-4 py-1 text-base font-bold md:mb-2"
+          className="rank-stamp mb-1 rounded-full border-2 px-4 py-1 text-base font-bold md:mb-2"
           style={{ borderColor: r.rank.color, color: r.rank.color }}
           initial={reduce ? false : { opacity: 0, scale: 1.3, rotate: 8, x: 40 }}
           animate={stamped ? { opacity: 1, scale: 1, rotate: 0, x: 0 } : undefined}

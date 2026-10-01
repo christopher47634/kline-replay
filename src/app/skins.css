@@ -17,10 +17,10 @@
   --color-ink: #17191e;
   --color-sub: #626876;
   --color-mute: #9aa0aa;
-  --color-up: #c8372d;
-  --color-up-glow: rgb(200 55 45 / 0.22);
-  --color-down: #1f7a45;
-  --color-down-glow: rgb(31 122 69 / 0.2);
+  --color-up: #bb3127;
+  --color-up-glow: rgb(187 49 39 / 0.22);
+  --color-down: #1b6d3e;
+  --color-down-glow: rgb(27 109 62 / 0.2);
   --color-gold: #2146ad;
   --color-market: #8a8f99;
   --color-cash: #2146ad;
@@ -36,12 +36,12 @@
   --color-line-2: #d6d3cb;
   --color-line-hi: rgb(255 255 255 / 0.9);
   --color-ink: #222326;
-  --color-sub: #72747a;
+  --color-sub: #64666c;
   --color-mute: #a6a8ad;
-  --color-up: #d0453b;
-  --color-up-glow: rgb(208 69 59 / 0.2);
-  --color-down: #2f8a57;
-  --color-down-glow: rgb(47 138 87 / 0.2);
+  --color-up: #bf3a30;
+  --color-up-glow: rgb(191 58 48 / 0.2);
+  --color-down: #21744a;
+  --color-down-glow: rgb(33 116 74 / 0.2);
   --color-gold: #2f6b58;
   --color-market: #9a9da3;
   --color-cash: #2f6b58;
@@ -54,7 +54,7 @@
 :root:is([data-skin="paper"], [data-skin="plain"]) .bg-\[rgb\(13_17_23\/0\.94\)\] { background: color-mix(in oklab, var(--color-card) 96%, transparent); }
 :root:is([data-skin="paper"], [data-skin="plain"]) .hover\:bg-\[\#ffc933\]:hover { background: color-mix(in oklab, var(--color-gold) 85%, black); }
 :root:is([data-skin="paper"], [data-skin="plain"]) ::backdrop { background: rgb(23 25 30 / 0.25); }
-:root[data-skin="paper"] :is(h1, h2).font-display, :root[data-skin="paper"] .font-display { font-weight: 400; letter-spacing: 0; }
+:root[data-skin="paper"] :is(h1, h2).font-display, :root[data-skin="paper"] .font-display { font-weight: 700; letter-spacing: -0.01em; } /* bold serif, like a masthead (themes.css) */
 :root[data-skin="plain"] .font-display { font-weight: 400; letter-spacing: 0.02em; }
 
 /* 首页主按钮：深色主题是金色渐变，浅色主题用本主题的强调色 */
@@ -251,8 +251,8 @@
 
 /* ---------- 涨跌颜色：绿涨红跌（海外习惯） ---------- */
 :root[data-updown="intl"][data-skin="pan"] { --color-up: #3fb950; --color-up-glow: rgb(63 185 80 / 0.35); --color-down: #ff4d4f; --color-down-glow: rgb(255 77 79 / 0.35); }
-:root[data-updown="intl"][data-skin="paper"] { --color-up: #1f7a45; --color-up-glow: rgb(31 122 69 / 0.2); --color-down: #c8372d; --color-down-glow: rgb(200 55 45 / 0.22); }
-:root[data-updown="intl"][data-skin="plain"] { --color-up: #2f8a57; --color-up-glow: rgb(47 138 87 / 0.2); --color-down: #d0453b; --color-down-glow: rgb(208 69 59 / 0.2); }
+:root[data-updown="intl"][data-skin="paper"] { --color-up: #1b6d3e; --color-up-glow: rgb(27 109 62 / 0.2); --color-down: #bb3127; --color-down-glow: rgb(187 49 39 / 0.22); }
+:root[data-updown="intl"][data-skin="plain"] { --color-up: #21744a; --color-up-glow: rgb(33 116 74 / 0.2); --color-down: #bf3a30; --color-down-glow: rgb(191 58 48 / 0.2); }
 
 /* ---------- 盘口强调色 ---------- */
 :root[data-skin="pan"][data-accent="ice"] { --color-gold: #5aa9ff; }

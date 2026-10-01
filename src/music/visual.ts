@@ -1,12 +1,18 @@
 import type { Composition, Note } from "./compose";
 
-const BG = "#07090D";
-const RED = "#FF4D4F";
-const GREEN = "#3FB950";
-const GRAY = "#8C8C8C";
-const LINE = "#1C2431";
-const SUB = "#8B95A3";
-const INK = "#E6E8EB";
+import { palette } from "./palette";
+
+// colours follow the current skin (music/palette.ts); dark defaults until the first draw
+let GOLD = "#F5B400";
+let HATCH_BG = "#10151c";
+let DOT = "#fff";
+let BG = "#07090D";
+let RED = "#FF4D4F";
+let GREEN = "#3FB950";
+let GRAY = "#8C8C8C";
+let LINE = "#1C2431";
+let SUB = "#8B95A3";
+let INK = "#E6E8EB";
 
 interface Ripple {
   x: number;
@@ -127,6 +133,7 @@ export class DuetVisual {
   }
 
   draw(now: number) {
+    ({ bg: BG, up: RED, down: GREEN, gray: GRAY, grid: LINE, sub: SUB, ink: INK, gold: GOLD, hatchBg: HATCH_BG, dot: DOT } = palette());
     const { ctx, comp } = this;
     const w = this.w;
     const h = this.h;
@@ -170,7 +177,7 @@ export class DuetVisual {
       if (!this.portrait || n.month % 3 === 0) ctx.fillText(this.opts.monthLabels[n.month] ?? "", (x + xEnd) / 2, p.bottom + w * (this.portrait ? 0.04 : 0.018));
       if (n.switched && i <= Math.max(this.current, -1)) {
         // small gold triangle inside the plot, clear of any label
-        ctx.fillStyle = "#F5B400";
+        ctx.fillStyle = GOLD;
         ctx.beginPath();
         ctx.moveTo(x - 4, p.top + 4);
         ctx.lineTo(x + 4, p.top + 4);
@@ -205,7 +212,7 @@ export class DuetVisual {
       const n = comp.notes[upto];
       const x = this.xAt(upto);
       const y = this.yAt(n.value);
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = DOT;
       ctx.shadowColor = RED;
       ctx.shadowBlur = 14;
       ctx.beginPath();
@@ -252,7 +259,7 @@ export class DuetVisual {
     const cols = this.portrait ? 15 : 30;
     const cw = width / cols;
     const rh = height / 15;
-    ctx.fillStyle = "#10151c";
+    ctx.fillStyle = HATCH_BG;
     ctx.fillRect(left, top, width, height);
     for (let k = 0; k < cols; k++) {
       const i = upto - (cols - 1 - k);

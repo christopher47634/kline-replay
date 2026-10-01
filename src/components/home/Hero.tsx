@@ -29,6 +29,12 @@ export function Hero({ years = ["2015"] }: { years?: string[] }) {
       <HeroBackdrop onDecided={() => setGo(true)} />
       <div aria-hidden data-scrim className="absolute inset-0 bg-[linear-gradient(90deg,rgb(7_9_13/0.82),rgb(7_9_13/0.35)_45%,transparent_72%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[1120px] px-6 pb-24 pt-24">
+        {/* one kicker per skin (themes.css .only-*): a terminal quote line / a newspaper masthead / a friendly tag */}
+        <p aria-hidden className="hero-kicker mb-5 text-xs md:text-sm">
+          <span className="only-pan num">SSE COMPOSITE · 2015-06-12 · 盘中高点 5178.19 ▲</span>
+          <span className="only-paper">历史复盘特刊 · 二〇一五年六月十二日 · 星期五</span>
+          <span className="only-plain">轻松玩 · 一局约 6 分钟 · 不用懂股票也能上手</span>
+        </p>
         <Reveal as="h1" by="chars" delay={0.15} className="font-display text-display tracking-tight">
           穿越 K 线
         </Reveal>
