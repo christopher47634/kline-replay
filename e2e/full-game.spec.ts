@@ -111,12 +111,20 @@ test("historical moment card pre-fills the allocation and can still be edited", 
   const card = page.getByTestId("moment-card");
   await expect(card).toBeVisible();
   await expect(card.getByRole("heading")).toContainText("1 月 19 日");
+  await card.getByRole("radio", { name: "怕继续亏" }).click(); // optional reason tag
   await card.getByRole("button", { name: "减半仓" }).click();
   await expect(card).toHaveCount(0);
-  await expect(page.getByLabel("融资加杠杆 百分比")).toHaveValue("5");
-  await expect(page.getByLabel("货币基金 百分比")).toHaveValue("65");
+  // 平均分配 is four sectors + cash at 20% each, no margin; halving the risky part sends 40 more to cash
+  await expect(page.getByLabel("上证50 ETF 百分比")).toHaveValue("10");
+  await expect(page.getByLabel("货币基金 百分比")).toHaveValue("60");
   await expect(page.getByRole("button", { name: /进入下个月/ }).first()).toBeEnabled(); // still sums to 100
+  // 现金自动补齐 (on by default): adding margin takes it from cash, the total stays 100
   await page.getByLabel("融资加杠杆 百分比").fill("10");
+  await expect(page.getByLabel("货币基金 百分比")).toHaveValue("50");
+  await expect(page.getByRole("button", { name: /进入下个月/ }).first()).toBeEnabled();
+  // switched off, the same edit breaks the total and the button says so
+  await page.getByLabel("现金自动补齐").uncheck();
+  await page.getByLabel("融资加杠杆 百分比").fill("20");
   await expect(page.getByRole("button", { name: "合计需为 100%" })).toBeDisabled();
 
   // reload: the card is remembered as answered

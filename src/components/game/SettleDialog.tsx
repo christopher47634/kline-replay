@@ -11,11 +11,12 @@ import { fetchComment, templateComment } from "@/lib/comment";
 import { pct, upDownColor, yuan } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import type { LastSettle } from "@/game/store";
-import { ASSET_IDS, type Script } from "@/game/types";
+import { ASSET_IDS, type MonthNote, type Script } from "@/game/types";
 import { useResolved } from "@/lib/prefs";
 import { plainSettle, proSettle, settleFacts } from "@/lib/voice";
 import { dueThisRound } from "@/lib/macro";
 import { celebrate } from "@/lib/celebrate";
+import { rumorFacts } from "@/game/rumor";
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
@@ -36,7 +37,7 @@ function TypedComment({ text }: { text: string }) {
   );
 }
 
-export function SettleDialog({ script, last, open, onClose, isFinal }: { script: Script; last: LastSettle | null; open: boolean; onClose: () => void; isFinal: boolean }) {
+export function SettleDialog({ script, last, open, onClose, isFinal, note }: { script: Script; last: LastSettle | null; open: boolean; onClose: () => void; isFinal: boolean; note?: MonthNote }) {
   const { reduce } = useMotionPref();
   const { voice } = useResolved();
   const [comment, setComment] = useState<string | null>(null);
@@ -118,6 +119,8 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
           ))}
         </ul>}
 
+        <RumorCheck script={script} last={last} note={note} />
+
         {voice === "plain" && <PlainBlock script={script} last={last} />}
         {voice === "pro" && <ProBlock script={script} last={last} />}
 
@@ -139,6 +142,49 @@ export function SettleDialog({ script, last, open, onClose, isFinal }: { script:
         </Button>
       </div>
     </Dialog>
+  );
+}
+
+/**
+ * 小道消息复盘：三件事分开回答，不混成一句「信对了」——
+ * 消息有没有成真（世界的事实）、它指的方向本月有没有走出来（价格的事实）、你有没有照着它调仓（你的事实）。
+ */
+function RumorCheck({ script, last, note }: { script: Script; last: LastSettle; note?: MonthNote }) {
+  const f = rumorFacts(script, last);
+  const stance = note?.rumor === "trust" ? "你说更相信它" : note?.rumor === "doubt" ? "你没采信它" : null;
+  const what = f.call ? `看${f.call.dir > 0 ? "涨" : "跌"}${f.target}` : null;
+  return (
+    <div className="mt-4 rounded-lg border border-dashed border-line p-3 text-sm" data-testid="rumor-check">
+      <p className="mb-1.5 flex items-center justify-between text-xs text-sub">
+        <span>小道消息复盘</span>
+        {stance && <span className="rounded-full bg-gold/15 px-2 py-0.5 text-gold">{stance}</span>}
+      </p>
+      <ul className="space-y-1">
+        <li>
+          <b className={f.came ? "text-ink" : "text-sub"}>{f.came ? "成真了" : "没兑现"}</b>
+          <span className="text-sub"> · 消息本身{f.came ? "后来被证实" : "是噪音"}</span>
+        </li>
+        <li>
+          {f.call ? (
+            <>
+              <b className={f.same ? "text-ink" : "text-sub"}>{f.same ? "方向对了" : "方向反了"}</b>
+              <span className="text-sub">
+                {" "}
+                · 它{what}，本月{f.target}实际 <span className={`num ${upDownColor(f.ret!)}`}>{pct(f.ret!)}</span>
+              </span>
+            </>
+          ) : (
+            <span className="text-sub">它说的是一件事，没有指明涨跌方向</span>
+          )}
+        </li>
+        {f.call && (
+          <li className="text-sub">
+            {f.acted === "with" ? "你照着它的方向调了仓" : f.acted === "against" ? "你的仓位往相反方向走了" : "你没有为它调仓"}
+            {f.came && !f.same ? "——消息是真的，涨跌却没跟着走，这很常见" : ""}
+          </li>
+        )}
+      </ul>
+    </div>
   );
 }
 

@@ -79,7 +79,11 @@ export default function StoryPinned() {
     return () => ctx.revert();
   }, []);
 
+  // The pin wraps <section> in a GSAP "pin-spacer" div. React must never be asked to remove a node whose parent GSAP
+  // changed (crossing the 767px breakpoint swaps this component out: removeChild NotFoundError), so React owns this
+  // plain wrapper and GSAP only rearranges what is inside it.
   return (
+    <div>
     <section ref={root} aria-label="怎么玩" className="relative h-[100svh] overflow-hidden">
       <div className="mx-auto grid h-full max-w-[1120px] grid-cols-[480px_1fr] items-center gap-16 px-6">
         <div className="card-surface relative h-[380px] w-[480px] overflow-hidden p-5" aria-hidden>
@@ -137,6 +141,7 @@ export default function StoryPinned() {
         ))}
       </div>
     </section>
+    </div>
   );
 }
 

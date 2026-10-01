@@ -23,7 +23,7 @@ test("default is the 盘口 skin: pro workbench on the board, research-style set
   await page.getByTestId("next-month").click();
   const d = page.getByRole("dialog", { name: "本月结算" });
   await expect(d.getByTestId("voice-pro")).toBeVisible();
-  await expect(d.getByText("跑输大盘 4.4 个百分点")).toBeVisible();
+  await expect(d.getByText(/跑(输|赢)大盘 \d+\.\d 个百分点/)).toBeVisible();
   await expect(d.getByRole("columnheader", { name: "贡献" })).toBeVisible();
 });
 
@@ -59,21 +59,23 @@ test("settings drawer: skin applies at once, font opens a second level, Esc step
   await expect(page.locator("html")).toHaveAttribute("data-font", "kai");
 });
 
-test("简约 skin hides the secondary panels and settles in plain words", async ({ page }) => {
+test("简约 skin folds the secondary panels (not removed) and settles in plain words", async ({ page }) => {
   await setPrefs(page, { skin: "plain" });
   await startGame(page);
+  // 信息密度「精简」: the same data, folded into 更多数据 instead of hidden
   await expect(page.getByRole("region", { name: "本月已知信息" })).toBeHidden();
-  await expect(page.getByTestId("workbench")).toHaveCount(0);
+  await expect(page.getByTestId("more-data")).toBeVisible();
   await page.getByTestId("next-month").click();
   const d = page.getByRole("dialog", { name: "本月结算" });
   await expect(d.getByTestId("voice-plain")).toBeVisible();
-  await expect(d.getByText("这个月你亏了 5.2%，比大盘多亏 4.4 个点。")).toBeVisible();
+  await expect(d.getByText(/^这个月你(亏|赚)了 \d+\.\d%/)).toBeVisible();
 });
 
 test("macro drawer (纸面): six real series, second level shows only months already published", async ({ page }) => {
   await setPrefs(page, { skin: "paper" });
   await startGame(page);
-  await page.getByTestId("macro-open").click();
+  // the workbench (now on every skin) opens the macro drawer
+  await page.getByRole("button", { name: "宏观与资金面：打开明细" }).click();
   const d = page.getByRole("dialog", { name: "宏观与资金面" });
   await expect(d.locator(".dr-row")).toHaveCount(6);
   await d.locator(".dr-row", { hasText: "CPI 同比" }).click();

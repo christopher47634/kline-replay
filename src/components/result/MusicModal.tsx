@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { m as motion } from "motion/react";
 import { createPortal } from "react-dom";
 import { useFrameLoop } from "@/lib/frameLoop";
-import { compose } from "@/music/compose";
+import { compose, type Segment } from "@/music/compose";
 import { DuetPlayer } from "@/music/player";
 import { DuetVisual } from "@/music/visual";
 import type { DailyPoint, RoundRecord, Script } from "@/game/types";
@@ -24,6 +24,7 @@ export function MusicModal({
   onClose,
   bigPlay = false,
   onCopyLink,
+  highlight,
 }: {
   script: Script;
   daily: DailyPoint[];
@@ -32,7 +33,11 @@ export function MusicModal({
   /** Opened from a shared music link: show a big play button (audio never starts by itself). */
   bigPlay?: boolean;
   onCopyLink?: () => void;
+  /** 12 秒高光: play only these three stretches (music/compose.highlightSegments); the full piece is one tap away */
+  highlight?: Segment[];
 }) {
+  const [hl, setHl] = useState(!!highlight?.length);
+  const segs = hl && highlight?.length ? highlight : null;
   const comp = useMemo(() => compose(daily, history, script.startCash), [daily, history, script.startCash]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -77,6 +82,11 @@ export function MusicModal({
       },
     });
     player.current = p;
+    p.setSegments(segs);
+    if (segs) v.seek(segs[0].start);
+    setPos(segs ? segs[0].start : 0);
+    setEnded(false);
+    setPlaying(false);
     window.__klineMusic = {
       get position() {
         return p.position;
@@ -106,7 +116,7 @@ export function MusicModal({
       v.dispose();
       delete window.__klineMusic;
     };
-  }, [comp, script]);
+  }, [comp, script, segs]);
 
   const play = useCallback(async () => {
     const p = player.current!;
@@ -117,7 +127,7 @@ export function MusicModal({
         return;
       }
       if (ended) {
-        visual.current!.seek(0);
+        visual.current!.seek(segs ? segs[0].start : 0);
         setEnded(false);
       }
       setNeedTap(false);
@@ -136,11 +146,12 @@ export function MusicModal({
 
   const stop = () => {
     player.current!.stop();
-    visual.current!.seek(0);
+    const at = segs ? segs[0].start : 0;
+    visual.current!.seek(at);
     visual.current!.stopLoop();
     setPlaying(false);
     setEnded(false);
-    setPos(0);
+    setPos(at);
   };
 
   const seek = (i: number) => {
@@ -171,6 +182,11 @@ export function MusicModal({
 
   const total = comp.notes.length;
   const secs = (n: number) => ((n * 0.2) / rate).toFixed(0);
+  // highlight mode: which stretch is playing, and how much of the three has been heard
+  const segAt = segs ? segs.findIndex((g) => pos - 1 >= g.start && pos - 1 < g.end) : -1;
+  const hlTotal = segs ? segs.reduce((n, g) => n + g.end - g.start, 0) : 0;
+  const hlDone = segs ? (ended ? hlTotal : segs.reduce((n, g) => n + Math.max(0, Math.min(g.end, pos) - g.start), 0)) : 0;
+  const ring = segs ? hlDone / Math.max(1, hlTotal) : Math.min(1, pos / Math.max(1, total));
 
   // Portal: an animated ancestor (fade-in transform) would otherwise trap position: fixed.
   return createPortal(
@@ -235,7 +251,7 @@ export function MusicModal({
           >
             <svg viewBox="0 0 72 72" className="absolute inset-0 -rotate-90" aria-hidden>
               <circle cx="36" cy="36" r="33" fill="none" stroke="rgb(255 255 255 / 0.25)" strokeWidth="3" />
-              <circle cx="36" cy="36" r="33" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeDasharray={2 * Math.PI * 33} strokeDashoffset={2 * Math.PI * 33 * (1 - Math.min(1, pos / Math.max(1, total)))} />
+              <circle cx="36" cy="36" r="33" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeDasharray={2 * Math.PI * 33} strokeDashoffset={2 * Math.PI * 33 * (1 - ring)} />
             </svg>
             <span aria-hidden className="grid place-items-center">
               {playing ? <Pause size={26} fill="currentColor" strokeWidth={0} /> : <Play size={26} fill="currentColor" strokeWidth={0} className="translate-x-0.5" />}
@@ -245,11 +261,26 @@ export function MusicModal({
           <CtlBtn onClick={toggleRate} aria-label="切换速度">
             <span className="num">{rate}x</span>
           </CtlBtn>
+          {highlight?.length ? (
+            <CtlBtn onClick={() => setHl(!hl)} data-testid="music-mode">
+              {hl ? `听完整版（${secs(total)} 秒）` : `只听 ${secs(highlight.reduce((n, g) => n + g.end - g.start, 0))} 秒高光`}
+            </CtlBtn>
+          ) : null}
           {onCopyLink && <CtlBtn onClick={onCopyLink}>复制音乐链接</CtlBtn>}
           <span className="num text-xs text-sub ml-auto">
-            {secs(pos)}s / {secs(total)}s · 第 {Math.min(pos, total)} / {total} 个交易日
+            {segs ? `高光 ${secs(hlDone)}s / ${secs(hlTotal)}s` : `${secs(pos)}s / ${secs(total)}s · 第 ${Math.min(pos, total)} / ${total} 个交易日`}
           </span>
         </div>
+        {segs && (
+          <ol className="mt-3 grid gap-1.5 text-xs sm:grid-cols-3" data-testid="music-segments">
+            {segs.map((g, k) => (
+              <li key={g.start} className={`rounded-md border px-2.5 py-1.5 transition-colors ${k === segAt ? "border-up bg-up/10 text-ink" : "border-line text-sub"}`}>
+                <span className="num mr-1 text-up">{k + 1}</span>
+                {g.label}
+              </li>
+            ))}
+          </ol>
+        )}
         <p className="mt-3 text-center text-xs text-sub">
           <span className="text-up">红线是你</span>，<span className="text-[#8C8C8C]">灰线是大盘</span>。每个交易日一个音，越高代表赚得越多；低音是大盘，镲声是换仓或跑赢跑输切换，三声低鼓是强平。
         </p>

@@ -61,6 +61,10 @@ const sameAlloc = (a: RoundRecord["alloc"], b: RoundRecord["alloc"]) => (Object.
 
 export function compose(daily: DailyPoint[], history: RoundRecord[], startCash: number): Composition {
   const final = daily.at(-1)?.value ?? startCash;
+  // Pitch range: ±50% spans the scale as before, but a year that goes further (2007 with leverage: +200%) widens the
+  // range instead of flattening every day past +50% onto the top note.
+  const span = daily.reduce((m, p) => Math.max(m, Math.abs(p.value / startCash - 1), Math.abs(p.marketValue / startCash - 1)), 0.5);
+  const level = (d: number) => levelIndex((d * 0.5) / span);
   const major = final >= startCash;
   const scale = major ? MAJOR : MINOR;
   const switchedMonths = new Set(history.filter((h, i) => i > 0 && !sameAlloc(h.alloc, history[i - 1].alloc)).map((h) => h.month));
@@ -68,7 +72,7 @@ export function compose(daily: DailyPoint[], history: RoundRecord[], startCash: 
   const seenMonth = new Set<number>();
 
   const notes = daily.map((p, i): Note => {
-    let idx = levelIndex(p.value / startCash - 1);
+    let idx = level(p.value / startCash - 1);
     if (p.r > 0.03) idx = Math.min(14, idx + 1);
     if (p.r < -0.03) idx = Math.max(0, idx - 1);
     const perc: PercEvent[] = [];
@@ -89,7 +93,7 @@ export function compose(daily: DailyPoint[], history: RoundRecord[], startCash: 
     }
 
     const bass =
-      i % 5 === 0 ? { pitch: shiftOctave(scale[levelIndex(p.marketValue / startCash - 1)], -2), velocity: velocityOf(p.marketR) * 0.9 } : null;
+      i % 5 === 0 ? { pitch: shiftOctave(scale[level(p.marketValue / startCash - 1)], -2), velocity: velocityOf(p.marketR) * 0.9 } : null;
 
     return {
       i,
@@ -141,4 +145,40 @@ export function composePhrase(values: number[], base: number): Phrase {
     return { i, idx, pitch: scale[idx], velocity: velocityOf(r), r, value: v };
   });
   return { major, scale, notes };
+}
+
+export interface Segment {
+  start: number;
+  /** exclusive */
+  end: number;
+  month: number;
+  label: string;
+}
+
+/**
+ * 12 秒高光：全年最重要的三段——强平的月份优先，其次是单月盈亏绝对值最大的月份；每段取那个月的前 20 个交易日
+ * （0.2 秒一个音 → 约 4 秒），按时间顺序播。label 说明这一段对应哪个决定。
+ */
+export function highlightSegments(daily: DailyPoint[], history: RoundRecord[], monthLabel: (m: number) => string, n = 3, len = 20): Segment[] {
+  const firstDay = new Map<number, number>();
+  daily.forEach((p, i) => {
+    if (!firstDay.has(p.month)) firstDay.set(p.month, i);
+  });
+  const score = (h: RoundRecord) => (h.liquidated ? 10 : 0) + Math.abs(h.pnl);
+  const top = [...history].sort((a, b) => score(b) - score(a)).slice(0, n).sort((a, b) => a.month - b.month);
+  return top.map((h) => {
+    const start = firstDay.get(h.month) ?? 0;
+    const prev = h.month > 0 ? history[h.month - 1].alloc : null;
+    const risky = 100 - h.alloc.cash;
+    const before = prev ? 100 - prev.cash : 0;
+    const move = h.liquidated
+      ? "融资被强平（三声低鼓）"
+      : risky > before
+        ? `你把风险仓位加到 ${risky}%`
+        : risky < before
+          ? `你把风险仓位降到 ${risky}%`
+          : `你的风险仓位保持 ${risky}%`;
+    const sign = h.pnl >= 0 ? "+" : "−";
+    return { start, end: Math.min(daily.length, start + len), month: h.month, label: `${monthLabel(h.month)} · ${move} · 当月 ${sign}${Math.abs(h.pnl * 100).toFixed(1)}%` };
+  });
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Allocation, Script } from "@/game/types";
-import { TRADED_IDS } from "@/game/types";
+import type { Allocation, Script, ScriptMonth } from "@/game/types";
+import { allocSum, settle } from "@/game/engine";
 import { pct, upDownColor } from "@/lib/format";
 import { MACRO_FETCHED_AT, MACRO_SOURCE, dueThisRound, fmtMacro, knownRows, macroFor, monthMinus, position, roundMonth, type MacroSeries } from "@/lib/macro";
 import { Drawer, useDrawer } from "@/components/ui/Drawer";
@@ -30,25 +30,6 @@ function useMacroDrawer(script: Script, round: number) {
     </Drawer>
   );
   return { open: () => setOpen(true), drawer };
-}
-
-export function MacroButton({ script, round }: { script: Script; round: number }) {
-  const series = macroFor(script.id);
-  const { open, drawer } = useMacroDrawer(script, round);
-  if (!series.length) return null;
-  return (
-    <>
-      <button type="button" onClick={open} className="mt-3 flex w-full items-center justify-between rounded-lg border border-line bg-bg px-3 py-2.5 text-sm hover:border-line-2" data-testid="macro-open">
-        <span>
-          宏观与资金面 <span className="text-sub">· {series.length} 项真实数据</span>
-        </span>
-        <span aria-hidden className="text-sub">
-          →
-        </span>
-      </button>
-      {drawer}
-    </>
-  );
 }
 
 function Overview({ script, round }: { script: Script; round: number }) {
@@ -122,20 +103,21 @@ function Detail({ s, script, round }: { s: MacroSeries; script: Script; round: n
   );
 }
 
-/** 盘口主题的专业工作台：仓位体检（按你正在调的仓位）+ 宏观快照（当时已公布的最新值）。 */
+/** 专业工作台（三套主题都有）：仓位体检（按你正在调的仓位）+ 宏观快照（当时已公布的最新值）。 */
 export function Workbench({ script, round, draft }: { script: Script; round: number; draft: Allocation }) {
   const series = macroFor(script.id);
   const { open, drawer } = useMacroDrawer(script, round);
   const prev = round === 0 ? script.preMonths.at(-1) : script.months[round - 1];
   const risky = 100 - draft.cash;
   const lev = (risky + draft.margin * (script.params.marginLeverage - 1)) / 100;
-  // what last month's moves would have done to the allocation you are setting now (known information only)
-  const replay = prev ? TRADED_IDS.reduce((s, id) => s + (draft[id] / 100) * prev.returns[id], 0) + (draft.margin / 100) * (script.params.marginLeverage * prev.returns.sh50) : 0;
+  // what last month's moves would have done to the allocation you are setting now (known information only).
+  // Same settle() as the real month: cash interest, margin cost and the liquidation rule all included.
+  const replay = prev && allocSum(draft) === 100 ? settle(1, draft, { returns: prev.returns } as ScriptMonth, script.params) : null;
   return (
     <section aria-label="专业工作台" className="card-surface p-4" data-testid="workbench">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="shrink-0 font-bold">工作台</h2>
-        <span className="text-right text-xs text-sub">盘口主题 · 只用已知信息</span>
+        <span className="text-right text-xs text-sub">只用已知信息</span>
       </div>
       <dl className="mt-3 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line text-center">
         <div className="bg-bg p-2">
@@ -152,10 +134,15 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
         </div>
         <div className="bg-bg p-2">
           <dt className="text-[11px] text-sub">重演上月</dt>
-          <dd className={`num mt-0.5 font-bold ${upDownColor(replay)}`}>
-            <span data-zoom data-zoom-label="若上月行情重演，这套仓位的收益" data-zoom-tone={replay > 0 ? "up" : replay < 0 ? "down" : undefined}>
-              {pct(replay)}
-            </span>
+          <dd className={`num mt-0.5 font-bold ${replay ? upDownColor(replay.pnl) : ""}`} data-testid="replay-last">
+            {replay ? (
+              <span data-zoom data-zoom-label="若上月行情重演，这套仓位的收益" data-zoom-tone={replay.pnl > 0 ? "up" : replay.pnl < 0 ? "down" : undefined}>
+                {pct(replay.pnl)}
+                {replay.liquidated && <small className="ml-1 font-sans text-[10px] text-up">强平</small>}
+              </span>
+            ) : (
+              "—"
+            )}
           </dd>
         </div>
       </dl>
@@ -184,7 +171,7 @@ export function Workbench({ script, round, draft }: { script: Script; round: num
         })}
       </button>
       <Calendar script={script} round={round} compact />
-      <p className="mt-2 text-[11px] text-sub">「重演上月」＝上个月各资产的真实涨跌套在你现在的仓位上，只是一种压力测试，不是预测。</p>
+      <p className="mt-2 text-[11px] text-sub">「重演上月」＝上个月各资产的真实涨跌套在你现在的仓位上，和真实结算用同一套算法（含现金利息、融资成本和强平），只是一种压力测试，不是预测。</p>
       {drawer}
     </section>
   );

@@ -113,6 +113,14 @@ function Body() {
           <Chevron />
         </button>
         <div className="dr-line">
+          <span>信息密度</span>
+          <Seg label="信息密度" value={p.density} items={[["auto", "跟随主题"], ["full", "完整"], ["compact", "精简"]] as const} onPick={(v) => setPrefs({ density: v })} />
+        </div>
+        <div className="dr-line">
+          <span>现金自动补齐</span>
+          <Seg label="现金自动补齐" value={p.autofill ? "on" : "off"} items={[["on", "开"], ["off", "关"]] as const} onPick={(v) => setPrefs({ autofill: v === "on" })} />
+        </div>
+        <div className="dr-line">
           <span>涨跌颜色</span>
           <Seg label="涨跌颜色" value={p.updown} items={[["cn", "红涨绿跌"], ["intl", "绿涨红跌"]] as const} onPick={(v) => setPrefs({ updown: v })} />
         </div>
@@ -124,6 +132,7 @@ function Body() {
           <span>动效</span>
           <Seg label="动效" value={p.motion} items={[["auto", "完整"], ["reduce", "减少"]] as const} onPick={(v) => setPrefs({ motion: v })} />
         </div>
+        <p className="dr-note">信息密度：「精简」把温度计、已知信息和工作台折叠成一个「更多数据」，点开就有；三套主题能看到的数据一样多，只是摆法不同（简约主题默认精简）。现金自动补齐：拖别的资产时差额从现金里出，现金不够会明确拦住，不会偷偷改别的仓位。</p>
         <p className="dr-note">放大镜：鼠标停在关键数字上时放大显示，触屏不启用。动效「减少」：不翻页、不弹跳、不跑数字，和系统的「减少动态效果」一样。</p>
         <PerfNotice />
       </div>

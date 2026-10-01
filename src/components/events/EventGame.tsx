@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { encodeEvents } from "@/events/encode";
-import { BUCKET_LABELS, maxScore, outcome, pickCards, scoreGame } from "@/events/engine";
+import { BUCKET_LABELS, maxScore, outcome, pickFresh, scoreGame } from "@/events/engine";
+import { bucketsFor, MAGNITUDE_LABELS, recordSeen, seenMap } from "@/events/seen";
 import { CARDS_PER_GAME, type Guess, type PreparedDeck, type PreparedEvent } from "@/events/types";
 import { pct, upDownColor } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
@@ -33,6 +34,10 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
   const [revealed, setRevealed] = useState(0);
   const [pulse, setPulse] = useState(0);
   const player = useRef<PhrasePlayer | null>(null);
+  // bumps on every new reveal, so a phrase that finishes after the player has moved on cannot touch the next card
+  const revealRun = useRef(0);
+  // 首次挑战 / 复盘练习: what this device has already answered (events/seen.ts)
+  const [seenAt, setSeenAt] = useState<Record<string, "ok" | "miss">>({});
 
   useEffect(() => {
     player.current = new PhrasePlayer();
@@ -46,12 +51,15 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
   const ev = picks[i];
   const rets = useMemo(() => picks.map((p) => outcome(p).ret), [picks]);
   const played = useMemo(() => scoreGame(rets.slice(0, guesses.length), guesses), [rets, guesses]);
-  // The header must not give the answer away while the reveal is still playing: it counts finished cards only.
-  const finished = phase === "reveal" ? i : guesses.length;
+  // The answer is shown as soon as the guess is in (the curve and the music then play it out), so the header counts it.
+  const finished = guesses.length;
   const streak = played.cards[finished - 1]?.streak ?? 0;
 
   const start = () => {
-    setPicks(pickCards(deck.events));
+    const seen = seenMap(deck.id);
+    setSeenAt(seen);
+    // unseen cards first, then the ones missed before, then the rest
+    setPicks(pickFresh(deck.events, seen));
     setI(0);
     setGuesses([]);
     setDirChoice(null);
@@ -67,10 +75,18 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
       setDirChoice(null);
       setPhase("reveal");
       setRevealed(0);
+      // answer first: right / wrong sounds now, the curve and its music follow (and can be skipped with 下一张)
+      const ok = (outcome(ev).ret > 0) === up;
+      play(ok ? "ding" : "down");
+      haptic(ok ? "correct" : "wrong");
+      recordSeen(deck.id, ev.id, ok);
+      const run = ++revealRun.current;
       await player.current?.play(composePhrase(ev.after, ev.before[ev.before.length - 1]), (_n, k) => {
+        if (run !== revealRun.current) return;
         setRevealed(k + 1);
         setPulse((p) => p + 1);
       });
+      if (run !== revealRun.current) return;
       setRevealed(ev.after.length);
       setPhase("shown");
     },
@@ -83,7 +99,10 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
   };
 
   const next = useCallback(() => {
-    if (phase !== "shown") return;
+    if (phase !== "shown" && phase !== "reveal") return;
+    if (phase === "reveal" && guesses.length <= i) return;
+    revealRun.current++; // fast-forward: stop the rest of this card's phrase
+    player.current?.cancel();
     if (i + 1 >= picks.length) {
       const code = encodeEvents(deck.id, { deckNo, events: picks.map((p) => p.index), guesses });
       router.push(`/events/${deck.id}/result?s=${code}`);
@@ -94,21 +113,12 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
     setPhase("guess");
   }, [phase, i, picks, deck.id, deckNo, guesses, router]);
 
-  // Reveal feedback: right = ding + [15,30,15] buzz, wrong = down sound + 40ms buzz.
-  useEffect(() => {
-    if (phase !== "shown") return;
-    const c = played.cards[i];
-    if (!c) return;
-    play(c.dirOk ? "ding" : "down");
-    haptic(c.dirOk ? "correct" : "wrong");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t.tagName === "INPUT" || t.tagName === "TEXTAREA") return;
-      if (phase === "shown" && (e.key === "Enter" || e.key === " ")) {
+      if ((phase === "shown" || phase === "reveal") && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
         next();
       } else if (phase === "guess" && e.key === "ArrowUp") {
@@ -150,14 +160,20 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
   }
 
   const out = outcome(ev);
-  const cardScore = phase === "shown" ? played.cards[i] : null;
+  const cardScore = phase === "shown" || phase === "reveal" ? played.cards[i] ?? null : null;
+  const fresh = !seenAt[ev.id];
   const total = played.cards.slice(0, finished).reduce((a, c) => a + c.points, 0);
 
   return (
     <main className="mx-auto max-w-[760px] px-4 pb-16">
       <div className="sticky top-0 z-20 -mx-4 px-4 pr-14 h-11 flex items-center justify-between gap-2 bg-bg/90 backdrop-blur border-b border-line text-sm whitespace-nowrap">
-        <span>
-          第 <b className="num">{i + 1}</b> / {picks.length} 张
+        <span className="flex items-center gap-2">
+          <span>
+            第 <b className="num">{i + 1}</b> / {picks.length} 张
+          </span>
+          <span className={`rounded-full px-2 py-0.5 text-[11px] ${fresh ? "bg-gold/15 text-gold" : "bg-line text-sub"}`} data-testid="event-kind">
+            {fresh ? "首次挑战" : seenAt[ev.id] === "miss" ? "复盘练习 · 上次猜错" : "复盘练习"}
+          </span>
         </span>
         <span className="flex items-center gap-3">
           <span data-testid="event-score">
@@ -237,18 +253,19 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
           </div>
           {advanced && (
             <div className="mt-3">
-              <p className="text-xs text-sub mb-2">{dirChoice === null ? "先选方向，再选幅度（选完自动揭晓）" : `你选了${dirChoice ? "涨" : "跌"}，再选幅度：`}</p>
+              <p className="text-xs text-sub mb-2">{dirChoice === null ? "先选方向，再选幅度（选完自动揭晓）" : `你选了${dirChoice ? "涨" : "跌"}，${dirChoice ? "涨" : "跌"}多少？`}</p>
+              {/* only magnitudes that agree with the chosen direction: 「跌」+「+3% ~ +10%」 can no longer be picked */}
               <div className="flex flex-wrap gap-2" role="group" aria-label="幅度档位">
-                {BUCKET_LABELS.map((label, b) => (
+                {bucketsFor(dirChoice ?? true).map((b, k) => (
                   <button
-                    key={label}
+                    key={b}
                     type="button"
                     data-testid={`bucket-${b}`}
                     disabled={dirChoice === null}
                     onClick={() => void submit(dirChoice!, b)}
                     className="num h-10 px-4 rounded-full border border-line text-sm hover:border-gold disabled:opacity-40 disabled:hover:border-line"
                   >
-                    {label}
+                    {dirChoice === null ? MAGNITUDE_LABELS[k] : `${dirChoice ? "涨" : "跌"} ${MAGNITUDE_LABELS[k]}`}
                   </button>
                 ))}
               </div>
@@ -261,12 +278,12 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
       )}
 
       {phase === "reveal" && (
-        <p className="mt-5 text-center text-sm text-sub" aria-live="polite">
-          揭晓中…第 <span className="num">{revealed}</span> / {ev.after.length} 个交易日
+        <p className="mt-3 text-center text-xs text-sub" aria-live="polite">
+          走势回放中…第 <span className="num">{revealed}</span> / {ev.after.length} 个交易日 · 可以直接下一张
         </p>
       )}
 
-      {phase === "shown" && cardScore && (
+      {(phase === "shown" || phase === "reveal") && cardScore && (
         <section aria-label="揭晓" className="mt-5 fade-in" data-testid="event-reveal">
           <div className="flex items-center gap-4">
             <span className={`pop num text-5xl font-black ${cardScore.points > 0 ? "text-gold" : "text-sub"}`} data-testid="event-points">

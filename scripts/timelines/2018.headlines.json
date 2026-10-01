@@ -27,6 +27,7 @@
       ],
       "rumor": "我在银行上班的同学说，开年资金都在往银行股里跑。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "bank", "dir": 1 },
       "hindsight": "1 月沪指一度冲到 3587 点，银行股涨 12.5%；月末开始回落，全月涨 5.3%。"
     },
     {
@@ -37,6 +38,7 @@
       ],
       "rumor": "我朋友在美国，说那边股市最近吓人，咱们也得小心。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "2 月初美股暴跌引发全球抛售，沪指一周跌近 10%；春节前后企稳，全月跌 6.4%。"
     },
     {
@@ -47,6 +49,7 @@
       ],
       "rumor": "我表弟说两会期间必有大涨，这个月要重仓银行。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "bank", "dir": 1 },
       "hindsight": "3 月 22 日美方签署对华贸易备忘录，次日沪指跌 3.4%；创业板逆势涨 8.4%。"
     },
     {
@@ -57,6 +60,7 @@
       ],
       "rumor": "我同事说降准就在这几天，一降就大涨。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "4 月 16 日美国对中兴实施禁令，17 日央行宣布降准；沪指全月跌 2.7%。",
       "moment": {
         "date": "2018-03-23",
@@ -78,6 +82,7 @@
       ],
       "rumor": "我一个酒商朋友说，高端白酒又开始涨价了，货都不好拿。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "baijiu", "dir": 1 },
       "hindsight": "5 月中美磋商释放缓和信号，沪指基本收平；白酒板块大涨 22%，领跑全市场。"
     },
     {
@@ -88,6 +93,7 @@
       ],
       "rumor": "我朋友说美国那边的关税清单马上要公布，这回是来真的。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "6 月 15 日美方公布 500 亿美元加征关税清单，19 日沪指跌 3.8%，月末一度跌破 2800 点。"
     },
     {
@@ -98,6 +104,7 @@
       ],
       "rumor": "我听说下个月要跌破 2500 点，赶紧全部换成现金。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "7 月 6 日美国对 340 亿美元中国商品加征关税生效；国常会部署积极财政，沪指全月涨 1%。",
       "moment": {
         "date": "2018-06-19",
@@ -119,6 +126,7 @@
       ],
       "rumor": "我在券商的朋友说，股权质押快到平仓线的公司越来越多了。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "8 月人民币贬值、股权质押平仓担忧升温，沪指跌 5.3%，白酒跌 15%。"
     },
     {
@@ -129,6 +137,7 @@
       ],
       "rumor": "我邻居说国庆长假前必跌，节前一定要清仓。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "9 月 24 日 2000 亿美元关税生效，但减税预期和外资流入推动沪指反弹 3.5%。"
     },
     {
@@ -139,6 +148,7 @@
       ],
       "rumor": "我朋友公司的老板把股票都质押了，说再跌就要被强平。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "10 月 11 日沪指暴跌 5.2%，19 日盘中跌至 2449 点后‘一行两会’齐发声；白酒跌 28%。"
     },
     {
@@ -149,6 +159,7 @@
       ],
       "rumor": "我表哥说贸易战谈成了，下个月必定大涨。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "11 月 5 日宣布设立科创板，创业板涨 4.2%；沪指在 2600 点附近横盘，全月跌 0.6%。",
       "moment": {
         "date": "2018-10-19",
@@ -170,6 +181,7 @@
       ],
       "rumor": "我同事说元首会晤后要大涨，年底翻红没问题。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "12 月 1 日中美元首会晤同意暂停加征新关税，但市场没有起色；沪指全年跌 24.6%。"
     }
   ]

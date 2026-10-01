@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { btn, Button } from "@/components/ui/Button";
-import { encodeGame } from "@/game/encode";
+import { resultHref as buildResultHref } from "@/game/link";
 import { gameStore } from "@/game/store";
-import type { Script } from "@/game/types";
+import { isTask, TASKS, taskViolation } from "@/game/tasks";
+import type { MonthNote, Script, TaskId } from "@/game/types";
 import { AllocationPanel, isValidAlloc, type AllocationPanelHandle } from "./AllocationPanel";
+import { allocSum } from "@/game/engine";
 import { HeadlineCard, RumorCard } from "./HeadlineCard";
 import { Intro } from "./Intro";
 import { MagneticButton } from "@/components/motion/Magnetic";
@@ -16,9 +18,9 @@ import { BustVignette, runBustFx } from "./BustFx";
 import { Enter } from "@/components/motion/Enter";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { MomentCard } from "./MomentCard";
-import { applyEffect } from "@/game/moment";
+import { applyEffect, type MomentOption } from "@/game/moment";
 import { KnownInfo } from "./KnownInfo";
-import { useResolved } from "@/lib/prefs";
+import { setPrefs, useResolved } from "@/lib/prefs";
 import { SettleDialog } from "./SettleDialog";
 import { StatusBar } from "./StatusBar";
 import { Thermometer } from "./Thermometer";
@@ -28,7 +30,6 @@ import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 // recharts stays out of the first-load bundle; the skeleton holds the space so nothing shifts
 // the workbench and the macro drawer (with their data) load after the board is interactive
 const Workbench = dynamic(() => import("./Macro").then((m) => m.Workbench), { ssr: false });
-const MacroButton = dynamic(() => import("./Macro").then((m) => m.MacroButton), { ssr: false });
 const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
 import { tick } from "@/lib/sfx";
 
@@ -40,7 +41,13 @@ export function GameView({ script }: { script: Script }) {
   const st = useGame();
   const [hydrated, setHydrated] = useState(false);
   const { reduce } = useMotionPref();
-  const { skin } = useResolved();
+  const { density, autofill } = useResolved();
+  // a challenge link (/play/2015?t=guard) pre-selects the task card on the intro page
+  const [linkTask, setLinkTask] = useState<TaskId | null>(null);
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("t");
+    if (isTask(t)) setLinkTask(t);
+  }, []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [flipIn, setFlipIn] = useState(false); // came from the paper Intro: the game page flips in from the other side
   const panel = useRef<AllocationPanelHandle>(null);
@@ -58,20 +65,13 @@ export function GameView({ script }: { script: Script }) {
     return useGame.persist.onFinishHydration(() => setHydrated(true));
   }, [useGame]);
 
-  // Historical-moment card: shown once per round, before the allocation panel (remembered across reloads).
-  const momentKey = (m: number) => `kline-moment:${script.blind ? "blind-" : ""}${script.id}:${m}`;
-  const [momentDone, setMomentDone] = useState<Record<number, boolean>>({});
-  const seen = (m: number) => {
-    if (momentDone[m]) return true;
-    try {
-      return localStorage.getItem(momentKey(m)) === "1";
-    } catch {
-      return false;
-    }
-  };
-  const valid = isValidAlloc(st.draft);
+  // Historical-moment card: shown once per round, before the allocation panel. The answer lives in the game's own
+  // notes, so it resets with the game (a new game shows the cards again) and survives reloads.
+  const seen = (m: number) => st.notes[m]?.moment !== undefined;
+  const rule = taskViolation(st.task, st.draft);
+  const valid = isValidAlloc(st.draft) && !rule;
   // 盲盒: the result page first asks which year it was, then reveals it
-  const resultHref = `/result?s=${encodeGame(script.id, st.history.map((h) => h.alloc))}${script.blind ? "&blind=1" : ""}`;
+  const resultHref = buildResultHref(script.id, st.history, { task: st.task, notes: st.notes, blind: script.blind });
 
   // Next month: the button says "结算中…" for ~0.5 s, then the page turns to the new month (status flip, chart segment)
   // and only then does the settle dialog rise from the button. A liquidation plays its full screen effect first.
@@ -131,10 +131,12 @@ export function GameView({ script }: { script: Script }) {
   if (!st.started) {
     return (
       <Intro
+        key={linkTask ?? "free"}
         script={script}
-        onStart={() => {
+        initialTask={linkTask}
+        onStart={(task) => {
           setFlipIn(true);
-          st.start();
+          st.start(task);
         }}
       />
     );
@@ -157,15 +159,8 @@ export function GameView({ script }: { script: Script }) {
   }
 
   const activeMoment = !dialogOpen && !st.finished ? script.months[st.history.length]?.moment : undefined;
-  const chooseMoment = (o: { effect: import("@/game/moment").MomentEffect | null }) => {
-    const m = st.history.length;
-    if (o.effect) st.setAlloc(applyEffect(st.draft, o.effect));
-    setMomentDone((d) => ({ ...d, [m]: true }));
-    try {
-      localStorage.setItem(momentKey(m), "1");
-    } catch {
-      /* fine: the card may show again after a reload */
-    }
+  const chooseMoment = (o: MomentOption, index: number, reason: MonthNote["reason"] | null) => {
+    st.chooseMoment(st.history.length, index, o.effect ? applyEffect(st.draft, o.effect) : null, reason ?? undefined);
   };
 
   // the page behind the dialog already shows the new month; only a finished game keeps showing month 12
@@ -185,44 +180,78 @@ export function GameView({ script }: { script: Script }) {
     <main className="mx-auto max-w-[1120px] px-4 pb-10 md:px-6" data-zoom-area>
       <div ref={shakeRef}>
       <StatusBar round={shownMonth + 1} total={script.months.length} label={month.label} cash={st.cash} startCash={script.startCash} lastPnl={lastPnl} />
-      <div className="mt-5 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
+      <BoardNav task={st.task} />
+      <div className="mt-4 grid items-start gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1.25fr_1fr] md:gap-6">
         {/* A new month replaces what is on screen: these entrances start at 0.6, never at 0, or the columns blink out for a frame. */}
         <Enter key={`head-${shownMonth}`} delay={0} from={TURN_FROM} y={10} className="md:col-span-2 lg:col-span-1">
-          <section aria-label="本月头条" className="space-y-3">
+          <section id="board-news" aria-label="本月头条" className="scroll-mt-28 space-y-3">
             <Step n={1}>看消息</Step>
             <h2 className="font-bold">
               {month.label}初 · 头条
             </h2>
-            <div data-plain-hide>
-            <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
-            </div>
+            {density === "full" && (
+              <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
+            )}
             {month.headlines.map((h, k) => (
               <Enter key={h.text} delay={0.06 + k * 0.05} y={10} from={TURN_FROM}>
                 <HeadlineCard headline={h} lead={k === 0} monthNo={prevMonthNo} />
               </Enter>
             ))}
             <Enter delay={0.06 + month.headlines.length * 0.05} y={10} from={TURN_FROM}>
-              <RumorCard text={month.rumor} />
+              <RumorCard text={month.rumor} month={shownMonth} stance={st.notes[shownMonth]?.rumor} onStance={st.setNote} />
             </Enter>
           </section>
         </Enter>
         <Enter delay={0.08} className="flex flex-col">
           <Step n={2}>看数据</Step>
-          <div className="flex flex-1 flex-col gap-4">
+          <div id="board-chart" className="flex scroll-mt-28 flex-col gap-4">
             <TrendChart script={script} history={chartHistory} />
-            <div data-plain-hide>
-              <KnownInfo script={script} round={shownMonth} />
-              {skin !== "pan" && <MacroButton script={script} round={shownMonth} />}
-            </div>
-            {skin === "pan" && <Workbench script={script} round={shownMonth} draft={st.draft} />}
+            {density === "full" ? (
+              <>
+                <KnownInfo script={script} round={shownMonth} />
+                <Workbench script={script} round={shownMonth} draft={st.draft} />
+              </>
+            ) : (
+              // 精简密度：数据折叠起来，不是删掉——三套主题能看到的信息一样多
+              <details className="card-surface group p-4" data-testid="more-data">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">
+                  更多数据
+                  <span className="text-right text-xs font-normal text-sub">上月温度 · 已知信息 · 工作台与宏观 ▾</span>
+                </summary>
+                <div className="mt-4 space-y-4">
+                  <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
+                  <KnownInfo script={script} round={shownMonth} />
+                  <Workbench script={script} round={shownMonth} draft={st.draft} />
+                </div>
+              </details>
+            )}
           </div>
         </Enter>
         <Enter key={`alloc-${shownMonth}`} delay={0.08} from={TURN_FROM} y={10}>
           <Step n={3}>做决定</Step>
-          <div className="space-y-4">
-            <AllocationPanel ref={panel} assets={script.assets} value={st.draft} onChange={st.setAlloc} previous={previous} onSubmit={goNext} />
+          <div id="board-alloc" className="scroll-mt-28 space-y-4">
+            <AllocationPanel
+              ref={panel}
+              assets={script.assets}
+              value={st.draft}
+              onChange={st.setAlloc}
+              previous={previous}
+              onSubmit={goNext}
+              params={script.params}
+              task={st.task}
+              autofill={autofill}
+              onAutofill={(on) => setPrefs({ autofill: on })}
+            />
             {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}
             <div className="sticky bottom-0 z-30 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-4 pt-8 md:static md:mx-0 md:bg-none md:p-0">
+            <p className="mb-2 flex justify-between text-xs text-sub md:hidden">
+              <span>
+                风险资产 <b className="num text-ink">{100 - st.draft.cash}%</b> · 合计 <b className={`num ${isValidAlloc(st.draft) ? "text-ink" : "text-up"}`}>{allocSum(st.draft)}%</b>
+              </span>
+              <a href="#board-alloc" className="underline underline-offset-2" onClick={(e) => { e.preventDefault(); document.getElementById("board-alloc")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+                去调仓位 ↑
+              </a>
+            </p>
             <MagneticButton
               data-testid="next-month"
               className="shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
@@ -241,8 +270,10 @@ export function GameView({ script }: { script: Script }) {
                     <i />
                   </span>
                 </span>
-              ) : !valid ? (
+              ) : !isValidAlloc(st.draft) ? (
                 "合计需为 100%"
+              ) : rule ? (
+                rule
               ) : shownMonth === script.months.length - 1 ? (
                 "结算最后一个月 →"
               ) : (
@@ -258,11 +289,56 @@ export function GameView({ script }: { script: Script }) {
       </div>
       </div>
       <BustVignette run={bustRun} />
-      {activeMoment && !seen(st.history.length) && <MomentCard key={st.history.length} moment={activeMoment} onChoose={chooseMoment} />}
-      <SettleDialog script={script} last={st.last} open={dialogOpen} onClose={closeDialog} isFinal={st.finished} />
+      {activeMoment && !seen(st.history.length) && <MomentCard key={`${st.history.length}-${st.started}`} moment={activeMoment} onChoose={chooseMoment} />}
+      <SettleDialog script={script} last={st.last} open={dialogOpen} onClose={closeDialog} isFinal={st.finished} note={st.last ? st.notes[st.last.month] : undefined} />
     </main>
       </motion.div>
     </div>
+  );
+}
+
+/**
+ * Under the status bar: the task card in play (if any), and on phones three jump links (消息 / 走势 / 仓位) so the
+ * long single column does not have to be scrolled by hand between reading and deciding.
+ */
+function BoardNav({ task }: { task: TaskId | null }) {
+  const go = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  if (!task) {
+    return (
+      <nav aria-label="跳到" className="sticky top-[3.25rem] z-20 -mx-4 mt-2 flex gap-2 bg-bg/90 px-4 py-1.5 backdrop-blur md:hidden">
+        <JumpLinks go={go} />
+      </nav>
+    );
+  }
+  return (
+    <div className="sticky top-[3.25rem] z-20 -mx-4 mt-2 flex items-center gap-2 bg-bg/90 px-4 py-1.5 backdrop-blur md:static md:mx-0 md:mt-3 md:bg-transparent md:p-0 md:backdrop-blur-none">
+      <p className="flex min-w-0 items-center gap-1.5 rounded-full border border-gold/50 bg-card px-3 py-1 text-xs" data-testid="task-chip">
+        <b className="shrink-0 text-gold">任务 · {TASKS[task].name}</b>
+        <span className="hidden truncate text-sub sm:inline">{TASKS[task].short}</span>
+      </p>
+      <nav aria-label="跳到" className="ml-auto flex shrink-0 gap-1.5 md:hidden">
+        <JumpLinks go={go} />
+      </nav>
+    </div>
+  );
+}
+
+function JumpLinks({ go }: { go: (id: string) => (e: React.MouseEvent) => void }) {
+  return (
+    <>
+      {[
+        ["board-news", "消息"],
+        ["board-chart", "走势"],
+        ["board-alloc", "仓位"],
+      ].map(([id, l]) => (
+        <a key={id} href={`#${id}`} onClick={go(id)} className="press rounded-full border border-line bg-card px-3 py-1 text-xs text-sub hover:text-ink">
+          {l}
+        </a>
+      ))}
+    </>
   );
 }
 

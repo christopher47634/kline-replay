@@ -6,7 +6,9 @@ import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceLine, R
 import type { RoundRecord, Script } from "@/game/types";
 
 /**
- * Month-end index (开局 = 100) of the market and the player, drawn only up to last month.
+ * Month-end index (开局 = 100) of the market and the player, drawn only up to last month. The months still to come
+ * share one narrow 「未来」 slot at the right, so the known curve gets the drawing area (the status bar keeps the
+ * full 12-month progress).
  * The two months before the start (previous Nov/Dec) are drawn as a faded gray line so round 1
  * has context; 开局 is the previous December's close.
  */
@@ -19,7 +21,11 @@ function TrendChartView({ script, history }: { script: Script; history: RoundRec
   const known = history.length; // month-ends revealed so far
   const pre = script.preMonths ?? [];
   const nPre = pre.length === 2 ? 2 : 0; // points before 开局: Nov start, Nov end
-  const labels = [...(nPre ? ["去11月初", "去12月初"] : []), "开局", ...script.months.map((m) => `${m.index + 1}月`)];
+  const n = script.months.length;
+  const future = known < n - 1; // two or more months still hidden: fold them into one slot
+  const shown = future ? known : n;
+  const futureLabel = known + 1 === n ? `${n}月` : `${known + 1}–${n}月`;
+  const labels = [...(nPre ? ["去11月初", "去12月初"] : []), "开局", ...script.months.slice(0, shown).map((m) => `${m.index + 1}月`), ...(future ? [futureLabel] : [])];
   // Back-compute the pre-start index: 开局 = 100, so Nov-end = 100 / (1 + Dec return), and so on.
   const preVals: number[] = [];
   if (nPre === 2) {
@@ -30,6 +36,7 @@ function TrendChartView({ script, history }: { script: Script; history: RoundRec
   const data = labels.map((label, i) => {
     const k = i - nPre; // index of the point relative to 开局 (k = 0 is 开局)
     if (k < 0) return { label, market: null, pre: +preVals[i].toFixed(2), player: null };
+    if (future && k > shown) return { label, market: null, pre: null, player: null };
     if (k > 0) mkt *= 1 + script.months[k - 1].marketReturn;
     return {
       label,
@@ -44,12 +51,12 @@ function TrendChartView({ script, history }: { script: Script; history: RoundRec
 
   return (
     // contain: the chart library measures itself on every mouse move; containment keeps that forced layout inside the card
-    <section aria-label="走势" className="card-surface flex-1 flex flex-col p-4 [contain:layout_style]">
+    <section aria-label="走势" className="card-surface flex flex-col p-4 [contain:layout_style]">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="shrink-0 font-bold">走势</h2>
         <span className="text-right text-xs text-sub">起点 = 100，月末值</span>
       </div>
-      <div className="mt-2 h-64 md:h-auto md:min-h-64 md:flex-1">
+      <div className="mt-2 h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -18 }}>
             <defs>
@@ -60,16 +67,16 @@ function TrendChartView({ script, history }: { script: Script; history: RoundRec
               </pattern>
             </defs>
             <CartesianGrid stroke="var(--color-line)" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: "var(--color-sub)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--color-line)" }} interval={1} />
+            <XAxis dataKey="label" tick={{ fill: "var(--color-sub)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--color-line)" }} interval={labels.length > 9 ? 1 : 0} />
             <YAxis domain={[lo, hi]} tick={{ fill: "var(--color-sub)", fontSize: 11, fontFamily: "var(--font-mono)" }} tickLine={false} axisLine={false} />
-            {known < 12 && (
+            {known < n && (
               <ReferenceArea
                 x1={labels[nPre + known]}
-                x2={labels[nPre + 12]}
+                x2={labels[labels.length - 1]}
                 fill="url(#future-hatch)"
                 fillOpacity={1}
                 ifOverflow="extendDomain"
-                label={{ value: "未来不可见", fill: "var(--color-sub)", fontSize: 13, position: "center" }}
+                label={{ value: future ? "未来" : "未来不可见", fill: "var(--color-sub)", fontSize: 12, position: "center" }}
               />
             )}
             {nPre > 0 && <ReferenceLine x="开局" stroke="var(--color-gold)" strokeDasharray="3 3" label={{ value: "开局", fill: "var(--color-gold)", fontSize: 11, position: "insideTopRight" }} />}

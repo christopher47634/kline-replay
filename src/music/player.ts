@@ -40,6 +40,22 @@ export class DuetPlayer {
   private drift: number[] = [];
   rate: 1 | 2 = 1;
   playing = false;
+  /** 高光模式: only these [start, end) ranges are played, in order */
+  private segments: { start: number; end: number }[] | null = null;
+
+  setSegments(segs: { start: number; end: number }[] | null) {
+    this.segments = segs && segs.length ? segs : null;
+    if (this.segments) this.index = this.segments[0].start;
+  }
+
+  /** index after `i` in highlight mode: the next note in the segment, the next segment's start, or the end */
+  private after(i: number) {
+    if (!this.segments) return i + 1;
+    const k = this.segments.findIndex((s) => i >= s.start && i < s.end);
+    if (k < 0) return this.segments[0].start;
+    if (i + 1 < this.segments[k].end) return i + 1;
+    return this.segments[k + 1]?.start ?? this.comp.notes.length;
+  }
 
   constructor(
     private comp: Composition,
@@ -101,7 +117,7 @@ export class DuetPlayer {
         this.drift.push(Math.abs(Tone.getContext().currentTime - time) * 1000);
         this.cb.onStep(note, i);
       }, time);
-      this.index = i + 1;
+      this.index = this.after(i);
     }, "8n");
   }
 
@@ -134,7 +150,7 @@ export class DuetPlayer {
 
   async play() {
     if (!(await this.ensureStarted())) return false;
-    if (this.index >= this.comp.notes.length) this.index = 0;
+    if (this.index >= this.comp.notes.length) this.index = this.segments ? this.segments[0].start : 0;
     this.schedule();
     this.tone!.getTransport().start();
     this.playing = true;
@@ -155,7 +171,7 @@ export class DuetPlayer {
       this.eventId = null;
     }
     this.playing = false;
-    this.index = 0;
+    this.index = this.segments ? this.segments[0].start : 0;
   }
 
   seek(index: number) {

@@ -41,6 +41,9 @@ export function judgePersona(history: RoundRecord[], script: Pick<Script, "peakM
   }
   if (scared >= 2) return "scared_bird";
 
+  // sitting it out is not the same as holding through it: mostly cash all year gets its own description
+  if (n >= 2 && allocs.reduce((s, a) => s + a.cash, 0) / n >= 80) return "bystander";
+
   if (n >= 2 && allocs.every((a, i) => i === 0 || delta(a, allocs[i - 1]) <= 10)) return "diamond_hands";
 
   return "drifter";
@@ -115,4 +118,55 @@ export function keyMoves(history: RoundRecord[], script: Pick<Script, "months">)
     { label: "最高风险", month: riskI, text: `${label(riskI)}，创业板 + 杠杆占 ${hr[riskI]}%` },
   ];
   return moves;
+}
+
+const NAME: Record<AssetId, string> = { sh50: "上证50", cyb: "创业板", bank: "银行", baijiu: "白酒", cash: "现金", margin: "融资" };
+
+/** Effective exposure: risky money plus what the margin bucket borrows on top (2× leverage → +1× of that bucket). */
+export const effLeverage = (a: Allocation, leverage = 2) => (100 - a.cash + a.margin * (leverage - 1)) / 100;
+
+/**
+ * 行为风格的两条具体依据（不只看创业板 + 融资）：平均与最高风险敞口、最集中的一次持仓、最高有效杠杆。
+ * `names` lets a year call its assets by their own names (中小板 ETF, 贵州茅台 …).
+ */
+export function styleEvidence(history: RoundRecord[], script: Pick<Script, "months" | "params">, names?: Partial<Record<AssetId, string>>): string[] {
+  if (!history.length) return [];
+  const label = (m: number) => script.months[m].label.replace(/^\d+ 年 /, "");
+  const nm = (id: AssetId) => names?.[id] ?? NAME[id];
+  const exp = history.map((h) => 100 - h.alloc.cash);
+  const avg = Math.round(exp.reduce((s, x) => s + x, 0) / exp.length);
+  const out: string[] = [];
+  const lev = history.map((h) => effLeverage(h.alloc, script.params.marginLeverage));
+  const li = lev.indexOf(Math.max(...lev));
+  out.push(lev[li] > 1.001 ? `平均风险敞口 ${avg}%，${label(li)}有效杠杆最高到 ${lev[li].toFixed(2)}×` : `平均风险敞口 ${avg}%，全年没借钱加杠杆`);
+  // concentration: the biggest single risky holding of the year
+  let best = { m: 0, id: "sh50" as AssetId, v: -1 };
+  history.forEach((h, m) => {
+    for (const id of ["sh50", "cyb", "bank", "baijiu", "margin"] as AssetId[]) if (h.alloc[id] > best.v) best = { m, id, v: h.alloc[id] };
+  });
+  const moves = history.reduce((s, h, i) => s + (i > 0 && delta(h.alloc, history[i - 1].alloc) > 0 ? 1 : 0), 0);
+  if (best.v >= 60) out.push(`最集中的一次：${label(best.m)} ${best.v}% 押在${nm(best.id)}上；全年调仓 ${moves} 次`);
+  else if (best.v > 0) out.push(`单一资产最多占 ${best.v}%（${nm(best.id)}，${label(best.m)}），分得比较散；全年调仓 ${moves} 次`);
+  else out.push(`全年调仓 ${moves} 次，几乎一直拿着现金`);
+  return out;
+}
+
+export interface SpecialEvent {
+  key: string;
+  text: string;
+  tone: "bad" | "good" | "info";
+}
+
+/** 特殊事件章：强平、爆仓、单月大起大落——单独列出，不吞掉年度成绩。 */
+export function specialEvents(history: RoundRecord[], script: Pick<Script, "months">): SpecialEvent[] {
+  const label = (m: number) => script.months[m].label.replace(/^\d+ 年 /, "");
+  const out: SpecialEvent[] = [];
+  const liq = history.filter((h) => h.liquidated);
+  if (liq.length) out.push({ key: "liq", tone: "bad", text: `融资被强平 ${liq.length} 次（${liq.map((h) => label(h.month)).join("、")}）` });
+  if (history.length && history[history.length - 1].cashAfter <= 0) out.push({ key: "bust", tone: "bad", text: `${label(history.length - 1)}账户归零，提前出局` });
+  const best = history.reduce<RoundRecord | null>((b, h) => (!b || h.pnl > b.pnl ? h : b), null);
+  const worst = history.reduce<RoundRecord | null>((b, h) => (!b || h.pnl < b.pnl ? h : b), null);
+  if (best && best.pnl >= 0.15) out.push({ key: "best", tone: "good", text: `单月大赚 +${(best.pnl * 100).toFixed(1)}%（${label(best.month)}）` });
+  if (worst && worst.pnl <= -0.15 && !worst.liquidated) out.push({ key: "worst", tone: "bad", text: `单月重挫 −${(-worst.pnl * 100).toFixed(1)}%（${label(worst.month)}）` });
+  return out;
 }

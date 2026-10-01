@@ -81,7 +81,24 @@ function Laoge() {
   );
 }
 
-export const RumorCard = memo(function RumorCard({ text }: { text: string }) {
+type Stance = "trust" | "doubt";
+
+/**
+ * The rumour, plus an optional stance (「我更相信这条 / 暂不采信」, tap again to clear). The settle dialog answers it
+ * with three separate facts: did it come true, did the asset move its way, did you act on it.
+ */
+export const RumorCard = memo(function RumorCard({
+  text,
+  month,
+  stance,
+  onStance,
+}: {
+  text: string;
+  month?: number;
+  stance?: Stance;
+  onStance?: (month: number, patch: { rumor: Stance | undefined }) => void;
+}) {
+  const pick = (v: Stance) => month !== undefined && onStance?.(month, { rumor: stance === v ? undefined : v });
   return (
     <article className="spot rounded-xl border border-dashed border-line bg-card p-4">
       <div className="flex items-center gap-3">
@@ -91,6 +108,27 @@ export const RumorCard = memo(function RumorCard({ text }: { text: string }) {
       </div>
       <p className="mt-3 text-[15px] italic leading-relaxed">“{text}”</p>
       <p className="mt-2 text-xs text-sub">可能是真的，也可能是噪音</p>
+      {onStance && (
+        <div className="mt-3 flex gap-2" role="radiogroup" aria-label="你信不信这条消息">
+          {(
+            [
+              ["trust", "我更相信这条"],
+              ["doubt", "暂不采信"],
+            ] as const
+          ).map(([v, l]) => (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={stance === v}
+              onClick={() => pick(v)}
+              className={`press h-8 flex-1 rounded-md border text-xs transition-colors ${stance === v ? (v === "trust" ? "border-gold bg-gold/15 text-gold" : "border-sub bg-sub/10 text-ink") : "border-line text-sub hover:border-sub"}`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      )}
     </article>
   );
 });

@@ -152,3 +152,10 @@
 - 盲盒：lib/blind.ts 做遮盖（年份相对化、点位换算、约 50 个会暴露年份的名字、资产通用名），/mystery/<slug> 进入，结果页先猜再揭晓；单元测试逐年检查玩家能看到的所有文字里没有年份和这些名字，e2e 完整玩一局检查每回合屏幕上都不出现年份。
 - 流畅度：先在 4 倍 CPU 降速下量五个关键操作，桌面悬停只有 8 fps；用 CPU profile 找到强制同步布局（1.3 s 花在 getBoundingClientRect），根因是根元素上的 :has() 选择器和读写交替。修完后桌面 24–62 fps、手机 53–130 fps（4 倍降速），正常速度全部 100 fps 以上。另加了自动降档兜底。
 - 验证：Vitest 66、Playwright 28 全过；逐月走查无问题；Lighthouse 全部达标。
+
+## 2026-10-01：按 Codex 多维评审方案升级（v8）
+
+- 依据：`穿越K线-多维评审与升级方案.md` 第 4–6 节（A 修基础、B 任务卡与三次决定回放、C 视觉与手机、D 音乐高光与挑战链接、事件模式）。用户的原有要求不变：默认效果不减、前台不加逐条出处、不做真机测试。
+- 内容：`scripts/patch_rumors.mjs` 一次性改写 2015、2020 的 9 条小道消息并给 72 条全部加方向标注，2020 补第三张历史时刻（3 月 18 日美股十天四次熔断）；`validate_script.py` 新增 rumorCall 检查、拒绝逐月交替的真假顺序。
+- 代码：`src/game/{tasks,notes,link,replay,rumor}.ts`、`src/events/seen.ts`、`src/components/result/Overview.tsx`；改了 store（v2 存档迁移）、GameView、AllocationPanel、Intro、MomentCard、RumorCard、SettleDialog、Macro、TrendChart、ResultView、MusicModal、player、compose、EventGame、Hero、StoryPinned。
+- 验证：Vitest 83（新增任务可解性、理由编码、回放与反事实、小道消息三分、高光分段、音域、抽题顺序）；Playwright 新增 v8.spec（任务链接到结果、高光、盲盒后续、首页跨断点、简约折叠、事件幅度）；三主题桌面 + 手机逐月截图走查。

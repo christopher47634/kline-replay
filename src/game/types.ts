@@ -28,7 +28,10 @@ export interface ScriptMonth {
   label: string;
   headlines: Headline[];
   rumor: string;
+  /** Whether the rumour came true (a fact about the world, not about prices). */
   rumorIsSignal: boolean;
+  /** What the rumour points at: an asset (or the market) and a direction; null when it names an event, not a direction. */
+  rumorCall?: { asset: TradedId | "market"; dir: 1 | -1 } | null;
   hindsight: string;
   /** Optional historical-moment card shown before this round. */
   moment?: Moment;
@@ -88,6 +91,24 @@ export interface RoundRecord {
   liquidated: boolean;
 }
 
+/** Optional challenge picked before round 1 (game/tasks.ts). */
+export type TaskId = "guard" | "beat";
+
+/** 理由标签 a player can leave at a historical moment (game/notes.ts). */
+export type ReasonId = "news" | "rumor" | "chart" | "macro" | "fomo" | "fear" | "gut";
+
+/**
+ * What the player said during a month, besides the allocation: their stance on the rumour, the option taken on the
+ * historical-moment card (index into its options), why, and whether they then changed the pre-filled allocation.
+ * Narrative only: settlement never reads it.
+ */
+export interface MonthNote {
+  rumor?: "trust" | "doubt";
+  moment?: number;
+  reason?: ReasonId;
+  edited?: boolean;
+}
+
 export interface GameState {
   scriptId: string;
   month: number;
@@ -131,6 +152,7 @@ export type PersonaId =
   | "chaser"
   | "scared_bird"
   | "diamond_hands"
+  | "bystander"
   | "drifter";
 
 export interface Persona {

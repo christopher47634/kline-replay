@@ -6,7 +6,7 @@ import { boardEnabled } from "@/lib/board";
 import { pct } from "@/lib/format";
 import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 
-type Props = { searchParams: Promise<{ s?: string; play?: string; blind?: string }> };
+type Props = { searchParams: Promise<{ s?: string; play?: string; blind?: string; t?: string; n?: string }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const sp = await searchParams;
@@ -37,6 +37,8 @@ export default async function ResultPage({ searchParams }: Props) {
       openMusic={sp.play === "1"}
       blind={sp.blind === "1"}
       years={SCRIPT_IDS}
+      task={sp.t}
+      notes={sp.n}
     />
   );
 }

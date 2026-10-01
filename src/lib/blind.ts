@@ -126,3 +126,29 @@ export function mysterySlug(id: string): string {
   for (const c of `kline-mystery:${id}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
   return (h >>> 0).toString(36).slice(0, 6);
 }
+
+const LAST_MYSTERY = "kline:last-mystery";
+
+/**
+ * Opens a random 盲盒: never the box played last time (nor `except`). If that box was already finished, its save is
+ * cleared so it starts fresh instead of showing 「这一局已经走完」; an unfinished one resumes.
+ */
+export function nextMystery(ids: string[], except?: string): string {
+  let last: string | null = null;
+  try {
+    last = localStorage.getItem(LAST_MYSTERY);
+  } catch {
+    /* private mode */
+  }
+  const pool = ids.filter((id) => mysterySlug(id) !== last && id !== except);
+  const id = (pool.length ? pool : ids)[Math.floor(Math.random() * (pool.length || ids.length))];
+  const slug = mysterySlug(id);
+  try {
+    localStorage.setItem(LAST_MYSTERY, slug);
+    const key = `kline-replay:blind-${id}`;
+    if (JSON.parse(localStorage.getItem(key) ?? "null")?.state?.finished) localStorage.removeItem(key);
+  } catch {
+    /* ignore */
+  }
+  return `/mystery/${slug}`;
+}

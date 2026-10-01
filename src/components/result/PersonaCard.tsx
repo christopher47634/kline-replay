@@ -15,7 +15,7 @@ import { Emoji } from "@/components/ui/Emoji";
  * to reveal: the emoji springs in with overshoot, the title reveals character by character, the quote line by line,
  * and the three key moves stagger in. Hover adds a soft tilt and a moving highlight. Reduced motion: shown face-up.
  */
-export function PersonaCard({ persona, quote, moves }: { persona: Persona; quote: string; moves: KeyMove[] }) {
+export function PersonaCard({ persona, quote, moves, evidence = [] }: { persona: Persona; quote: string; moves: KeyMove[]; evidence?: string[] }) {
   const { reduce } = useMotionPref();
   const ref = useRef<HTMLDivElement>(null);
   const seen = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
@@ -60,6 +60,16 @@ export function PersonaCard({ persona, quote, moves }: { persona: Persona; quote
             <Reveal as="p" inView delay={1.25} className="mt-5 text-lg leading-relaxed">
               {`“${quote}”`}
             </Reveal>
+            {evidence.length > 0 && (
+              <ul className="mt-4 space-y-1 text-sm text-sub" aria-label="行为依据" data-testid="persona-evidence">
+                {evidence.map((e) => (
+                  <li key={e} className="flex gap-2">
+                    <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full" style={{ background: persona.color }} />
+                    {e}
+                  </li>
+                ))}
+              </ul>
+            )}
             <ul className="mt-5 grid gap-2 sm:grid-cols-3">
               {moves.map((m, i) => (
                 <motion.li

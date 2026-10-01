@@ -78,6 +78,11 @@ def main(path):
         if not isinstance(m.get("rumorIsSignal"), bool):
             errors.append(f"{tag}: rumorIsSignal must be bool")
         signals += bool(m.get("rumorIsSignal"))
+        call = m.get("rumorCall", "missing")
+        if call == "missing":
+            errors.append(f"{tag}: rumorCall missing (use null when the rumour names no direction)")
+        elif call is not None and (call.get("asset") not in ("market", "sh50", "cyb", "bank", "baijiu") or call.get("dir") not in (1, -1)):
+            errors.append(f"{tag}: bad rumorCall {call}")
         n = len(m.get("daily", []))
         if not 15 <= n <= 23:
             errors.append(f"{tag}: daily length {n} not in [15, 23]")
@@ -88,8 +93,12 @@ def main(path):
         ref = REFERENCE.get(str(s.get("id")))
         if ref and "marketReturn" in m and abs(m["marketReturn"] - ref[i]) > 0.05:
             warnings.append(f"{tag}: market {m['marketReturn']:+.1%} vs reference {ref[i]:+.1%}")
-    if months and signals != 6:
-        warnings.append(f"rumorIsSignal true count = {signals}, expected 6")
+    # true and false rumours are mixed with no fixed order (an odd / even pattern could be learnt and exploited)
+    if months and not 4 <= signals <= 8:
+        warnings.append(f"rumorIsSignal true count = {signals}, expected 4-8")
+    flags = "".join("T" if m.get("rumorIsSignal") else "f" for m in months)
+    if flags in ("TfTfTfTfTfTf", "fTfTfTfTfTfT"):
+        errors.append(f"rumour truth alternates month by month ({flags}): players can learn the pattern")
     b = s.get("benchmarks", {})
     if "retailAvg" not in b or not -0.6 <= b["retailAvg"] <= 0.6:
         errors.append("benchmarks.retailAvg missing or out of [-0.6, 0.6]")

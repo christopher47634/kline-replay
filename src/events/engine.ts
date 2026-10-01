@@ -90,3 +90,12 @@ export function pickCards<T>(pool: T[], n = CARDS_PER_GAME, rand: () => number =
   }
   return a.slice(0, Math.min(n, a.length));
 }
+
+/**
+ * Cards for a new game: never-seen first, then ones this device got wrong before, then the rest (each group shuffled).
+ * Repeats are fine as practice; they are labelled as such instead of passing for a fresh test.
+ */
+export function pickFresh<T extends { id: string }>(pool: T[], seen: Record<string, "ok" | "miss">, n = CARDS_PER_GAME, rand: () => number = Math.random): T[] {
+  const group = (f: (x: T) => boolean) => pickCards(pool.filter(f), pool.length, rand);
+  return [...group((x) => !seen[x.id]), ...group((x) => seen[x.id] === "miss"), ...group((x) => seen[x.id] === "ok")].slice(0, Math.min(n, pool.length));
+}

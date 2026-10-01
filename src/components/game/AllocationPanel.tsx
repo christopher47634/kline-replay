@@ -4,7 +4,8 @@ import { m as motion, useAnimationControls, useMotionValue, useSpring, useTransf
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { allCash, allocSum } from "@/game/engine";
-import { ASSET_IDS, type Allocation, type AssetId, type ScriptAsset } from "@/game/types";
+import { ASSET_IDS, type Allocation, type AssetId, type ScriptAsset, type ScriptParams, type TaskId } from "@/game/types";
+import { TASKS, taskViolation } from "@/game/tasks";
 import { tick } from "@/lib/sfx";
 import { TriangleAlert } from "lucide-react";
 
@@ -84,10 +85,27 @@ const DampedSlider = forwardRef<HTMLInputElement, { id: string; value: number; c
   );
 });
 
+/** 「平均分配」：四个板块和现金各 20%，不碰融资（以前的版本悄悄放了 15% 杠杆）。 */
+export const EVEN: Allocation = { sh50: 20, cyb: 20, bank: 20, baijiu: 20, cash: 20, margin: 0 };
+
+/** The 上证50 monthly fall that wipes the margin bucket under this year's terms (settled on the month's return). */
+export const liquidationDrop = (p: ScriptParams) => -(p.marginLiquidation + p.marginCostMonthly) / p.marginLeverage;
+
 export const AllocationPanel = forwardRef<
   AllocationPanelHandle,
-  { assets: ScriptAsset[]; value: Allocation; onChange: (a: Allocation) => void; previous: Allocation | null; onSubmit?: () => void }
->(function AllocationPanel({ assets, value, onChange, previous, onSubmit }, ref) {
+  {
+    assets: ScriptAsset[];
+    value: Allocation;
+    onChange: (a: Allocation) => void;
+    previous: Allocation | null;
+    onSubmit?: () => void;
+    params?: ScriptParams;
+    task?: TaskId | null;
+    /** 现金自动补齐 (阅读设置 / the switch in this panel) */
+    autofill?: boolean;
+    onAutofill?: (on: boolean) => void;
+  }
+>(function AllocationPanel({ assets, value, onChange, previous, onSubmit, params, task = null, autofill = false, onAutofill }, ref) {
   const sliders = useRef<(HTMLInputElement | null)[]>([]);
   const [help, setHelp] = useState<AssetId | null>(null);
   const { reduce } = useMotionPref();
@@ -104,12 +122,33 @@ export const AllocationPanel = forwardRef<
     void totalCtl.start(ok ? { scale: [1, 1.08, 1], transition: { duration: 0.3 } } : { x: [0, -2, 2, -2, 0], transition: { duration: 0.3 } });
   }, [ok, reduce, totalCtl]);
 
+  // 现金不够时明确拦住（不偷偷改别的仓位），在那一行下面说一声
+  const [capped, setCapped] = useState<AssetId | null>(null);
+  useEffect(() => {
+    if (!capped) return;
+    const t = setTimeout(() => setCapped(null), 1800);
+    return () => clearTimeout(t);
+  }, [capped]);
+
   const set = (id: AssetId, v: number) => {
-    const next = clamp(v);
+    let next = clamp(v);
+    if (autofill && id !== "cash") {
+      // cash absorbs the difference; other holdings are never touched
+      const others = ASSET_IDS.reduce((s2, k) => s2 + (k === "cash" || k === id ? 0 : value[k]), 0);
+      const room = Math.max(0, 100 - others);
+      if (next > room) {
+        next = room;
+        setCapped(id);
+      }
+      if (next !== value[id]) tick();
+      onChange({ ...value, [id]: next, cash: Math.max(0, 100 - others - next) });
+      return;
+    }
     if (next !== value[id]) tick(); // one tick + 10ms buzz per step crossed
     onChange({ ...value, [id]: next });
   };
-  const even: Allocation = { sh50: 20, cyb: 15, bank: 20, baijiu: 15, cash: 15, margin: 15 };
+  const even = EVEN; // satisfies both task cards
+  const rule = taskViolation(task, value);
 
   return (
     <section aria-label="分配仓位" className="card-surface p-4">
@@ -117,12 +156,26 @@ export const AllocationPanel = forwardRef<
         <h2 className="font-bold">分配仓位</h2>
         <RiskRing assets={assets} value={value} sum={sum} />
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      {task && (
+        <p className={`mt-2 rounded-md border px-2.5 py-1.5 text-xs ${rule ? "border-up/50 text-up" : "border-line text-sub"}`} data-testid="task-rule">
+          任务「{TASKS[task].name}」：{TASKS[task].rules.join("；")}
+          {rule ? ` —— 现在不符合` : ""}
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <QuickBtn onClick={() => previous && onChange(previous)} disabled={!previous}>
           同上月
         </QuickBtn>
         <QuickBtn onClick={() => onChange(allCash())}>全部现金</QuickBtn>
-        <QuickBtn onClick={() => onChange(even)}>平均分配</QuickBtn>
+        <QuickBtn onClick={() => onChange(even)} title="四个板块和现金各 20%，不加杠杆">
+          平均分配
+        </QuickBtn>
+        {onAutofill && (
+          <label className="ml-auto flex cursor-pointer select-none items-center gap-1.5 text-xs text-sub" title="拖别的资产时，差额自动从现金里出、回到现金里去，合计始终 100%">
+            <input type="checkbox" checked={autofill} onChange={(e) => onAutofill(e.target.checked)} className="h-3.5 w-3.5 accent-gold" />
+            现金自动补齐
+          </label>
+        )}
       </div>
       <ul className="mt-4 space-y-4">
         {assets.map((a, i) => (
@@ -165,6 +218,11 @@ export const AllocationPanel = forwardRef<
               <span className="text-sm text-sub">%</span>
             </div>
             {help === a.id && <p className="mt-1.5 text-xs text-sub">{a.desc}</p>}
+            {capped === a.id && (
+              <p role="status" className="mt-1.5 text-xs text-up">
+                现金已经用完了：想再加，先把别的仓位减下来
+              </p>
+            )}
             <DampedSlider
               id={`slider-${a.id}`}
               ref={(el) => {
@@ -197,6 +255,11 @@ export const AllocationPanel = forwardRef<
                 <TriangleAlert size={14} strokeWidth={2.2} aria-hidden className={`shrink-0 ${reduce ? "" : "animate-pulse"}`} />
                 {/* the terms differ by year (2007–08: off-exchange 配资 at ~1% a month; 2024: ~6% a year) */}
                 {a.desc}
+              </p>
+            )}
+            {a.id === "margin" && value.margin > 0 && params && (
+              <p className="mt-1 text-[11px] leading-relaxed text-sub" data-testid="liquidation-rule">
+                强平按<b className="text-ink">月末</b>结算判定：当月上证50 跌超约 {Math.round(liquidationDrop(params) * 100)}%，融资这一格归零；月内的每日曲线只是示意，不会盘中强平。
               </p>
             )}
           </li>

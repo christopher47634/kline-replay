@@ -3,7 +3,8 @@
 import { m as motion, useAnimationControls } from "motion/react";
 import { useEffect, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
-import type { Script } from "@/game/types";
+import type { Script, TaskId } from "@/game/types";
+import { TASKS, TASK_IDS } from "@/game/tasks";
 import { play } from "@/lib/sfx";
 
 const RULES = [
@@ -11,14 +12,15 @@ const RULES = [
     起始资金 <span className="num font-bold">¥ 100,000</span>，共 12 回合，每回合 1 个月
   </>,
   "每月的涨跌来自真实历史行情，头条基于当月初已发生的真实事件",
-  "小道消息一半是信号、一半是噪音，自己判断",
+  "小道消息有真有假，没有固定规律；信不信由你，月底会告诉你它成没成真",
 ];
 
 /**
  * The one light page: an old archive card on paper. Teletype intro (a tiny jitter on each new character, a soft tick
  * every third one, square blinking cursor); click the text to skip. "开始" flips the page (rotateY, origin left) into the dark game.
  */
-export function Intro({ script, onStart }: { script: Script; onStart: () => void }) {
+export function Intro({ script, onStart, initialTask = null }: { script: Script; onStart: (task: TaskId | null) => void; initialTask?: TaskId | null }) {
+  const [task, setTask] = useState<TaskId | null>(initialTask);
   const { reduce } = useMotionPref();
   const [n, setN] = useState(0);
   const full = script.intro;
@@ -41,7 +43,7 @@ export function Intro({ script, onStart }: { script: Script; onStart: () => void
   const start = async () => {
     play("flip");
     if (!reduce) await flip.start({ rotateY: -90, transition: { duration: 0.32, ease: [0.65, 0, 0.35, 1] } });
-    onStart();
+    onStart(task);
   };
 
   return (
@@ -87,13 +89,58 @@ export function Intro({ script, onStart }: { script: Script; onStart: () => void
             ))}
           </ul>
 
+          {/* 任务卡：历史不变，目标变；可跳过 */}
+          <motion.fieldset
+            initial={{ opacity: 0, y: reduce ? 0 : 12 }}
+            animate={{ opacity: done ? 1 : 0, y: done ? 0 : reduce ? 0 : 12 }}
+            transition={{ delay: done ? 0.4 : 0, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-9"
+            data-testid="task-picker"
+          >
+            <legend className="text-sm font-bold text-[#2A2622]">
+              这一局的目标 <span className="font-normal text-[#7a6d55]">· 可选，同一年换个目标再玩一遍</span>
+            </legend>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="这一局的目标">
+              {[null, ...TASK_IDS].map((id) => {
+                const t = id ? TASKS[id] : null;
+                const on = task === id;
+                return (
+                  <button
+                    key={id ?? "free"}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setTask(id)}
+                    className={`press rounded-lg border-2 p-3 text-left transition-colors ${on ? "border-[#1a1712] bg-[#1a1712] text-[#f2ead6]" : "border-[#b9ad8f] hover:border-[#1a1712]"}`}
+                  >
+                    <b className="block text-[15px]">{t ? t.name : "自由玩"}</b>
+                    <span className={`mt-1 block text-xs leading-relaxed ${on ? "text-[#e2d8bf]" : "text-[#6b5f45]"}`}>
+                      {t ? (
+                        <>
+                          目标：{t.goal}
+                          {t.rules.map((r) => (
+                            <span key={r} className="block">
+                              规则：{r}
+                            </span>
+                          ))}
+                        </>
+                      ) : (
+                        "没有限制，能赚多少赚多少"
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.fieldset>
+
           <button
             type="button"
             onClick={start}
             autoFocus
-            className="mt-10 h-14 rounded-lg bg-[#1a1712] px-10 text-base font-bold text-[#f2ead6] transition-transform duration-100 hover:bg-black active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B3261E]"
+            className="mt-8 h-14 rounded-lg bg-[#1a1712] px-10 text-base font-bold text-[#f2ead6] transition-transform duration-100 hover:bg-black active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B3261E]"
           >
-            开始第 1 回合 →
+            开始第 1 回合{task ? `（${TASKS[task].name}）` : ""} →
           </button>
         </div>
       </motion.main>

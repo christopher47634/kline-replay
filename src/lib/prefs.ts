@@ -7,7 +7,8 @@ import { useSyncExternalStore } from "react";
  * Three skins for three kinds of players, each with its own default font and writing voice:
  *   盘口 pan    专业玩家：深夜盘口配色、专业工作台（仓位风险、真实宏观面板、快捷键），研报体复盘
  *   纸面 paper  一般玩家：借鉴「见微」的纸面编辑部——暖白纸、墨色正文、靛蓝交互、朱红印章，标准复盘
- *   简约 plain  想轻松玩：只留头条、走势和仓位，楷体、大留白，白话复盘
+ *   简约 plain  想轻松玩：头条、走势和仓位在前，其余数据折叠（不是删掉），楷体、大留白，白话复盘
+ * 信息密度和主题分开：三套主题都能看到同样的数据，「密度」只决定次要面板是展开还是折叠。
  * The <head> script in layout.tsx applies the same attributes before first paint (no flash).
  */
 
@@ -19,6 +20,7 @@ export type Glass = "clear" | "tinted" | "frost" | "off";
 export type UpDown = "cn" | "intl";
 export type Accent = "gold" | "ice" | "violet";
 export type MotionLevel = "auto" | "reduce";
+export type Density = "auto" | "full" | "compact";
 
 export interface Prefs {
   skin: Skin;
@@ -31,10 +33,13 @@ export interface Prefs {
   accent: Accent;
   motion: MotionLevel;
   loupe: boolean;
+  density: Density;
+  /** 调仓时现金自动补齐：拖别的资产，差额从现金里出、回到现金里去，合计始终 100% */
+  autofill: boolean;
 }
 
 export const SCALES = [0.9, 1, 1.1, 1.2, 1.3] as const;
-export const DEFAULT_PREFS: Prefs = { skin: "pan", font: "auto", voice: "auto", scale: 1, leading: "auto", glass: "clear", updown: "cn", accent: "gold", motion: "auto", loupe: true };
+export const DEFAULT_PREFS: Prefs = { skin: "pan", font: "auto", voice: "auto", scale: 1, leading: "auto", glass: "clear", updown: "cn", accent: "gold", motion: "auto", loupe: true, density: "auto", autofill: true };
 import { PREFS_KEY } from "./prefsBoot";
 export { PREFS_KEY };
 
@@ -46,12 +51,13 @@ export interface SkinMeta {
   font: Exclude<BodyFont, "auto">;
   voice: Exclude<Voice, "auto">;
   leading: Exclude<Leading, "auto">;
+  density: Exclude<Density, "auto">;
 }
 
 export const SKINS: SkinMeta[] = [
-  { id: "pan", name: "盘口", who: "专业玩家", traits: ["深夜盘口配色", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact" },
-  { id: "paper", name: "纸面", who: "一般玩家", traits: ["纸面编辑部（借鉴见微）", "思源宋体标题", "标准复盘"], font: "sans", voice: "standard", leading: "normal" },
-  { id: "plain", name: "简约", who: "轻松玩", traits: ["只留头条、走势和仓位", "霞鹜文楷", "白话复盘"], font: "kai", voice: "plain", leading: "airy" },
+  { id: "pan", name: "盘口", who: "专业玩家", traits: ["深夜盘口配色", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
+  { id: "paper", name: "纸面", who: "一般玩家", traits: ["纸面编辑部（借鉴见微）", "思源宋体标题", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
+  { id: "plain", name: "简约", who: "轻松玩", traits: ["头条、走势和仓位在前，其余折叠", "霞鹜文楷", "白话复盘"], font: "kai", voice: "plain", leading: "airy", density: "compact" },
 ];
 export const skinMeta = (id: Skin) => SKINS.find((s) => s.id === id)!;
 
@@ -101,10 +107,17 @@ export function sanitize(raw: unknown): Prefs {
     accent: r.accent === "ice" || r.accent === "violet" ? r.accent : "gold",
     motion: r.motion === "reduce" ? "reduce" : "auto",
     loupe: r.loupe !== false,
+    density: r.density === "full" || r.density === "compact" ? r.density : "auto",
+    autofill: r.autofill !== false,
   };
 }
 
-export type Resolved = Omit<Prefs, "font" | "voice" | "leading"> & { font: Exclude<BodyFont, "auto">; voice: Exclude<Voice, "auto">; leading: Exclude<Leading, "auto"> };
+export type Resolved = Omit<Prefs, "font" | "voice" | "leading" | "density"> & {
+  font: Exclude<BodyFont, "auto">;
+  voice: Exclude<Voice, "auto">;
+  leading: Exclude<Leading, "auto">;
+  density: Exclude<Density, "auto">;
+};
 
 export function resolve(p: Prefs): Resolved {
   const m = skinMeta(p.skin);
@@ -113,6 +126,7 @@ export function resolve(p: Prefs): Resolved {
     font: p.font === "auto" ? m.font : p.font,
     voice: p.voice === "auto" ? m.voice : p.voice,
     leading: p.leading === "auto" ? m.leading : p.leading,
+    density: p.density === "auto" ? m.density : p.density,
   };
 }
 

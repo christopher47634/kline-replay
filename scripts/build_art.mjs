@@ -40,6 +40,10 @@ const EMOJI = {
   fire: "fire",
   headphone: "headphone",
   "chart-up": "chart-increasing",
+  popcorn: "popcorn",
+  shield: "shield",
+  trophy: "trophy",
+  collision: "collision",
 };
 const SRC = "node_modules/fluentui-emoji/icons/modern";
 for (const [name, file] of Object.entries(EMOJI)) copyFileSync(join(SRC, `${file}.svg`), join(OUT, "emoji", `${name}.svg`));

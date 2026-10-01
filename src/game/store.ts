@@ -4,7 +4,7 @@ import { create, type StoreApi, type UseBoundStore } from "zustand";
 import type { PersistOptions } from "zustand/middleware";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { allCash, settle } from "./engine";
-import type { Allocation, GameState, RoundRecord, Script, SettleResult } from "./types";
+import type { Allocation, GameState, MonthNote, RoundRecord, Script, SettleResult, TaskId } from "./types";
 
 export interface LastSettle extends SettleResult {
   month: number;
@@ -17,15 +17,27 @@ export interface GameStore extends GameState {
   started: boolean;
   draft: Allocation;
   last: LastSettle | null;
-  start: () => void;
+  /** task card picked on the intro page (null = 自由玩) */
+  task: TaskId | null;
+  /** rumour stance, moment choice and reason per month (game/notes.ts); reset with the game */
+  notes: Record<number, MonthNote>;
+  /** what the moment card pre-filled this month, to tell afterwards whether the player changed it */
+  prefill: Allocation | null;
+  start: (task?: TaskId | null) => void;
   setAlloc: (alloc: Allocation) => void;
+  setNote: (month: number, patch: Partial<MonthNote>) => void;
+  /** the moment card's choice: records it and pre-fills the draft */
+  chooseMoment: (month: number, option: number, alloc: Allocation | null, reason?: MonthNote["reason"]) => void;
   next: () => LastSettle;
   reset: () => void;
 }
 
+const sameAlloc = (a: Allocation, b: Allocation) => (Object.keys(a) as (keyof Allocation)[]).every((k) => a[k] === b[k]);
+
 export const storageKey = (scriptId: string) => `kline-replay:${scriptId}`;
 
-const initial = (script: Script): Omit<GameStore, "start" | "setAlloc" | "next" | "reset"> => ({
+type Actions = "start" | "setAlloc" | "setNote" | "chooseMoment" | "next" | "reset";
+const initial = (script: Script): Omit<GameStore, Actions> => ({
   scriptId: script.id,
   month: 0,
   cash: script.startCash,
@@ -34,6 +46,9 @@ const initial = (script: Script): Omit<GameStore, "start" | "setAlloc" | "next" 
   started: false,
   draft: allCash(),
   last: null,
+  task: null,
+  notes: {},
+  prefill: null,
 });
 
 type PersistApi = { persist: { hasHydrated: () => boolean; onFinishHydration: (fn: () => void) => () => void } };
@@ -52,8 +67,15 @@ export function gameStore(script: Script) {
     persist(
       (set, get) => ({
         ...initial(script),
-        start: () => set({ started: true }),
+        start: (task = null) => set({ started: true, task }),
         setAlloc: (alloc) => set({ draft: alloc }),
+        setNote: (month, patch) => set((st) => ({ notes: { ...st.notes, [month]: { ...st.notes[month], ...patch } } })),
+        chooseMoment: (month, option, alloc, reason) =>
+          set((st) => ({
+            notes: { ...st.notes, [month]: { ...st.notes[month], moment: option, ...(reason ? { reason } : {}) } },
+            prefill: alloc ?? st.draft,
+            draft: alloc ?? st.draft,
+          })),
         next: () => {
           const st = get();
           if (st.finished) throw new Error("game already finished");
@@ -67,6 +89,9 @@ export function gameStore(script: Script) {
             liquidated: res.liquidated,
           };
           const history = [...st.history, rec];
+          // did the player change what the moment card pre-filled? (the year-end replay tells the truth about it)
+          const note = st.notes[st.month];
+          const notes = note?.moment !== undefined && st.prefill ? { ...st.notes, [st.month]: { ...note, edited: !sameAlloc(st.prefill, st.draft) } } : st.notes;
           const month = st.month + 1;
           const finished = month >= script.months.length || res.cashAfter <= 0;
           const last: LastSettle = {
@@ -76,12 +101,18 @@ export function gameStore(script: Script) {
             allocBefore: st.history.at(-1)?.alloc ?? null,
             cashBefore: st.cash,
           };
-          set({ history, month: Math.min(month, script.months.length - 1), cash: res.cashAfter, finished, last });
+          set({ history, month: Math.min(month, script.months.length - 1), cash: res.cashAfter, finished, last, notes, prefill: null });
           return last;
         },
         reset: () => set({ ...initial(script) }),
       }),
-      { name: storageKey(slot), storage: createJSONStorage(() => localStorage), version: 1 },
+      {
+        name: storageKey(slot),
+        storage: createJSONStorage(() => localStorage),
+        version: 2,
+        // v1 saves had no task / notes; the moment cards they answered were remembered in separate keys (now per game)
+        migrate: (old, v) => (v < 2 ? { ...(old as object), task: null, notes: {}, prefill: null } : old) as GameStore,
+      },
     ),
   );
   stores.set(slot, s as GameStoreHook);

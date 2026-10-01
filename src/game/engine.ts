@@ -167,8 +167,12 @@ export const RANKS: Record<Rank["id"], Rank> = {
   leek: { id: "leek", label: "韭菜本菜", color: "#3FB950" },
 };
 
-export function rank(ret: number, liquidated: boolean): Rank {
-  if (liquidated) return RANKS.liquidated;
+/**
+ * 本局成绩. `wipedOut` = the account went to zero. A liquidation the account survived is a 特殊事件 shown next to the
+ * score (persona.specialEvents), not a verdict that replaces it (v8; before that any liquidation took over the rank).
+ */
+export function rank(ret: number, wipedOut: boolean): Rank {
+  if (wipedOut) return RANKS.liquidated;
   if (ret > 0.5) return RANKS.legend;
   if (ret > 0.2) return RANKS.winner;
   if (ret > 0) return RANKS.small_win;

@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { decodeGame } from "@/game/encode";
-import { everLiquidated, playAll, rank, totalReturn } from "@/game/engine";
+import { isBusted, playAll, rank, totalReturn } from "@/game/engine";
 import { judgePersona, PERSONAS } from "@/game/persona";
 import { pct, upDownHex } from "@/lib/format";
 import { getScript } from "@/lib/scripts";
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   if (d.ok && script) {
     const h = playAll(script, d.allocs);
     const ret = totalReturn(script, h);
-    const rk = rank(ret, everLiquidated(h));
+    const rk = rank(ret, isBusted(h));
     head = `穿越 K 线 · ${script.title}`;
     big = pct(ret);
     color = upDownHex(ret);

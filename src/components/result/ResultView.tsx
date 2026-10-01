@@ -12,9 +12,16 @@ import { useMotionPref } from "@/components/shell/MotionPref";
 import { btn } from "@/components/ui/Button";
 import { decodeGame } from "@/game/encode";
 import { benchmarks, everLiquidated, isBusted, playAll, rank as rankOf, simulateDaily, totalReturn } from "@/game/engine";
-import { judgePersona, keyMoves, pickQuote, PERSONAS } from "@/game/persona";
+import { judgePersona, keyMoves, pickQuote, PERSONAS, specialEvents, styleEvidence } from "@/game/persona";
 import { gameStore } from "@/game/store";
-import type { Allocation, Script } from "@/game/types";
+import type { Allocation, Script, TaskId } from "@/game/types";
+import { decodeNotes } from "@/game/notes";
+import { decisionReplay } from "@/game/replay";
+import { isTask, maxDrawdown, TASKS, TASK_IDS, taskOutcome } from "@/game/tasks";
+import { challengeHref } from "@/game/link";
+import { highlightSegments } from "@/music/compose";
+import { nextMystery } from "@/lib/blind";
+import { FirstScreen, DecisionReplay } from "./Overview";
 import { pct, pp, upDownColor } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
@@ -40,6 +47,8 @@ export function ResultView({
   openMusic = false,
   blind = false,
   years = [],
+  task: taskParam,
+  notes: notesParam,
 }: {
   code: string;
   script: Script | null;
@@ -48,8 +57,16 @@ export function ResultView({
   /** straight after a 盲盒 game: ask which year it was before showing anything that names it */
   blind?: boolean;
   years?: string[];
+  /** t= : the task card the game was played under */
+  task?: string;
+  /** n= : optional reasons and rumour stances (game/notes.ts) */
+  notes?: string;
 }) {
   const decoded = useMemo(() => decodeGame(code), [code]);
+  const [wasBlind] = useState(blind);
+  const task = isTask(taskParam) ? taskParam : null;
+  // the link without blind=1, keeping t= and n=
+  const plain = `s=${encodeURIComponent(code)}${task ? `&t=${task}` : ""}${notesParam ? `&n=${encodeURIComponent(notesParam)}` : ""}`;
   const [revealed, setRevealed] = useState(!blind);
   if (!decoded.ok || !script || script.id !== decoded.scriptId) return <InvalidLink reason={decoded.ok ? "剧本不存在" : decoded.error} />;
   if (!revealed)
@@ -62,12 +79,12 @@ export function ResultView({
         ret={totalReturn(script, playAll(script, decoded.allocs))}
         onDone={() => {
           setRevealed(true);
-          window.history.replaceState(null, "", `/result?s=${encodeURIComponent(code)}`); // a reload or a shared link shows the result directly
+          window.history.replaceState(null, "", `/result?${plain}`); // a reload or a shared link shows the result directly
           window.scrollTo(0, 0);
         }}
       />
     );
-  return <Result code={code} script={script} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} />;
+  return <Result query={plain} script={script} allocs={decoded.allocs} boardOn={boardOn} openMusic={openMusic} task={task} notesParam={notesParam} wasBlind={wasBlind} years={years} code={code} />;
 }
 
 /** A share button that turns green with a ✓ for 0.8s after it succeeds. */
@@ -108,11 +125,33 @@ function Equaliser() {
   );
 }
 
-function Result({ code, script, allocs, boardOn, openMusic }: { code: string; script: Script; allocs: Allocation[]; boardOn: boolean; openMusic: boolean }) {
+function Result({
+  code,
+  query,
+  script,
+  allocs,
+  boardOn,
+  openMusic,
+  task,
+  notesParam,
+  wasBlind,
+  years,
+}: {
+  code: string;
+  query: string;
+  script: Script;
+  allocs: Allocation[];
+  boardOn: boolean;
+  openMusic: boolean;
+  task: TaskId | null;
+  notesParam?: string;
+  wasBlind: boolean;
+  years: string[];
+}) {
   const router = useRouter();
   const { reduce } = useMotionPref();
   const poster = useRef<HTMLDivElement>(null);
-  const [music, setMusic] = useState(openMusic);
+  const [music, setMusic] = useState<null | "full" | "highlight">(openMusic ? "full" : null);
   const [toast, setToast] = useState<string | null>(null);
   const [stamped, setStamped] = useState(reduce);
   const [flyer, setFlyer] = useState<{ x: number; y: number } | null>(null);
@@ -126,12 +165,15 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
     const b = benchmarks(script, history);
     const marketRet = b.market[12] / script.startCash - 1;
     const cashRet = b.cash[12] / script.startCash - 1;
+    const daily = simulateDaily(history, script);
+    const busted = isBusted(history);
     return {
       history,
       ret,
       liquidated,
-      busted: isBusted(history),
-      rank: rankOf(ret, liquidated),
+      busted,
+      // 成绩只看收益；强平没把账户打穿就只是一枚特殊事件章
+      rank: rankOf(ret, busted),
       personaId,
       persona: PERSONAS[personaId],
       quote: pickQuote(personaId, history),
@@ -139,9 +181,15 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
       b,
       marketRet,
       cashRet,
-      daily: simulateDaily(history, script),
+      daily,
+      mdd: maxDrawdown(daily, script.startCash),
+      outcome: task ? taskOutcome(task, script, history) : null,
+      replay: decisionReplay(script, history, decodeNotes(notesParam)),
+      evidence: styleEvidence(history, script, Object.fromEntries(script.assets.map((a) => [a.id, a.name.replace(/ ETF$|板块$/, "")]))),
+      events: specialEvents(history, script),
+      segments: highlightSegments(daily, history, (m) => script.months[m].label.replace(/^\d+ 年 /, "")),
     };
-  }, [script, allocs]);
+  }, [script, allocs, task, notesParam]);
 
   const flash = (msg: string) => {
     setToast(msg);
@@ -154,7 +202,9 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
     setOrigin(window.location.origin);
     setMounted(true);
   }, []);
-  const link = `${origin}/result?s=${code}`;
+  const link = `${origin}/result?${query}`;
+  const challenge = `${origin}${challengeHref(script.id, task)}`;
+  const challengeText = `我在穿越 K 线的 ${script.id}${task ? `「${TASKS[task].name}」挑战` : ""}里${r.ret >= 0 ? "赚了" : "亏了"} ${pct(r.ret).replace(/^[+−-]/, "")}${r.outcome ? (r.outcome.done ? "，任务完成" : "，任务没完成") : ""}。同一年、同样的消息，你来试试：${challenge}`;
   const text = shareText({ script, history: r.history, ret: r.ret, rankLabel: r.rank.label, personaTitle: r.persona.title, quote: r.quote, origin });
 
   const savePoster = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -173,9 +223,10 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
     }
   };
 
-  const again = () => {
+  // a new game of this year (optionally under a task card): reset the save, then open the intro with the card picked
+  const again = (t: TaskId | null = task) => {
     gameStore(script).getState().reset();
-    router.push(`/play/${script.id}`);
+    router.push(challengeHref(script.id, t));
   };
 
   const cmp = (label: string, other: number) => (
@@ -237,6 +288,21 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
       </div>
       {r.busted && <p className="mt-3 font-medium text-up">爆仓结局：第 {r.history.length} 个月账户归零，游戏提前结束。</p>}
 
+      <FirstScreen
+        ret={r.ret}
+        marketRet={r.marketRet}
+        mdd={r.mdd}
+        task={task}
+        outcome={r.outcome}
+        events={r.events}
+        replay={r.replay}
+        segments={r.segments}
+        fullSecs={Math.round(r.daily.length * 0.2)}
+        onHighlight={() => setMusic("highlight")}
+        onFull={() => setMusic("full")}
+        onTryTask={(t) => again(t)}
+      />
+
       <section aria-label="收益对比" className="card-surface mt-8 p-4 md:p-6">
         <ReturnChart b={r.b} startCash={script.startCash} history={r.history} />
         <ul className="mt-4 grid gap-1.5 text-sm md:grid-cols-3 md:text-base">
@@ -249,8 +315,10 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
 
       <YearVoice script={script} history={r.history} daily={r.daily} marketRet={r.marketRet} cashRet={r.cashRet} />
 
+      <DecisionReplay items={r.replay} />
+
       <div className="mt-6 grid items-stretch gap-6 md:grid-cols-[1.4fr_1fr]">
-        <PersonaCard persona={r.persona} quote={r.quote} moves={r.moves} />
+        <PersonaCard persona={r.persona} quote={r.quote} moves={r.moves} evidence={r.evidence} />
         <section aria-label="每月结果" className="card-surface flex flex-col p-5 md:p-7">
           <p className="text-sm text-sub">12 个月，一月一格</p>
           <div className="mt-4">
@@ -259,7 +327,7 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
           <p className="mt-3 text-xs text-sub">
             <span className="text-up">■</span> 赚 <span className="ml-2 text-down">■</span> 亏 <span className="ml-2 text-[#A855F7]">■</span> 强平
           </p>
-          <button type="button" onClick={() => setMusic(true)} className="group mt-auto pt-6 text-left">
+          <button type="button" onClick={() => setMusic("full")} className="group mt-auto pt-6 text-left">
             <span className="flex items-center gap-3 rounded-xl border border-up/40 bg-up/10 px-4 py-4 transition-colors group-hover:bg-up/15">
               <Emoji art="headphone" char="🎧" size={36} className="transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
               <span>
@@ -278,9 +346,28 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
         <MagneticButton className={btn("outline")} onClick={(e) => void savePoster(e as unknown as React.MouseEvent<HTMLButtonElement>)}>
           保存人格卡
         </MagneticButton>
-        <MagneticButton className={btn("outline")} onClick={again}>
-          再来一局
-        </MagneticButton>
+        <ShareButton variant="outline" label="复制挑战链接" run={async () => ((await copyText(challengeText)) ? "挑战链接已复制：对方打开就是同一年、同一个目标" : null)} onDone={flash} />
+        {wasBlind ? (
+          <>
+            <MagneticButton className={btn("outline")} onClick={() => router.push(nextMystery(years, script.id))}>
+              再开一个盲盒
+            </MagneticButton>
+            <MagneticButton className={btn("outline")} onClick={() => again(null)}>
+              复盘本年（公开年份）
+            </MagneticButton>
+          </>
+        ) : (
+          <>
+            <MagneticButton className={btn("outline")} onClick={() => again()}>
+              {task ? `再挑战一次「${TASKS[task].name}」` : "再来一局"}
+            </MagneticButton>
+            {TASK_IDS.filter((t) => t !== task).map((t) => (
+              <MagneticButton key={t} className={btn("outline")} onClick={() => again(t)}>
+                同一年换个目标：{TASKS[t].name}
+              </MagneticButton>
+            ))}
+          </>
+        )}
         <Link href="/" className={btn("ghost")}>
           换个年份
         </Link>
@@ -317,8 +404,9 @@ function Result({ code, script, allocs, boardOn, openMusic }: { code: string; sc
           script={script}
           daily={r.daily}
           history={r.history}
-          onClose={() => setMusic(false)}
+          onClose={() => setMusic(null)}
           bigPlay={openMusic}
+          highlight={music === "highlight" ? r.segments : undefined}
           onCopyLink={async () => flash((await copyText(`${link}&play=1`)) ? "音乐链接已复制" : "复制失败")}
         />
       )}

@@ -27,6 +27,7 @@
       ],
       "rumor": "我在保险公司的朋友说，平安要找股民要一大笔钱，先别碰。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "sh50", "dir": -1 },
       "hindsight": "1 月 21、22 日连续暴跌，平安公告巨额再融资、美股大跌；沪指全月跌 16.7%。"
     },
     {
@@ -37,6 +38,7 @@
       ],
       "rumor": "我同学说两会前一定有大利好，现在是抄底的好时机。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "2 月指数在 4200 点上方震荡，全月跌 0.8%；中小板 ETF 逆势涨 6.4%。"
     },
     {
@@ -47,6 +49,7 @@
       ],
       "rumor": "我表哥是上市公司高管，说他们大股东排着队等解禁卖股票。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "3 月沪指暴跌 20.1%，跌破 3500 点；大小非减持和海外次贷危机双重压顶。"
     },
     {
@@ -57,6 +60,7 @@
       ],
       "rumor": "听说上面马上要下调印花税，我先抄一点。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "4 月 24 日印花税从 3‰ 降回 1‰，当天沪指涨 9.3%；月中探到 3000 点附近，全月涨 6.3%。"
     },
     {
@@ -67,6 +71,7 @@
       ],
       "rumor": "我邻居说奥运前股市只会涨，五月该满仓。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "5 月 12 日汶川地震，市场震荡回落；沪指全月跌 7%，银行跌 14%。",
       "moment": {
         "date": "2008-04-24",
@@ -88,6 +93,7 @@
       ],
       "rumor": "银行里的朋友说又要上调准备金了，我先卖掉一半。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "6 月 7 日央行上调准备金率 1 个百分点，10 日沪指跌 7.7%；全月暴跌 20%，失守 2800 点。"
     },
     {
@@ -98,6 +104,7 @@
       ],
       "rumor": "我朋友说奥运前一定跌到 2000 点，他已经全部清仓了。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "7 月沪指微涨 1.4%，在 2700 至 2900 点间反复；茅台反弹 15%。"
     },
     {
@@ -108,6 +115,7 @@
       ],
       "rumor": "我朋友说奥运会期间一定有大行情，他满仓等着。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "8 月 8 日奥运开幕，‘奥运行情’没有来，沪指全月跌 13.6%，跌破 2400 点。"
     },
     {
@@ -118,6 +126,7 @@
       ],
       "rumor": "我同事说国家不会让股市跌破 2000 点，现在满仓不会错。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "9 月 15 日雷曼兄弟破产，18 日沪指跌到 1802 点；19 日三大利好全线涨停，全月跌 4.3%。"
     },
     {
@@ -128,6 +137,7 @@
       ],
       "rumor": "我在外贸厂的表姐说，海外订单全停了，年底可能要裁员。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "10 月全球股市崩跌，28 日沪指盘中探至 1664 点；全月暴跌 24.6%，茅台跌 30%。",
       "moment": {
         "date": "2008-09-19",
@@ -149,6 +159,7 @@
       ],
       "rumor": "我叔在发改委附近上班，说要出大手笔的投资计划了。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "11 月 9 日四万亿计划公布，10 日沪指涨 7.3%；全月反弹 8.2%，中小板 ETF 涨 18%。"
     },
     {
@@ -159,6 +170,7 @@
       ],
       "rumor": "我同事说明年经济更差，年底还要跌到 1000 点。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "12 月沪指小幅回落，全年收于 1821 点、跌 65%；中小板 ETF 逆势涨近 10%。",
       "moment": {
         "date": "2008-11-10",

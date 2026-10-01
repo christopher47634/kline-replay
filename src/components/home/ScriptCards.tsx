@@ -12,7 +12,7 @@ import spark from "@/components/hero/spark.json";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Emoji } from "@/components/ui/Emoji";
-import { mysterySlug } from "@/lib/blind";
+import { nextMystery } from "@/lib/blind";
 
 const SCRIPTS = [
   // chronological, like a timeline
@@ -122,30 +122,13 @@ export function ScriptCards({ board }: { board: boolean }) {
   );
 }
 
-const LAST_MYSTERY = "kline:last-mystery";
-
 /**
  * 盲盒模式: a random year with the year hidden (lib/blind.ts). Never the same box twice in a row.
  * The link is an opaque slug, so hovering it does not give the year away either.
  */
 function MysteryCard({ ids }: { ids: string[] }) {
   const router = useRouter();
-  const open = () => {
-    let last: string | null = null;
-    try {
-      last = localStorage.getItem(LAST_MYSTERY);
-    } catch {
-      /* private mode */
-    }
-    const pool = ids.map(mysterySlug).filter((s) => s !== last);
-    const slug = pool[Math.floor(Math.random() * pool.length)];
-    try {
-      localStorage.setItem(LAST_MYSTERY, slug);
-    } catch {
-      /* ignore */
-    }
-    router.push(`/mystery/${slug}`);
-  };
+  const open = () => router.push(nextMystery(ids));
   return (
     <div className="card-surface mt-6 flex flex-col gap-5 p-6 md:flex-row md:items-center md:p-7" data-testid="mystery-card">
       <Emoji art="question" char="❓" size={64} className="mystery-float shrink-0" />

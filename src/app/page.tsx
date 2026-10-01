@@ -5,21 +5,22 @@ import { Marquee } from "@/components/home/Marquee";
 import { ScriptCards } from "@/components/home/ScriptCards";
 import { Story } from "@/components/home/Story";
 import { boardEnabled } from "@/lib/board";
+import { SCRIPT_IDS } from "@/lib/scripts";
 
 export default function Home() {
   const board = boardEnabled();
   return (
     <main>
-      <Hero />
+      <Hero years={SCRIPT_IDS} />
       <Story />
       <div className="mx-auto max-w-[1120px] px-6">
-        <section aria-labelledby="scripts-h" className="pb-8 pt-10">
+        <section id="years" aria-labelledby="scripts-h" className="scroll-mt-6 pb-8 pt-10">
           <h2 id="scripts-h" className="font-display text-h1">
             选一个年份
           </h2>
           <ScriptCards board={board} />
         </section>
-        <section aria-labelledby="events-h" className="pb-16">
+        <section id="events" aria-labelledby="events-h" className="scroll-mt-6 pb-16">
           <EventsCard />
         </section>
       </div>

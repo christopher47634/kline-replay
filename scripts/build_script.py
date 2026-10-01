@@ -114,6 +114,7 @@ def main():
             "headlines": [norm_headline(h, m, k) for k, h in enumerate(c["headlines"])],
             "rumor": c["rumor"],
             "rumorIsSignal": c["rumorIsSignal"],
+            "rumorCall": c.get("rumorCall"),
             "hindsight": c["hindsight"],
             **({"moment": c["moment"]} if c.get("moment") else {}),
             "marketReturn": rets["market"],

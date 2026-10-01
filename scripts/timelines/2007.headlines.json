@@ -27,6 +27,7 @@
       ],
       "rumor": "我同事上个月刚开户，说今年闭着眼买什么都涨。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "1 月沪指涨 4.1%，一度冲到 2975 点后回落；中小板 ETF 涨 24.5%，茅台涨 17.5%。"
     },
     {
@@ -37,6 +38,7 @@
       ],
       "rumor": "楼下大爷说春节红包行情必涨，他已经全仓了。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "2 月 27 日沪指单日暴跌 8.8%，全球股市跟跌；次日即反弹，全月反而涨 3.4%，茅台跌 15%。"
     },
     {
@@ -47,6 +49,7 @@
       ],
       "rumor": "我表舅在基金公司，说他们这几天在抄底，让我别割肉。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "3 月沪指涨 10.5%，站上 3100 点；18 日央行加息，市场几乎没理会。",
       "moment": {
         "date": "2007-02-27",
@@ -66,8 +69,9 @@
         { "text": "沪指3月涨超10%，站上3100点", "tone": "bull", "day": 30 },
         { "text": "开户热潮升温，营业部大厅人满为患", "tone": "bull", "day": 26 }
       ],
-      "rumor": "我梦见大盘跌回 2000 点，吓醒了，这个月我空仓。",
+      "rumor": "我在银行的朋友说马上又要加息，四月先空仓躲一躲。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "4 月沪指大涨 20.6%，站上 3800 点；上证50 同步涨两成，茅台只涨 1%。"
     },
     {
@@ -78,6 +82,7 @@
       ],
       "rumor": "听说要上调印花税，我先把一半落袋。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "5 月 30 日凌晨印花税从 1‰ 上调至 3‰，当天沪指跌 6.5%；月初冲过 4000 点，全月仍涨 7%。"
     },
     {
@@ -88,6 +93,7 @@
       ],
       "rumor": "我老丈人说银行股太笨重，这个月要满仓小盘股。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "cyb", "dir": 1 },
       "hindsight": "6 月初题材股成片跌停，4 日沪指再跌 8.3%；资金躲进蓝筹，银行涨 4%，茅台涨 17%。",
       "moment": {
         "date": "2007-05-30",
@@ -107,8 +113,9 @@
         { "text": "资金抱团蓝筹，银行、白酒逆势走强", "tone": "neutral", "day": 29 },
         { "text": "1.55万亿元特别国债获批发行", "tone": "neutral", "day": 29 }
       ],
-      "rumor": "我算命的朋友说七月不吉利，股市必跌，赶紧跑。",
+      "rumor": "听说印花税还要再往上加，这个月肯定还得跌。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "7 月沪指涨 17%，站上 4400 点；20 日央行年内第三次加息，市场继续上攻。"
     },
     {
@@ -119,6 +126,7 @@
       ],
       "rumor": "银行理财经理跟我说港股直通车要来了，A 股也会被带着涨。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "8 月沪指再涨 16.7%，23 日站上 5000 点；20 日宣布试点‘港股直通车’。"
     },
     {
@@ -129,6 +137,7 @@
       ],
       "rumor": "我同事说中秋前要跌一波，他已经清仓去旅游了。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "9 月沪指涨 6.4%，逼近 5600 点，涨幅集中在大盘权重股；中小板和茅台小幅下跌。"
     },
     {
@@ -139,6 +148,7 @@
       ],
       "rumor": "我朋友说十七大前后要维稳，这个月不会大跌。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "10 月 16 日沪指创 6124 点历史最高，月末收 5955 点，全月涨 7.2%；茅台涨 27%。"
     },
     {
@@ -149,6 +159,7 @@
       ],
       "rumor": "我在油田上班的亲戚说，中石油上市那天千万别追。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "sh50", "dir": -1 },
       "hindsight": "11 月 5 日中石油上市开盘 48.6 元后一路下跌，拖累大盘；沪指全月跌 18.2%。",
       "moment": {
         "date": "2007-10-16",
@@ -170,6 +181,7 @@
       ],
       "rumor": "我邻居说年底机构要结账，一定砸盘，赶紧空仓过年。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "12 月沪指反弹 8%，全年收于 5262 点、涨 97%；21 日央行年内第六次加息。"
     }
   ]

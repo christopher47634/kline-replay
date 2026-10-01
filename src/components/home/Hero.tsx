@@ -21,7 +21,7 @@ function MaskLine({ delay, children }: { delay: number; children: React.ReactNod
   );
 }
 
-export function Hero() {
+export function Hero({ years = ["2015"] }: { years?: string[] }) {
   // the 5178 wheel starts when the backdrop is decided, so it ends together with the particle fly-in
   const [go, setGo] = useState(false);
   return (
@@ -39,12 +39,16 @@ export function Hero() {
           </MaskLine>
           <MaskLine delay={0.85}>如果是你，跑不跑？</MaskLine>
         </p>
+        {/* the hook is June; the game starts in January: say so, so the promise and the first screen match */}
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1, duration: 0.6 }} className="mt-3 max-w-[40ch] text-sm text-gold/90 md:text-base">
+          从 2015 年 1 月开局，一个月一个月走到这一刻——每一步都只知道当时知道的事。
+        </motion.p>
         <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3, duration: 0.6 }} className="mt-6 max-w-[60ch] space-y-1.5 text-sm text-sub">
           <li>行情是真的：每一回合的涨跌来自真实历史数据。</li>
           <li>头条是“真事假写”：基于真实事件改写成当年口吻，不剧透。</li>
           <li>结果听得见：你的资产曲线和大盘被演奏成一段二重奏。</li>
         </motion.ul>
-        <HeroCta scriptId="2015" />
+        <HeroCta scriptId="2015" years={years} />
       </div>
       <p className="hero-scroll-hint absolute bottom-6 right-6 z-10 text-xs text-sub md:right-10">↓ 滚动了解玩法</p>
     </section>

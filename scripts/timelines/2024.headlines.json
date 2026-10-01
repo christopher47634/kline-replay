@@ -27,6 +27,7 @@
       ],
       "rumor": "我在私募的朋友说，小盘股里的雪球产品快敲入了，最近别碰。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "cyb", "dir": -1 },
       "hindsight": "1 月小盘股、微盘股踩踏式下跌，雪球产品集中敲入；创业板跌 16.8%，银行逆势涨 6%。"
     },
     {
@@ -37,6 +38,7 @@
       ],
       "rumor": "我朋友说国家队这几天在大举买入 ETF，春节前会有行情。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "2 月 5 日沪指探至 2635 点，此后‘国家队’入场、证监会换帅，沪指全月大涨 8.1%。",
       "moment": {
         "date": "2024-01-22",
@@ -58,6 +60,7 @@
       ],
       "rumor": "我同事说两会一开完就要大跌，先全部卖掉。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "3 月沪指在 3000 点上方窄幅震荡，全月涨 0.9%；白酒涨 3.5%。"
     },
     {
@@ -68,6 +71,7 @@
       ],
       "rumor": "我在银行的朋友说，高股息的银行股最近机构抢着买。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "bank", "dir": 1 },
       "hindsight": "4 月 12 日新‘国九条’发布，退市新规加码，小盘股再度下挫；高股息银行股涨 4.9%。"
     },
     {
@@ -78,6 +82,7 @@
       ],
       "rumor": "我听说房地产要全面放开，这个月地产股能翻倍。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "5 月 17 日地产新政出台，20 日沪指冲上 3174 点后回落，全月跌 0.6%。"
     },
     {
@@ -88,6 +93,7 @@
       ],
       "rumor": "我一个卖酒的朋友说，茅台的批发价这个月掉得厉害。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "baijiu", "dir": -1 },
       "hindsight": "6 月白酒批价下跌，白酒板块跌 14%；沪指失守 3000 点，全月跌 3.9%。"
     },
     {
@@ -98,6 +104,7 @@
       ],
       "rumor": "我同学说三中全会一开完就大涨，现在就该满仓。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "7 月三中全会召开，22 日央行下调政策利率；市场仍然低迷，沪指全月跌 1%。"
     },
     {
@@ -108,6 +115,7 @@
       ],
       "rumor": "我在券商的朋友说，最近成交少得可怜，营业部都没人了。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "8 月两市成交额多次跌破 5000 亿元，沪指跌 3.3%，月末收于 2842 点。"
     },
     {
@@ -118,6 +126,7 @@
       ],
       "rumor": "我朋友说上面要出大招稳市场了，下个月别空仓。",
       "rumorIsSignal": true,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "9 月 24 日央行等推出降准、降息、互换便利等一揽子政策，沪指 5 天涨超 20%，全月涨 17.4%。",
       "moment": {
         "date": "2024-08-30",
@@ -139,6 +148,7 @@
       ],
       "rumor": "我邻居说节后开盘还要翻倍，他借钱也要上。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "10 月 8 日节后首日沪指高开 10% 后回落，9 日跌 6.6%；全月跌 1.7%，白酒跌 11%。",
       "moment": {
         "date": "2024-09-30",
@@ -160,6 +170,7 @@
       ],
       "rumor": "我表哥说人大要发 10 万亿，下个月必定暴涨。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": 1 },
       "hindsight": "11 月 8 日人大常委会批准 10 万亿元化债方案，市场高位震荡，沪指涨 1.4%。"
     },
     {
@@ -170,6 +181,7 @@
       ],
       "rumor": "我朋友说年底基金都在卖，一定大跌。",
       "rumorIsSignal": false,
+      "rumorCall": { "asset": "market", "dir": -1 },
       "hindsight": "12 月 9 日政治局会议提出‘适度宽松’货币政策，沪指全年涨 12.7%，收于 3352 点。"
     }
   ]
