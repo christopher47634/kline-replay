@@ -246,7 +246,7 @@ export function MusicModal({
           <button
             type="button"
             onClick={() => (playing ? pause() : void play())}
-            aria-label={playing ? "暂停" : ended ? "再听一遍" : pos > 0 ? "继续" : "播放"}
+            aria-label={playing ? "暂停" : ended ? "再听一遍" : (segs ? hlDone > 0 : pos > 0) ? "继续" : "播放"}
             className="relative grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-up text-white transition-transform hover:bg-[#ff6b6d] active:scale-[0.96]"
           >
             <svg viewBox="0 0 72 72" className="absolute inset-0 -rotate-90" aria-hidden>
