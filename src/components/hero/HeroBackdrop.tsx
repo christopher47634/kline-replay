@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { useResolved } from "@/lib/prefs";
@@ -79,10 +78,11 @@ export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
   }, [ready, reduce, lightSkin]);
 
   return (
-    <div aria-hidden className="absolute inset-0 overflow-hidden" data-hero-mode={mode}>
-      <Image src="/hero-fallback.webp" alt="" fill priority sizes="100vw" className={`hero-dark object-cover transition-opacity duration-500 ${started && mode === "webgl" ? "opacity-0" : "opacity-100"}`} />
+    <div aria-hidden className="hero-art absolute overflow-hidden" data-hero-mode={mode}>
+      <div className="hero-chart-head"><span>上证指数 / 2015</span><span className="num">SSE · 000001</span></div>
+      <div className={`hero-dark hero-candles absolute inset-0 transition-opacity duration-500 ${started && mode === "webgl" ? "opacity-0" : "opacity-100"}`}><ArchiveCandles /></div>
       <InkLine />
-      <div className="hero-dark absolute inset-0" style={{ background: "radial-gradient(60% 50% at 12% 0%, rgb(255 77 79 / 0.12), transparent 70%), radial-gradient(60% 50% at 95% 100%, rgb(63 185 80 / 0.08), transparent 70%)" }} />
+      <div className="hero-chart-quote"><span className="hero-chart-eyebrow">历史高点 · 2015.06.12</span><strong className="num">5,178<span>.19</span></strong><span>那一天，所有人都在谈论股票。</span></div>
       {mode === "webgl" && (
         <div className="absolute inset-0">
           <KlineField
@@ -97,8 +97,23 @@ export function HeroBackdrop({ onDecided }: { onDecided?: () => void }) {
           />
         </div>
       )}
+      <div className="hero-chart-foot"><span>01 / 热望</span><span>06 / 转折</span><span>12 / 回响</span></div>
     </div>
   );
+}
+
+/** Daily close-to-close marks; decorative history, never invented OHLC data. */
+function ArchiveCandles() {
+  const closes = k2015.closes;
+  const y = (v: number) => 398 - (v - 2800) / 2500 * 220;
+  return <svg className="h-full w-full" viewBox="0 0 640 480" preserveAspectRatio="none">
+    {[180, 240, 300, 360, 420].map(v => <line key={v} x1="32" x2="608" y1={v} y2={v} stroke="var(--color-line)" strokeDasharray="2 6" />)}
+    {closes.map((v, i) => {
+      const prev = i ? closes[i - 1] : k2015.prev;
+      const x = 32 + i / (closes.length - 1) * 576;
+      return <line key={i} x1={x} x2={x} y1={y(prev)} y2={Math.abs(y(v) - y(prev)) < 2 ? y(prev) + 2 : y(v)} stroke={v >= prev ? 'var(--color-up)' : 'var(--color-down)'} strokeWidth="1.65" strokeLinecap="round" opacity="0.72" />;
+    })}
+  </svg>;
 }
 
 /** Paper / plain skins: the 2015 Shanghai Composite drawn as one ink stroke, the 5178 peak marked in red. */

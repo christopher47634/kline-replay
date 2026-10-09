@@ -39,7 +39,7 @@ export const TASKS: Record<TaskId, Task> = {
 };
 
 export const TASK_IDS = Object.keys(TASKS) as TaskId[];
-export const isTask = (x: unknown): x is TaskId => typeof x === "string" && x in TASKS;
+export const isTask = (x: unknown): x is TaskId => typeof x === "string" && Object.prototype.hasOwnProperty.call(TASKS, x);
 
 export const GUARD_MIN_RISK = 20;
 export const BEAT_MAX_MARGIN = 20;

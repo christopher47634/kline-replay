@@ -116,26 +116,26 @@ export function PersonaPoster({
       style={{
         width: 1080,
         height: 1350,
-        background: `radial-gradient(120% 70% at 0% 0%, ${persona.color}33 0%, transparent 60%), radial-gradient(90% 60% at 100% 100%, #FF4D4F22 0%, transparent 60%), #07090D`,
-        color: "#E6E8EB",
+        background: `radial-gradient(120% 70% at 0% 0%, ${persona.color}33 0%, transparent 60%), radial-gradient(90% 60% at 100% 100%, #bc3e4922 0%, transparent 60%), #eaf0f5`,
+        color: "#213448",
         padding: 88,
         display: "flex",
         flexDirection: "column",
         fontFamily: "var(--font-sans)",
       }}
     >
-      <div style={{ fontSize: 30, color: "#8B95A3", letterSpacing: 2 }}>穿越 K 线 · {title}</div>
+      <div style={{ fontSize: 30, color: "#52677b", letterSpacing: 2 }}>穿越 K 线 · {title}</div>
       <div style={{ marginTop: 48, lineHeight: 1 }}>
         <Emoji art={persona.art} char={persona.emoji} size={132} />
       </div>
       <div style={{ marginTop: 28, fontSize: 96, fontWeight: 900, color: persona.color, lineHeight: 1.05 }}>{persona.title}</div>
-      <div style={{ marginTop: 12, fontSize: 34, color: "#8B95A3" }}>{persona.desc}</div>
+      <div style={{ marginTop: 12, fontSize: 34, color: "#52677b" }}>{persona.desc}</div>
       <div style={{ marginTop: 44, fontSize: 40, lineHeight: 1.5, fontWeight: 500 }}>“{quote}”</div>
       <div style={{ marginTop: "auto", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 30, color: "#8B95A3" }}>全年收益</div>
+          <div style={{ fontSize: 30, color: "#52677b" }}>全年收益</div>
           <div style={{ fontSize: 108, fontWeight: 900, fontFamily: "var(--font-mono)", color: upDownHex(ret), lineHeight: 1.05 }}>{pct(ret)}</div>
-          <div style={{ fontSize: 30, color: "#8B95A3", marginTop: 8 }}>
+          <div style={{ fontSize: 30, color: "#52677b", marginTop: 8 }}>
             {diffVsMarket >= 0 ? "跑赢" : "跑输"}满仓大盘 {Math.abs(diffVsMarket * 100).toFixed(1)} 个百分点
           </div>
         </div>
@@ -148,13 +148,13 @@ export function PersonaPoster({
       </div>
       <div style={{ marginTop: 28, display: "flex", gap: 16 }}>
         {moves.map((m) => (
-          <div key={m.label} style={{ flex: 1, background: "#0D1117", borderRadius: 18, padding: "18px 22px" }}>
-            <div style={{ fontSize: 24, color: "#8B95A3" }}>{m.label}</div>
+          <div key={m.label} style={{ flex: 1, background: "#f8fafc", borderRadius: 18, padding: "18px 22px" }}>
+            <div style={{ fontSize: 24, color: "#52677b" }}>{m.label}</div>
             <div style={{ fontSize: 24, marginTop: 6, lineHeight: 1.4 }}>{m.text}</div>
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 28, fontSize: 22, color: "#8B95A3" }}>虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议</div>
+      <div style={{ marginTop: 28, fontSize: 22, color: "#52677b" }}>虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议</div>
     </div>
   );
 }

@@ -74,11 +74,11 @@ export const TITLE_CUTS = [0.78, 0.6, 0.42, 0.24] as const;
 
 export function titleOf(total: number, max: number): EventTitle {
   const r = max ? total / max : 0;
-  if (r >= TITLE_CUTS[0]) return { label: "市场先知", desc: "你好像看过这一页历史", color: "#F5B400" };
-  if (r >= TITLE_CUTS[1]) return { label: "老江湖", desc: "见过风浪，心里有数", color: "#FF4D4F" };
-  if (r >= TITLE_CUTS[2]) return { label: "有点感觉", desc: "一半靠功力，一半靠运气", color: "#FF8A3D" };
-  if (r >= TITLE_CUTS[3]) return { label: "随机漫步", desc: "抛硬币也能考出这个分", color: "#8B95A3" };
-  return { label: "反向指标", desc: "别人买你卖，别人卖你买", color: "#3FB950" };
+  if (r >= TITLE_CUTS[0]) return { label: "市场先知", desc: "你好像看过这一页历史", color: "#876329" };
+  if (r >= TITLE_CUTS[1]) return { label: "老江湖", desc: "见过风浪，心里有数", color: "#bc3e49" };
+  if (r >= TITLE_CUTS[2]) return { label: "有点感觉", desc: "一半靠功力，一半靠运气", color: "#a35b20" };
+  if (r >= TITLE_CUTS[3]) return { label: "随机漫步", desc: "抛硬币也能考出这个分", color: "#52677b" };
+  return { label: "反向指标", desc: "别人买你卖，别人卖你买", color: "#277454" };
 }
 
 /** Fisher–Yates over the playable cards, with an injectable random source for tests. */

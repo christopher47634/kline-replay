@@ -42,9 +42,9 @@ export async function GET(request: Request) {
 
   let head = "穿越 K 线";
   let big = "";
-  let color = "#E6E8EB";
+  let color = "#213448";
   let badge = "";
-  let badgeColor = "#F5B400";
+  let badgeColor = "#876329";
   let persona = "";
   let squares: string[] = [];
   if (d.ok && script) {
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     badge = rk.label;
     badgeColor = rk.color;
     persona = `${PERSONAS[judgePersona(h, script)].title} · 你呢？`;
-    squares = h.map((r) => (r.liquidated ? "#A855F7" : r.pnl >= 0 ? "#FF4D4F" : "#3FB950"));
+    squares = h.map((r) => (r.liquidated ? "#A855F7" : r.pnl >= 0 ? "#bc3e49" : "#277454"));
   }
 
   const font = await loadFont();
@@ -73,13 +73,13 @@ export async function GET(request: Request) {
           height: 630,
           display: "flex",
           flexDirection: "column",
-          background: "#07090D",
-          color: "#E6E8EB",
+          background: "#eaf0f5",
+          color: "#213448",
           padding: 64,
           fontFamily: font ? "NotoSC" : "sans-serif",
         }}
       >
-        <div style={{ fontSize: 34, color: "#8B95A3" }}>{t(head) || "KLINE REPLAY"}</div>
+        <div style={{ fontSize: 34, color: "#52677b" }}>{t(head) || "KLINE REPLAY"}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 36, marginTop: 40 }}>
           <div style={{ fontSize: 168, fontWeight: 900, color, lineHeight: 1 }}>{big || "2015"}</div>
           {badge && font ? (

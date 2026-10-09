@@ -38,7 +38,7 @@ html body { background: transparent; }
 
 /* ---------- 点阵底纹（Dot Pattern）：盘面空白处一层很淡的点阵，光标附近的点亮起来 ---------- */
 .dotfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.dotfield::before { content: ""; position: absolute; inset: 0; background-size: 24px 24px; background-image: radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1.3px); mask-image: linear-gradient(180deg, #000, transparent 85%); }
+.dotfield::before { content: ""; position: absolute; inset: 0; background-size: 24px 24px; background-image: radial-gradient(rgb(49 77 104 / 0.09) 1px, transparent 1.3px); mask-image: linear-gradient(180deg, #000, transparent 85%); }
 /* The lit dots near the pointer: a 340px round window moved with `transform`, holding a full-screen layer of bright
    dots moved the opposite way so the dots stay put. Both moves are compositor-only: no repaint per mouse move
    (a mask following --dx/--dy repainted the whole screen every frame). */

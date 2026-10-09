@@ -1,28 +1,16 @@
-/* =========================================================================================================
- * 三套主题的「性格」：skins.css 只换颜色；这里换形状、字、数字、表面和招牌细节，让三套主题一眼能分出来。
- * 每套主题都是一组 token（圆角阶梯、卡片表面、数字字体、标题字、按钮形状），组件不改类名。
- *
- *              盘口 · 交易终端          纸面 · 报纸编辑部                 简约 · 轻松留白
- *   圆角        小而利（3–12px）          近乎直角（1–4px）                 大而软（10–24px）
- *   卡片        有厚度的深色面板、内高光    无阴影，顶上一道 2px 墨线（报纸栏） 无边框，白底 + 柔和投影
- *   标题字      得意黑（窄、斜）           思源宋体粗体                      霞鹜文楷
- *   数字        JetBrains Mono 等宽       JetBrains Mono（表格）+ 宋体大数字  无衬线等宽数字（圆润、不技术）
- *   步骤标签    金色方块 + 渐隐细线         黑底反白方块 + 双线（报头式）       浅色胶囊「第 1 步」
- *   招牌细节    环境光、点阵、发光数字       纸纹、朱红印章段位、读者来信        大留白、柔光、圆胶囊按钮
- * ========================================================================================================= */
-
+/* Three light materials: mineral glass, warm paper, soft linen. Shared rounded geometry. */
 :root {
-  --card-r: 14px;
+  --card-r: 24px;
 }
 
 /* ---------------------------------- 盘口 · 交易终端 ---------------------------------- */
 :root[data-skin="pan"] {
-  --radius-sm: 3px;
-  --radius-md: 5px;
-  --radius-lg: 7px;
-  --radius-xl: 10px;
-  --radius-2xl: 12px;
-  --card-r: 12px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --card-r: 24px;
 }
 /* metadata in mono caps, like a terminal: table headers, step labels, status-bar keys */
 :root[data-skin="pan"] :is(.vr-table th, .sb-k, .cal-k) { font-family: var(--font-mono); letter-spacing: 0.06em; }
@@ -31,12 +19,12 @@
 
 /* ---------------------------------- 纸面 · 报纸编辑部 ---------------------------------- */
 :root[data-skin="paper"] {
-  --radius-sm: 1px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 3px;
-  --radius-2xl: 4px;
-  --card-r: 2px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 26px;
+  --card-r: 22px;
   /* newsprint: the scanned paper texture very faintly over the page colour */
   background-color: var(--color-bg);
   background-image: url("/tex/newsprint.png"); /* the paper fibres of tex/paper.png as a 0–5% brown tint, tiled */
@@ -45,8 +33,8 @@
 :root[data-skin="paper"] .card-surface {
   background: var(--color-card);
   border: 1px solid var(--color-line);
-  border-top: 2px solid var(--color-ink); /* a column rule, like a section of a newspaper page */
-  box-shadow: none;
+  border-top: 1px solid var(--color-line); /* a column rule, like a section of a newspaper page */
+  box-shadow: 0 12px 36px -24px rgb(70 58 35 / 0.18);
 }
 /* headings and headlines in real bold serif */
 :root[data-skin="paper"] :is(h1, h2, h3):not(.font-display),
@@ -59,7 +47,7 @@
 :root[data-skin="paper"] :is([data-testid="settle-pnl"], [data-testid="settle-pnl"] .num, h1 .num) { font-family: var(--font-serif-body); font-weight: 700; }
 /* section labels: inverse numeral box + a double rule, like a masthead */
 :root[data-skin="paper"] .step { letter-spacing: 0.24em; color: var(--color-ink); }
-:root[data-skin="paper"] .step i { border-radius: 0; background: var(--color-ink); color: var(--color-bg); }
+:root[data-skin="paper"] .step i { border-radius: 7px; background: var(--color-ink); color: var(--color-bg); }
 :root[data-skin="paper"] .step::after { height: 4px; background: none; border-top: 1px solid var(--color-ink); border-bottom: 1px solid var(--color-ink); opacity: 0.55; }
 /* headlines: a clipping — no hover lift, outlet set in small letter-spaced type */
 :root[data-skin="paper"] .headline-card { background: var(--color-card); box-shadow: none !important; }
@@ -69,7 +57,7 @@
 :root[data-skin="paper"] .rumor-card p.italic { font-family: var(--font-serif-body); }
 /* the 段位 is a vermilion seal */
 :root[data-skin="paper"] .rank-stamp {
-  border-radius: 3px;
+  border-radius: 14px;
   border-width: 3px;
   border-style: double;
   border-color: #b3261e !important;
@@ -80,7 +68,7 @@
   box-shadow: inset 0 0 0 1px rgb(179 38 30 / 0.25);
 }
 :root[data-skin="paper"] .btn-primary { letter-spacing: 0.08em; }
-:root[data-skin="paper"] dialog { border-top: 3px double var(--color-ink) !important; }
+:root[data-skin="paper"] dialog { border-color: var(--color-line) !important; }
 
 /* ---------------------------------- 简约 · 轻松留白 ---------------------------------- */
 :root[data-skin="plain"] {
@@ -132,3 +120,56 @@
   letter-spacing: 0.32em;
 }
 :root[data-skin="plain"] .hero-kicker { display: inline-block; padding: 5px 14px; border-radius: 999px; background: color-mix(in oklab, var(--color-gold) 10%, var(--color-card)); color: var(--color-gold); letter-spacing: 0.06em; }
+
+/* The archive's front room: typography on the left, a floating piece of history on the right. */
+:root { color-scheme: light; --surface-shadow: 0 24px 70px -36px rgb(48 75 100 / 0.28); }
+.hero-section { min-height: min(920px, 100svh); }
+.hero-section [data-scrim] { display: none; }
+.hero-copy { pointer-events: none; }
+.hero-copy a, .hero-copy button { pointer-events: auto; }
+.hero-copy h1 { font-size: clamp(60px, 7.7vw, 112px); letter-spacing: -0.045em; }
+.hero-copy > p { max-width: 490px; }
+.hero-copy > .hero-kicker { max-width: none; font-size: 11px; letter-spacing: 0.16em; }
+.hero-copy > .hero-promises { font-size: 12px; line-height: 1.8; }
+.hero-copy [data-testid="hero-more"] { max-width: 440px; font-size: 12px; }
+.hero-art {
+  width: min(48vw, 680px); height: min(62vw, 580px); right: max(3vw, calc((100vw - 1320px) / 2)); top: 50%;
+  transform: translateY(-46%) rotate(-3deg); border: 1px solid rgb(255 255 255 / 0.9); border-radius: 36px;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.83), rgb(255 255 255 / 0.3) 65%, rgb(200 219 231 / 0.28));
+  box-shadow: inset 0 1px 0 white, 0 30px 80px -35px rgb(55 89 119 / 0.28), 0 2px 8px rgb(55 89 119 / 0.03);
+}
+.hero-art::before { content: ""; position: absolute; inset: 0; background: url('/tex/grain.png'); opacity: 0.035; pointer-events: none; }
+.hero-chart-head, .hero-chart-foot { position: absolute; z-index: 2; left: 30px; right: 30px; display: flex; justify-content: space-between; color: var(--color-sub); font-size: 10px; letter-spacing: 0.08em; }
+.hero-chart-head { top: 26px; padding-bottom: 16px; border-bottom: 1px solid var(--color-line); }
+.hero-chart-foot { bottom: 24px; }
+.hero-chart-quote { position: absolute; z-index: 2; top: 87px; left: 36px; display: grid; gap: 8px; color: var(--color-sub); font-size: 12px; }
+.hero-chart-eyebrow { font-size: 10px; letter-spacing: 0.12em; }
+.hero-chart-quote strong { font-weight: 400; font-size: clamp(34px, 3.7vw, 54px); line-height: 1.1; color: var(--color-ink); letter-spacing: -0.06em; }
+.hero-chart-quote strong span { font-size: 0.5em; color: var(--color-sub); }
+.hero-primary { background: linear-gradient(145deg, #354d64, #23394e) !important; color: #fff !important; border: 1px solid rgb(255 255 255 / 0.35); border-radius: 18px; box-shadow: 0 10px 26px -10px rgb(35 57 78 / 0.4); }
+.hero-primary:hover { box-shadow: 0 14px 32px -10px rgb(35 57 78 / 0.48); }
+.btn-primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 6px 14px -10px var(--color-gold); }
+dialog { border-radius: 28px; }
+button, a, input, summary { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 4px; }
+input[type="range"] { min-height: 24px; }
+.paper-surface { background-color: #f1ecdf; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .hero-art { right: -12%; width: 55vw; opacity: 0.6; }
+  .hero-copy { padding-left: 6vw; }
+  .hero-copy > p { max-width: 28ch; }
+}
+@media (max-width: 767px) {
+  .hero-section { min-height: auto; padding-bottom: 290px; }
+  .hero-copy { padding-top: 100px; padding-bottom: 36px; }
+  .hero-copy h1 { font-size: clamp(56px, 14vw, 88px); }
+  .hero-copy > .hero-kicker { font-size: 9px; letter-spacing: 0.08em; }
+  .hero-copy > p { max-width: 100%; }
+  .hero-art { width: calc(100% - 48px); height: 260px; top: auto; bottom: 42px; right: 24px; transform: rotate(-2deg); border-radius: 26px; }
+  .hero-chart-head { left: 20px; right: 20px; top: 16px; padding-bottom: 8px; font-size: 8px; }
+  .hero-chart-quote { left: 22px; top: 54px; gap: 4px; font-size: 9px; }
+  .hero-chart-quote strong { font-size: 28px; }
+  .hero-chart-eyebrow { font-size: 8px; }
+  .hero-chart-foot { left: 20px; right: 20px; bottom: 14px; font-size: 8px; }
+  .hero-scroll-hint { bottom: 9px; font-size: 10px; }
+}

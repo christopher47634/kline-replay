@@ -18,7 +18,7 @@ export interface Palette {
   dot: string;
 }
 
-const DARK: Palette = { bg: "#07090D", hatchBg: "#10151c", hatch: "#1c2430", grid: "#1C2431", sub: "#8B95A3", ink: "#E6E8EB", gray: "#8C8C8C", gold: "#F5B400", up: "#FF4D4F", down: "#3FB950", dot: "#fff" };
+const DARK: Palette = { bg: "#eaf0f5", hatchBg: "#e2eaf1", hatch: "#d3dee7", grid: "#d3dee7", sub: "#52677b", ink: "#213448", gray: "#64768b", gold: "#876329", up: "#bc3e49", down: "#277454", dot: "#fff" };
 
 let cache: { key: string; pal: Palette } | null = null;
 

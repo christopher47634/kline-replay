@@ -173,37 +173,37 @@ function EventPoster({
       style={{
         width: 1080,
         height: 1350,
-        background: `radial-gradient(120% 70% at 0% 0%, ${color}33 0%, transparent 60%), #07090D`,
-        color: "#E6E8EB",
+        background: `radial-gradient(120% 70% at 0% 0%, ${color}33 0%, transparent 60%), #eaf0f5`,
+        color: "#213448",
         padding: 88,
         display: "flex",
         flexDirection: "column",
         fontFamily: "var(--font-sans)",
       }}
     >
-      <div style={{ fontSize: 30, color: "#8B95A3", letterSpacing: 2 }}>穿越 K 线 · 大事件猜涨跌 · {deckTitle}</div>
+      <div style={{ fontSize: 30, color: "#52677b", letterSpacing: 2 }}>穿越 K 线 · 大事件猜涨跌 · {deckTitle}</div>
       <div style={{ marginTop: 90, fontSize: 120, fontWeight: 900, color, lineHeight: 1.05 }}>{titleLabel}</div>
       <div style={{ marginTop: 24, fontSize: 150, fontWeight: 900, fontFamily: "var(--font-mono)", lineHeight: 1 }}>
         {total}
-        <span style={{ fontSize: 48, color: "#8B95A3" }}> / {max} 分</span>
+        <span style={{ fontSize: 48, color: "#52677b" }}> / {max} 分</span>
       </div>
       <div style={{ marginTop: 64, display: "flex", gap: 14 }}>
         {marks.map((ok, i) => (
-          <div key={i} style={{ width: 70, height: 70, borderRadius: 14, background: ok ? "#3FB950" : "#FF4D4F", color: "#fff", fontSize: 44, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div key={i} style={{ width: 70, height: 70, borderRadius: 14, background: ok ? "#277454" : "#bc3e49", color: "#fff", fontSize: 44, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
             {ok ? "✓" : "✕"}
           </div>
         ))}
       </div>
-      <div style={{ marginTop: "auto", background: "#0D1117", borderRadius: 24, padding: "28px 32px" }}>
-        <div style={{ fontSize: 26, color: "#8B95A3" }}>{spotlight.ok ? "最惊险的一张（猜对了）" : "最打脸的一张"}</div>
+      <div style={{ marginTop: "auto", background: "#f8fafc", borderRadius: 24, padding: "28px 32px" }}>
+        <div style={{ fontSize: 26, color: "#52677b" }}>{spotlight.ok ? "最惊险的一张（猜对了）" : "最打脸的一张"}</div>
         <div style={{ marginTop: 10, fontSize: 40, fontWeight: 800, lineHeight: 1.3 }}>
           {spotlight.date} {spotlight.title}
         </div>
-        <div style={{ marginTop: 8, fontSize: 32, color: "#8B95A3" }}>
-          之后 20 个交易日 <span style={{ color: spotlight.ret >= 0 ? "#FF4D4F" : "#3FB950", fontWeight: 800 }}>{pct(spotlight.ret)}</span>
+        <div style={{ marginTop: 8, fontSize: 32, color: "#52677b" }}>
+          之后 20 个交易日 <span style={{ color: spotlight.ret >= 0 ? "#bc3e49" : "#277454", fontWeight: 800 }}>{pct(spotlight.ret)}</span>
         </div>
       </div>
-      <div style={{ marginTop: 28, fontSize: 22, color: "#8B95A3" }}>虚拟游戏 · 历史数据不代表未来 · 不构成任何投资建议</div>
+      <div style={{ marginTop: 28, fontSize: 22, color: "#52677b" }}>虚拟游戏 · 历史数据不代表未来 · 不构成任何投资建议</div>
     </div>
   );
 }

@@ -44,10 +44,14 @@ export function GameView({ script }: { script: Script }) {
   const { density, autofill } = useResolved();
   // a challenge link (/play/2015?t=guard) pre-selects the task card on the intro page
   const [linkTask, setLinkTask] = useState<TaskId | null>(null);
+  const [challengePending, setChallengePending] = useState(false);
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get("t");
-    if (isTask(t)) setLinkTask(t);
-  }, []);
+    if (isTask(t)) {
+      setLinkTask(t);
+      setChallengePending(useGame.getState().started);
+    }
+  }, [useGame]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [flipIn, setFlipIn] = useState(false); // came from the paper Intro: the game page flips in from the other side
   const panel = useRef<AllocationPanelHandle>(null);
@@ -79,6 +83,8 @@ export function GameView({ script }: { script: Script }) {
   const [chartLen, setChartLen] = useState<number | null>(null);
   const [bustRun, setBustRun] = useState(0);
   const shakeRef = useRef<HTMLDivElement>(null);
+  const settleTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => settleTimers.current.forEach(clearTimeout), []);
   const goNext = () => {
     if (!valid || dialogOpen || st.finished || settling) return;
     tick();
@@ -91,7 +97,7 @@ export function GameView({ script }: { script: Script }) {
     }
     setSettling(true);
     setChartLen(st.history.length);
-    setTimeout(() => {
+    settleTimers.current.push(setTimeout(() => {
       st.next();
       setSettling(false);
       const bust = useGame.getState().last?.liquidated;
@@ -99,8 +105,8 @@ export function GameView({ script }: { script: Script }) {
         runBustFx(shakeRef.current);
         setBustRun((n) => n + 1);
       }
-      setTimeout(() => setDialogOpen(true), bust ? 700 : 480);
-    }, 520);
+      settleTimers.current.push(setTimeout(() => setDialogOpen(true), bust ? 700 : 480));
+    }, 520));
   };
 
   const closeDialog = () => {
@@ -112,7 +118,7 @@ export function GameView({ script }: { script: Script }) {
   // Enter = next month, 1-6 = focus a slider.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (dialogOpen || !st.started || st.finished) return;
+      if (dialogOpen || challengePending || !st.started || st.finished || document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) return;
       const t = e.target as HTMLElement;
       const typing = t.tagName === "INPUT" && (t as HTMLInputElement).type === "number";
       if (e.key === "Enter" && !typing && t.tagName !== "BUTTON" && t.tagName !== "A") {
@@ -127,6 +133,20 @@ export function GameView({ script }: { script: Script }) {
   });
 
   if (!hydrated) return <GameSkeleton />;
+
+  if (challengePending && linkTask) return (
+    <main className="mx-auto max-w-xl px-6 py-28">
+      <section className="card-surface p-8">
+        <p className="text-sm text-gold">收到一份历史挑战</p>
+        <h1 className="mt-3 text-3xl font-bold">{TASKS[linkTask].name}</h1>
+        <p className="mt-4 text-sub">你在这一年已有存档。开启挑战会从一月重新开始，也可以先回到原来的进度。</p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Button onClick={() => { st.reset(); setChallengePending(false); }}>开启新挑战</Button>
+          <Button variant="outline" onClick={() => setChallengePending(false)}>保留原局，继续</Button>
+        </div>
+      </section>
+    </main>
+  );
 
   if (!st.started) {
     return (

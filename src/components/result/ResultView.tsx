@@ -393,7 +393,7 @@ function Result({
             ret={r.ret}
             rank={r.rank}
             title={script.title}
-            blocks={r.history.map((h) => (h.liquidated ? "#A855F7" : h.pnl >= 0 ? "#FF4D4F" : "#3FB950"))}
+            blocks={r.history.map((h) => (h.liquidated ? "#A855F7" : h.pnl >= 0 ? "#bc3e49" : "#277454"))}
             diffVsMarket={r.ret - r.marketRet}
           />
         </div>
@@ -420,7 +420,7 @@ function Result({
             animate={{ x: window.innerWidth - 80, y: window.innerHeight - 100, scale: 0.35, opacity: 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
             className="pointer-events-none fixed left-0 top-0 z-[80] h-[76px] w-[60px] rounded-md border border-line"
-            style={{ background: `linear-gradient(160deg, ${r.persona.color}66, #07090D)` }}
+            style={{ background: `linear-gradient(160deg, ${r.persona.color}66, #eaf0f5)` }}
           />
         )}
       </AnimatePresence>

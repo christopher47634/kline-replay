@@ -43,7 +43,7 @@ export async function copyText(text: string): Promise<boolean> {
 
 export async function exportPng(node: HTMLElement, filename: string, width: number, height: number): Promise<void> {
   const { toPng } = await import("html-to-image");
-  const url = await toPng(node, { width, height, pixelRatio: 1, cacheBust: true, backgroundColor: "#07090D" });
+  const url = await toPng(node, { width, height, pixelRatio: 1, cacheBust: true, backgroundColor: "#eaf0f5" });
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;

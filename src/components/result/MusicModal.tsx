@@ -136,7 +136,7 @@ export function MusicModal({
     } catch {
       setNeedTap(true);
     }
-  }, [ended]);
+  }, [ended, segs]);
 
   const pause = () => {
     player.current!.pause();

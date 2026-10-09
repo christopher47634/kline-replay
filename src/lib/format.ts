@@ -15,7 +15,7 @@ export function pp(a: number, b: number): string {
 }
 
 export const upDownColor = (x: number) => (x > 0 ? "text-up" : x < 0 ? "text-down" : "text-sub");
-export const upDownHex = (x: number) => (x > 0 ? "#FF4D4F" : x < 0 ? "#3FB950" : "#8B95A3");
+export const upDownHex = (x: number) => (x > 0 ? "#bc3e49" : x < 0 ? "#277454" : "#52677b");
 
 export function shortMonth(label: string): string {
   return label.replace(/^\d+ 年 /, "");

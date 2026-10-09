@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "回到 2007、2008、2015、2018、2020、2024 年，用真实行情玩 12 个月，结算出投资人格，再把这一年演奏成一段音乐。",
 };
 
-export const viewport: Viewport = { themeColor: "#07090D", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#eaf0f5", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

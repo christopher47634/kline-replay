@@ -159,12 +159,12 @@ export function benchmarks(script: Script, history: RoundRecord[]): BenchmarkSer
 }
 
 export const RANKS: Record<Rank["id"], Rank> = {
-  liquidated: { id: "liquidated", label: "杠杆的代价", color: "#A855F7" },
-  legend: { id: "legend", label: "传奇操盘手", color: "#F5B400" },
-  winner: { id: "winner", label: "稳健赢家", color: "#FF4D4F" },
-  small_win: { id: "small_win", label: "小赚离场", color: "#FF8A3D" },
-  tuition: { id: "tuition", label: "交了学费", color: "#8B95A3" },
-  leek: { id: "leek", label: "韭菜本菜", color: "#3FB950" },
+  liquidated: { id: "liquidated", label: "杠杆的代价", color: "#7843a9" },
+  legend: { id: "legend", label: "传奇操盘手", color: "#876329" },
+  winner: { id: "winner", label: "稳健赢家", color: "#bc3e49" },
+  small_win: { id: "small_win", label: "小赚离场", color: "#a35b20" },
+  tuition: { id: "tuition", label: "交了学费", color: "#52677b" },
+  leek: { id: "leek", label: "韭菜本菜", color: "#277454" },
 };
 
 /**

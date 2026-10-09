@@ -5,7 +5,6 @@ import { getScript, SCRIPT_IDS } from "@/lib/scripts";
 import type { Allocation, Script, ScriptMonth } from "../types";
 
 const s2015 = getScript("2015") as Script;
-const s2020 = getScript("2020") as Script;
 const only = (id: keyof Allocation): Allocation => ({ ...allCash(), cash: 0, [id]: 100 });
 
 describe("settle / playAll", () => {

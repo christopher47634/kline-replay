@@ -207,7 +207,11 @@ function Loupe() {
     const tick = () => {
       lx += (x - lx) * 0.28;
       ly += (y - ly) * 0.28;
-      if (lens.current) lens.current.style.transform = `translate3d(${lx + 22}px, ${ly - 124}px, 0) scale(${shown ? 1 : 0.6})`;
+      if (lens.current) {
+        const left = Math.max(8, Math.min(lx + 22, window.innerWidth - 164));
+        const top = Math.max(8, Math.min(ly - 124, window.innerHeight - lens.current.offsetHeight - 8));
+        lens.current.style.transform = `translate3d(${left}px, ${top}px, 0) scale(${shown ? 1 : 0.6})`;
+      }
       raf = shown ? requestAnimationFrame(tick) : 0;
     };
     const set = (el: HTMLElement | null) => {

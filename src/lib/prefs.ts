@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 /*
  * Reading preferences (阅读设置), stored per device in localStorage `kline:prefs`.
  * Three skins for three kinds of players, each with its own default font and writing voice:
- *   盘口 pan    专业玩家：深夜盘口配色、专业工作台（仓位风险、真实宏观面板、快捷键），研报体复盘
+ *   盘口 pan    专业玩家：雾蓝玻璃配色、专业工作台（仓位风险、真实宏观面板、快捷键），研报体复盘
  *   纸面 paper  一般玩家：借鉴「见微」的纸面编辑部——暖白纸、墨色正文、靛蓝交互、朱红印章，标准复盘
  *   简约 plain  想轻松玩：头条、走势和仓位在前，其余数据折叠（不是删掉），楷体、大留白，白话复盘
  * 信息密度和主题分开：三套主题都能看到同样的数据，「密度」只决定次要面板是展开还是折叠。
@@ -55,8 +55,8 @@ export interface SkinMeta {
 }
 
 export const SKINS: SkinMeta[] = [
-  { id: "pan", name: "盘口", who: "专业玩家", traits: ["交易终端：深色面板、等宽数字、利落小圆角", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
-  { id: "paper", name: "纸面", who: "一般玩家", traits: ["报纸编辑部：栏线、宋体粗标题、朱红印章段位", "头条像剪报、小道消息像读者来信", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
+  { id: "pan", name: "盘口", who: "专业玩家", traits: ["雾蓝档案馆：珍珠玻璃、等宽数字、柔和圆角", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
+  { id: "paper", name: "纸面", who: "一般玩家", traits: ["纸面档案：暖纸圆角、宋体标题、朱红印章段位", "头条像剪报、小道消息像读者来信", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
   { id: "plain", name: "简约", who: "轻松玩", traits: ["轻松留白：大圆角、无边框、圆润数字", "霞鹜文楷；头条、走势和仓位在前，其余折叠", "白话复盘"], font: "kai", voice: "plain", leading: "airy", density: "compact" },
 ];
 export const skinMeta = (id: Skin) => SKINS.find((s) => s.id === id)!;
@@ -89,9 +89,9 @@ export const GLASSES: { id: Glass; name: string; note: string }[] = [
 
 /** Accent for the 盘口 skin (buttons, focus rings, highlights); the light skins bring their own. */
 export const ACCENTS: { id: Accent; name: string; color: string }[] = [
-  { id: "gold", name: "琥珀金", color: "#f5b400" },
-  { id: "ice", name: "冰川蓝", color: "#5aa9ff" },
-  { id: "violet", name: "暮光紫", color: "#a48bff" },
+  { id: "gold", name: "琥珀金", color: "#876329" },
+  { id: "ice", name: "冰川蓝", color: "#345f9b" },
+  { id: "violet", name: "暮光紫", color: "#7555a4" },
 ];
 
 export function sanitize(raw: unknown): Prefs {
@@ -192,6 +192,6 @@ export function applyPrefs(r: Resolved) {
   el.dataset.loupe = r.loupe ? "on" : "off";
   el.style.setProperty("--fs", String(r.scale));
   el.style.setProperty("--lh", String(LEADINGS.find((l) => l.id === r.leading)!.value));
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", r.skin === "pan" ? "#07090D" : r.skin === "paper" ? "#F6F4EF" : "#FAFAF7");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", r.skin === "pan" ? "#eaf0f5" : r.skin === "paper" ? "#F6F4EF" : "#FAFAF7");
 }
 

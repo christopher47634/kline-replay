@@ -19,5 +19,5 @@ const SCRIPTS: Record<string, Script> = {
 export const SCRIPT_IDS = Object.keys(SCRIPTS);
 
 export function getScript(id: string): Script | null {
-  return SCRIPTS[id] ?? null;
+  return Object.prototype.hasOwnProperty.call(SCRIPTS, id) ? SCRIPTS[id] : null;
 }

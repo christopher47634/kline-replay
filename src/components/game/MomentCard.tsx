@@ -30,13 +30,13 @@ export function MomentCard({ moment, onChoose }: { moment: Moment; onChoose: (o:
   const date = useTypewriter(moment.date);
   const [reason, setReason] = useState<ReasonId | null>(null);
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label="历史时刻" className="fixed inset-0 z-[70] bg-[#07090c]/95 grid place-items-center p-4 overflow-y-auto" data-testid="moment-card">
+    <div role="dialog" aria-modal="true" aria-label="历史时刻" className="fixed inset-0 z-[70] bg-[#dfe8ef]/85 backdrop-blur-xl grid place-items-center p-4 overflow-y-auto" data-testid="moment-card">
       <div
-        className="w-full max-w-[560px] p-1.5 rounded-sm"
-        style={{ background: "#d9cfb8", boxShadow: "0 0 0 1px #8a7f68, 0 20px 60px rgba(0,0,0,.6)" }}
+        className="w-full max-w-[560px] p-1.5 rounded-2xl"
+        style={{ background: "#d9cfb8", boxShadow: "0 0 0 1px #8a7f68, 0 20px 60px rgba(39,65,88,.22)" }}
       >
         <div
-          className="rounded-sm p-6 md:p-8"
+          className="rounded-xl p-6 md:p-8"
           style={{
             color: "#2a2418",
             border: "3px double #5e553f",

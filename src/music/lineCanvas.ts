@@ -1,16 +1,16 @@
 import { palette } from "./palette";
 
 // colours follow the current skin (music/palette.ts); these are the dark defaults until the first draw
-let HATCH_BG = "#10151c";
-let HATCH = "#1c2430";
+let HATCH_BG = "#e2eaf1";
+let HATCH = "#d3dee7";
 let DOT = "#fff";
-let BG = "#07090D";
-let GRAY = "#8C8C8C";
-let GOLD = "#F5B400";
-let RED = "#FF4D4F";
-let GREEN = "#3FB950";
-let SUB = "#8B95A3";
-let GRID = "#1C2431";
+let BG = "#eaf0f5";
+let GRAY = "#64768b";
+let GOLD = "#876329";
+let RED = "#bc3e49";
+let GREEN = "#277454";
+let SUB = "#52677b";
+let GRID = "#d3dee7";
 
 export interface LineData {
   /** 60 closes up to and including the event day. */

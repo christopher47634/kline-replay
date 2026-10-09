@@ -56,3 +56,5 @@ demo/showreel.webm
 demo/showreel-40s.mp4
 demo/*.mp4
 /.logs
+/.playwright-cli
+/output/playwright

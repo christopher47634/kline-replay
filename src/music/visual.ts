@@ -3,16 +3,16 @@ import type { Composition, Note } from "./compose";
 import { palette } from "./palette";
 
 // colours follow the current skin (music/palette.ts); dark defaults until the first draw
-let GOLD = "#F5B400";
-let HATCH_BG = "#10151c";
+let GOLD = "#876329";
+let HATCH_BG = "#e2eaf1";
 let DOT = "#fff";
-let BG = "#07090D";
-let RED = "#FF4D4F";
-let GREEN = "#3FB950";
-let GRAY = "#8C8C8C";
-let LINE = "#1C2431";
-let SUB = "#8B95A3";
-let INK = "#E6E8EB";
+let BG = "#eaf0f5";
+let RED = "#bc3e49";
+let GREEN = "#277454";
+let GRAY = "#64768b";
+let LINE = "#d3dee7";
+let SUB = "#52677b";
+let INK = "#213448";
 
 interface Ripple {
   x: number;

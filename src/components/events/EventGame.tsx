@@ -90,7 +90,7 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
       setRevealed(ev.after.length);
       setPhase("shown");
     },
-    [phase, ev],
+    [phase, ev, deck.id],
   );
 
   const pickDirection = (up: boolean) => {

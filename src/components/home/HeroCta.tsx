@@ -27,10 +27,10 @@ export function HeroCta({ scriptId, years = [scriptId] }: { scriptId: string; ye
       <div className="flex flex-wrap items-center gap-5">
         <MagneticLink
           href={`/play/${id}`}
-          className="shine relative inline-flex h-14 items-center justify-center rounded-xl bg-gradient-to-b from-[#FFC933] to-gold px-10 text-lg font-bold text-bg transition-shadow duration-150 hover:shadow-[0_0_0_1px_rgb(245_180_0/0.9),0_0_28px_rgb(245_180_0/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          className="hero-primary shine relative inline-flex h-14 items-center justify-center rounded-xl bg-gradient-to-b from-[#FFC933] to-gold px-10 text-lg font-bold text-bg transition-shadow duration-150 hover:shadow-[0_0_0_1px_rgb(245_180_0/0.9),0_0_28px_rgb(245_180_0/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
         >
           <span aria-hidden className="beam" style={{ "--beam": "#ffffff" } as React.CSSProperties} />
-          {saved ? `继续上局（${saved.id} · 第 ${saved.month} 月）` : "开始穿越"}
+          {saved ? `继续上局（${saved.id} · 第 ${saved.month} 月）` : "开始穿越 ↗"}
         </MagneticLink>
         {saved && (
           <button

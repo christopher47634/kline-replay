@@ -1,26 +1,26 @@
 @import "tailwindcss" source(none);
 @source "../../src";
 
-/* 「深夜盘口 · 档案馆」design tokens: cold terminal x warm archive paper. */
+/* 「雾蓝档案馆」design tokens: mineral blue, pearl surfaces, bronze accents. */
 @theme {
-  --color-bg: #07090d;
-  --color-card: #0d1117;
-  --color-elev: #131a24;
-  --color-line: #1c2431;
-  --color-line-hi: rgb(255 255 255 / 0.06);
-  --color-ink: #eceef2;
-  --color-sub: #8b95a3;
-  --color-mute: #4e5868;
-  --color-up: #ff4d4f;
+  --color-bg: #eaf0f5;
+  --color-card: #f8fafc;
+  --color-elev: #e2eaf1;
+  --color-line: #d3dee7;
+  --color-line-hi: rgb(255 255 255 / 0.85);
+  --color-ink: #213448;
+  --color-sub: #52677b;
+  --color-mute: #637589;
+  --color-up: #bc3e49;
   --color-up-glow: rgb(255 77 79 / 0.35);
-  --color-down: #3fb950;
+  --color-down: #277454;
   --color-down-glow: rgb(63 185 80 / 0.35);
-  --color-gold: #f5b400;
+  --color-gold: #876329;
   --color-paper: #e9e2d0;
   --color-paper-ink: #2a2622;
-  --color-line-2: #3a4453;
-  --color-market: #8c8c8c;
-  --color-cash: #4c8dff;
+  --color-line-2: #a7bac9;
+  --color-market: #64768b;
+  --color-cash: #3a65a0;
   --color-bust: #a855f7;
 
   --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -111,7 +111,7 @@ body {
 
 /* Glass for dialogs / floating layers. */
 .glass {
-  background: rgb(13 17 23 / 0.82);
+  background: color-mix(in oklab, var(--color-card) 85%, transparent);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
 }
@@ -191,7 +191,7 @@ html.has-cursor * {
 }
 
 /* Custom cursor colours per skin (light skins: a solid dark dot with a white halo, dark ring). */
-:root { --cur-dot: #eceef2; --cur-blend: difference; --cur-halo: none; --cur-ring: rgb(236 238 242 / 0.5); }
+:root { --cur-dot: #213448; --cur-blend: normal; --cur-halo: 0 0 0 2px rgb(255 255 255 / 0.8); --cur-ring: rgb(33 52 72 / 0.5); }
 :root:is([data-skin="paper"], [data-skin="plain"]) { --cur-dot: #17191e; --cur-blend: normal; --cur-halo: 0 0 0 2px rgb(255 255 255 / 0.95), 0 1px 4px rgb(0 0 0 / 0.35); --cur-ring: rgb(23 25 30 / 0.62); }
 .cur-dot { background: var(--cur-dot); mix-blend-mode: var(--cur-blend); box-shadow: var(--cur-halo); }
 .cur-ring { border-color: var(--cur-ring); }

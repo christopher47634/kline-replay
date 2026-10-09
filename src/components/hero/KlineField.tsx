@@ -10,8 +10,8 @@ import data from "./kline2015.json";
 import { FLY_SECONDS } from "./constants";
 const PLAY_SECONDS = 9;
 
-const UP = new THREE.Color("#FF4D4F");
-const DOWN = new THREE.Color("#3FB950");
+const UP = new THREE.Color("#bc3e49");
+const DOWN = new THREE.Color("#277454");
 
 /** Deterministic hash → [0, 1). */
 const h = (n: number) => {
@@ -102,8 +102,8 @@ function buildGeometry(width: number, height: number, perBar: number) {
       start[k * 3] = (h(s + 2) - 0.5) * width * 1.1;
       start[k * 3 + 1] = (h(s + 3) - 0.5) * height * 1.1;
       start[k * 3 + 2] = 0;
-      const c = isPeak ? new THREE.Color("#FFD24A") : up ? UP : DOWN;
-      const bright = isPeak ? 3.2 : 1;
+      const c = isPeak ? new THREE.Color("#9a7235") : up ? UP : DOWN;
+      const bright = isPeak ? 1.3 : 1;
       color[k * 3] = c.r * bright;
       color[k * 3 + 1] = c.g * bright;
       color[k * 3 + 2] = c.b * bright;
@@ -171,7 +171,7 @@ function Field({ perBar, interactive, onReady, onStart }: { perBar: number; inte
         fragmentShader={FRAG}
         transparent
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={THREE.NormalBlending}
         uniforms={{
           uProgress: { value: 0 },
           uPlay: { value: 0 },

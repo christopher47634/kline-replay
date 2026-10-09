@@ -62,7 +62,13 @@ export function gameStore(script: Script) {
   // 盲盒 games save separately: playing 2008 blind must not resume (or spoil) a normal 2008 game
   const slot = script.blind ? `blind-${script.id}` : script.id;
   const hit = stores.get(slot);
-  if (hit) return hit;
+  if (hit) {
+    // nextMystery clears a completed save before reopening it. Its in-memory copy must reset too.
+    try {
+      if (hit.getState().finished && localStorage.getItem(storageKey(slot)) === null) hit.getState().reset();
+    } catch { /* storage may be disabled; keep the playable in-memory game */ }
+    return hit;
+  }
   const s = create<GameStore>()(
     persist(
       (set, get) => ({
@@ -108,7 +114,18 @@ export function gameStore(script: Script) {
       }),
       {
         name: storageKey(slot),
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => ({
+          getItem: (key) => {
+            try {
+              const raw = localStorage.getItem(key);
+              if (!raw) return null;
+              const saved = JSON.parse(raw);
+              return saved?.state && Array.isArray(saved.state.history) ? raw : null;
+            } catch { return null; }
+          },
+          setItem: (key, value) => { try { localStorage.setItem(key, value); } catch { /* session still works */ } },
+          removeItem: (key) => { try { localStorage.removeItem(key); } catch { /* session still works */ } },
+        })),
         version: 2,
         // v1 saves had no task / notes; the moment cards they answered were remembered in separate keys (now per game)
         migrate: (old, v) => (v < 2 ? { ...(old as object), task: null, notes: {}, prefill: null } : old) as GameStore,
