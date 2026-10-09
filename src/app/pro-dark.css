@@ -1,0 +1,119 @@
+/* Professional night palette. The light edition's geometry and interactions stay shared. */
+:root[data-skin="pan"] {
+  color-scheme: dark;
+  --color-bg: #101b2b;
+  --color-card: #19283b;
+  --color-elev: #23354b;
+  --color-line: #31455d;
+  --color-line-2: #526d89;
+  --color-line-hi: rgb(199 223 255 / 0.12);
+  --color-ink: #e5edf8;
+  --color-sub: #a4b8cd;
+  --color-mute: #839bb3;
+  --color-up: #ff7b87;
+  --color-down: #65d5af;
+  --color-up-glow: rgb(255 102 124 / 0.22);
+  --color-down-glow: rgb(73 212 166 / 0.19);
+  --color-gold: #e3bf83;
+  --color-market: #9aacc6;
+  --color-cash: #83b6ff;
+  --color-bust: #cba2ff;
+  --tone-lift: 44%;
+  --lg-bg-clear: rgb(27 44 65 / 0.82);
+  --lg-bg-tinted: rgb(35 53 75 / 0.92);
+  --lg-bg-frost: rgb(29 47 69 / 0.88);
+  --lg-rim: rgb(214 234 255 / 0.58);
+  --lg-rim-soft: rgb(177 210 245 / 0.16);
+  --lg-shade: rgb(4 12 23 / 0.3);
+  --lg-shadow: 0 10px 32px -14px rgb(2 9 20 / 0.65), 0 1px 2px rgb(3 12 22 / 0.25);
+  --lg-glow: rgb(123 187 246 / 0.15);
+  --cur-dot: #dceafa;
+  --cur-ring: rgb(156 195 234 / 0.65);
+  --cur-halo: 0 0 10px rgb(115 180 255 / 0.3);
+  --archive-bg: #17273b;
+  --archive-ink: #e5edf8;
+  --archive-sub: #a4b8cd;
+  --archive-line: #49627d;
+  --archive-accent: #e3bf83;
+  --archive-action: #e3bf83;
+  --archive-on-action: #182333;
+  --archive-selected-sub: #374459;
+  background:
+    radial-gradient(1000px 700px at 0% 0%, rgb(42 86 131 / 0.32), transparent 75%),
+    radial-gradient(900px 850px at 100% 18%, rgb(65 53 110 / 0.22), transparent 75%),
+    radial-gradient(1000px 700px at 70% 100%, rgb(32 93 104 / 0.17), transparent 75%),
+    var(--color-bg);
+  background-attachment: fixed;
+}
+:root[data-skin="pan"][data-updown="intl"] { --color-up: #65d5af; --color-down: #ff7b87; }
+:root[data-skin="pan"][data-accent="ice"] { --color-gold: #89b9f6; }
+:root[data-skin="pan"][data-accent="violet"] { --color-gold: #c7adf2; }
+:root[data-skin="pan"] .card-surface {
+  background: linear-gradient(145deg, rgb(35 54 77 / 0.96), rgb(24 39 58 / 0.98));
+  border-color: rgb(140 179 215 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(196 222 252 / 0.055), 0 14px 36px -24px rgb(1 9 20 / 0.8);
+}
+:root[data-skin="pan"] .hero-art {
+  border-color: rgb(161 205 247 / 0.26);
+  background:
+    radial-gradient(80% 65% at 0% 0%, rgb(61 111 153 / 0.2), transparent 80%),
+    linear-gradient(140deg, rgb(38 60 86 / 0.94), rgb(23 38 57 / 0.86) 62%, rgb(34 54 74 / 0.9));
+  box-shadow: inset 0 1px 0 rgb(186 221 255 / 0.15), 0 40px 85px -36px rgb(0 8 19 / 0.7), 0 0 80px -40px rgb(88 152 218 / 0.18);
+}
+:root[data-skin="pan"] .hero-art::before { opacity: 0.065; mix-blend-mode: soft-light; }
+:root[data-skin="pan"] .hero-chart-quote strong { color: #f0d3a2; text-shadow: 0 0 32px rgb(226 184 114 / 0.12); }
+:root[data-skin="pan"] .hero-chart-head { color: #a7c0da; }
+:root[data-skin="pan"] .hero-primary {
+  background: linear-gradient(140deg, #f0d7a8, #d9b378) !important;
+  color: #172438 !important;
+  border-color: rgb(255 235 199 / 0.55);
+  box-shadow: inset 0 1px 0 rgb(255 245 219 / 0.5), 0 10px 30px -14px rgb(226 185 117 / 0.45);
+}
+:root[data-skin="pan"] .hero-primary:hover { box-shadow: 0 12px 36px -12px rgb(226 185 117 / 0.4); }
+:root[data-skin="pan"] .btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--color-gold), white 12%); }
+:root[data-skin="pan"] :is(.bg-up, .bg-down).text-white,
+:root[data-skin="pan"] :is([class~="!bg-up"], [class~="!bg-down"]),
+:root[data-skin="pan"] :is([data-testid="guess-up"], [data-testid="guess-down"]):hover { color: var(--color-bg) !important; }
+:root[data-skin="pan"] .dotfield::before { background-image: radial-gradient(rgb(150 188 228 / 0.12) 1px, transparent 1.3px); }
+:root[data-skin="pan"] .dot-lens > i { opacity: 0.52; }
+:root[data-skin="pan"] .drawer-scrim { background: rgb(5 13 26 / 0.65); backdrop-filter: blur(5px); }
+:root[data-skin="pan"] .drawer { background: #1a2a3e; border-color: #3b526c; box-shadow: -20px 0 70px -30px rgb(0 7 17 / 0.7); }
+:root[data-skin="pan"] .drawer-layer { background: linear-gradient(160deg, #1d2f46, #18273a); }
+:root[data-skin="pan"] dialog { box-shadow: inset 0 1px 0 var(--color-line-hi), 0 24px 80px rgb(0 7 18 / 0.55) !important; }
+:root[data-skin="pan"] ::backdrop { background: rgb(4 12 23 / 0.65); }
+:root[data-skin="pan"] .seg button[aria-checked="true"] { background: #304762; color: #eef5fc; }
+:root[data-skin="pan"] .skin-shot { border-color: #526d89; }
+:root[data-skin="pan"] .rank-stamp { background: rgb(229 191 131 / 0.07); }
+:root[data-skin="pan"] .paper-surface {
+  background-color: var(--archive-bg);
+  background-image: radial-gradient(ellipse at 15% 0%, rgb(66 106 143 / 0.26), transparent 70%), linear-gradient(rgb(23 39 59 / 0.97), rgb(23 39 59 / 0.97)), url('/tex/grain.png');
+  color: var(--archive-ink);
+}
+
+/* Archive scenes share semantic colours so the intro and historical moment never flash a light sheet. */
+:root {
+  --archive-bg: #f1ecdf;
+  --archive-ink: #2a2418;
+  --archive-sub: #6b5f45;
+  --archive-line: #b9ad8f;
+  --archive-accent: #8a5a00;
+  --archive-action: #2a2418;
+  --archive-on-action: #f2ead6;
+  --archive-selected-sub: #e2d8bf;
+}
+.archive-copy { color: var(--archive-ink); }
+.archive-muted { color: var(--archive-sub); }
+.archive-accent { color: var(--archive-accent); }
+.archive-cursor { background: var(--archive-ink); }
+.archive-option { border-color: var(--archive-line); color: var(--archive-ink); }
+.archive-option:hover { border-color: var(--archive-accent); }
+.archive-option[aria-checked="true"], .archive-action { background: var(--archive-action); color: var(--archive-on-action); border-color: var(--archive-action); }
+.archive-option[aria-checked="true"] .archive-muted { color: var(--archive-selected-sub); }
+.archive-action:hover { filter: brightness(1.12); }
+.archive-stamp { color: var(--archive-accent); border-color: currentColor; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--archive-accent) 25%, transparent); }
+.moment-scrim { background: color-mix(in srgb, var(--color-bg) 88%, transparent); }
+.moment-sheet { background: var(--archive-bg); color: var(--archive-ink); box-shadow: 0 0 0 1px var(--archive-line), 0 24px 80px rgb(0 10 24 / 0.3); }
+.moment-inner { border: 1px solid var(--archive-line); background: linear-gradient(145deg, rgb(170 196 220 / 0.07), transparent 65%); }
+.moment-sheet hr { border-color: var(--archive-line); }
+.moment-option { border-color: var(--archive-line); color: var(--archive-ink); }
+.moment-option:hover { background: var(--archive-action); color: var(--archive-on-action); }

@@ -16,7 +16,7 @@ const RULES = [
 ];
 
 /**
- * The one light page: an old archive card on paper. Teletype intro (a tiny jitter on each new character, a soft tick
+ * A theme-aware archive card. Teletype intro (a tiny jitter on each new character, a soft tick
  * every third one, square blinking cursor); click the text to skip. "开始" flips the page (rotateY, origin left) into the dark game.
  */
 export function Intro({ script, onStart, initialTask = null }: { script: Script; onStart: (task: TaskId | null) => void; initialTask?: TaskId | null }) {
@@ -56,15 +56,14 @@ export function Intro({ script, onStart, initialTask = null }: { script: Script;
           initial={{ opacity: 0, scale: reduce ? 1 : 1.5, rotate: -8 }}
           animate={{ opacity: 0.8, scale: 1, rotate: -8 }}
           transition={{ delay: reduce ? 0 : 0.5, type: "spring", stiffness: 260, damping: 22 }}
-          className="absolute right-6 top-8 rounded-md border-[3px] border-[#B3261E] px-3 py-1 text-center text-[#B3261E] md:right-16 md:top-14"
-          style={{ boxShadow: "inset 0 0 0 2px rgb(179 38 30 / 0.35)" }}
+          className="absolute right-6 top-28 rounded-md border-[3px] archive-stamp px-3 py-1 text-center archive-accent md:right-16 md:top-14"
         >
           <p className="text-[10px] tracking-[0.3em]">档案编号</p>
           <p className="num text-xl font-black tracking-widest">{script.blind ? "????" : script.id}-01</p>
         </motion.div>
 
-        <div className="relative mx-auto max-w-[720px] px-6 py-20 md:py-28">
-          <p className="text-sm font-bold text-[#8A5A00]">{script.subtitle}</p>
+        <div className="relative mx-auto max-w-[720px] px-6 pb-20 pt-48 md:py-28">
+          <p className="text-sm font-bold archive-accent">{script.subtitle}</p>
           <h1 className="font-display text-h1 mt-2" style={{ viewTransitionName: "script-card" } as React.CSSProperties}>
             {script.title}
           </h1>
@@ -77,11 +76,11 @@ export function Intro({ script, onStart, initialTask = null }: { script: Script;
                   {full[n - 1]}
                 </span>
               )}
-              {!done && <span className="ml-0.5 inline-block h-5 w-2.5 animate-pulse bg-[#2A2622] align-middle" />}
+              {!done && <span className="ml-0.5 inline-block h-5 w-2.5 animate-pulse archive-cursor align-middle" />}
             </span>
           </p>
 
-          <ul className="mt-8 space-y-2 text-sm text-[#5b5142]">
+          <ul className="mt-8 space-y-2 text-sm archive-muted">
             {RULES.map((r, i) => (
               <motion.li key={i} initial={{ opacity: 0, x: reduce ? 0 : -24 }} animate={{ opacity: done ? 1 : 0, x: done ? 0 : reduce ? 0 : -24 }} transition={{ delay: done ? i * 0.12 : 0, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
                 · {r}
@@ -97,8 +96,8 @@ export function Intro({ script, onStart, initialTask = null }: { script: Script;
             className="mt-9"
             data-testid="task-picker"
           >
-            <legend className="text-sm font-bold text-[#2A2622]">
-              这一局的目标 <span className="font-normal text-[#7a6d55]">· 可选，同一年换个目标再玩一遍</span>
+            <legend className="text-sm font-bold archive-copy">
+              这一局的目标 <span className="font-normal archive-muted">· 可选，同一年换个目标再玩一遍</span>
             </legend>
             <div className="mt-3 grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="这一局的目标">
               {[null, ...TASK_IDS].map((id) => {
@@ -111,10 +110,10 @@ export function Intro({ script, onStart, initialTask = null }: { script: Script;
                     role="radio"
                     aria-checked={on}
                     onClick={() => setTask(id)}
-                    className={`press rounded-lg border-2 p-3 text-left transition-colors ${on ? "border-[#1a1712] bg-[#1a1712] text-[#f2ead6]" : "border-[#b9ad8f] hover:border-[#1a1712]"}`}
+                    className="archive-option press rounded-lg border-2 p-3 text-left transition-colors"
                   >
                     <b className="block text-[15px]">{t ? t.name : "自由玩"}</b>
-                    <span className={`mt-1 block text-xs leading-relaxed ${on ? "text-[#e2d8bf]" : "text-[#6b5f45]"}`}>
+                    <span className="archive-muted mt-1 block text-xs leading-relaxed">
                       {t ? (
                         <>
                           目标：{t.goal}
@@ -137,8 +136,7 @@ export function Intro({ script, onStart, initialTask = null }: { script: Script;
           <button
             type="button"
             onClick={start}
-            autoFocus
-            className="mt-8 h-14 rounded-lg bg-[#1a1712] px-10 text-base font-bold text-[#f2ead6] transition-transform duration-100 hover:bg-black active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B3261E]"
+            className="mt-8 h-14 rounded-lg archive-action px-10 text-base font-bold transition-transform duration-100 active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           >
             开始第 1 回合{task ? `（${TASKS[task].name}）` : ""} →
           </button>

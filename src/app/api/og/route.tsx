@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import { decodeGame } from "@/game/encode";
 import { isBusted, playAll, rank, totalReturn } from "@/game/engine";
 import { judgePersona, PERSONAS } from "@/game/persona";
-import { pct, upDownHex } from "@/lib/format";
+import { pct, upDownHex, nightTone } from "@/lib/format";
 import { getScript } from "@/lib/scripts";
 
 export const runtime = "nodejs";
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
   let head = "穿越 K 线";
   let big = "";
-  let color = "#213448";
+  let color = "#e5edf8";
   let badge = "";
   let badgeColor = "#876329";
   let persona = "";
@@ -53,9 +53,9 @@ export async function GET(request: Request) {
     const rk = rank(ret, isBusted(h));
     head = `穿越 K 线 · ${script.title}`;
     big = pct(ret);
-    color = upDownHex(ret);
+    color = nightTone(upDownHex(ret));
     badge = rk.label;
-    badgeColor = rk.color;
+    badgeColor = nightTone(rk.color);
     persona = `${PERSONAS[judgePersona(h, script)].title} · 你呢？`;
     squares = h.map((r) => (r.liquidated ? "#A855F7" : r.pnl >= 0 ? "#bc3e49" : "#277454"));
   }
@@ -73,13 +73,13 @@ export async function GET(request: Request) {
           height: 630,
           display: "flex",
           flexDirection: "column",
-          background: "#eaf0f5",
-          color: "#213448",
+          background: "linear-gradient(140deg, #21384f, #101b2b 65%, #233044)",
+          color: "#e5edf8",
           padding: 64,
           fontFamily: font ? "NotoSC" : "sans-serif",
         }}
       >
-        <div style={{ fontSize: 34, color: "#52677b" }}>{t(head) || "KLINE REPLAY"}</div>
+        <div style={{ fontSize: 34, color: "#a4b8cd" }}>{t(head) || "KLINE REPLAY"}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 36, marginTop: 40 }}>
           <div style={{ fontSize: 168, fontWeight: 900, color, lineHeight: 1 }}>{big || "2015"}</div>
           {badge && font ? (

@@ -5,13 +5,16 @@ import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import gsap from "gsap";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useResolved, type Accent } from "@/lib/prefs";
 import data from "./kline2015.json";
 
 import { FLY_SECONDS } from "./constants";
 const PLAY_SECONDS = 9;
 
-const UP = new THREE.Color("#bc3e49");
-const DOWN = new THREE.Color("#277454");
+const UP = new THREE.Color("#ff7b87");
+const DOWN = new THREE.Color("#65d5af");
+const LIGHT_UP = new THREE.Color("#bc3e49");
+const LIGHT_DOWN = new THREE.Color("#277454");
 
 /** Deterministic hash → [0, 1). */
 const h = (n: number) => {
@@ -69,7 +72,7 @@ const FRAG = /* glsl */ `
   }
 `;
 
-function buildGeometry(width: number, height: number, perBar: number) {
+function buildGeometry(width: number, height: number, perBar: number, international: boolean, accent: Accent, dark: boolean) {
   const n = data.closes.length;
   const count = n * perBar;
   const target = new Float32Array(count * 3);
@@ -102,7 +105,8 @@ function buildGeometry(width: number, height: number, perBar: number) {
       start[k * 3] = (h(s + 2) - 0.5) * width * 1.1;
       start[k * 3 + 1] = (h(s + 3) - 0.5) * height * 1.1;
       start[k * 3 + 2] = 0;
-      const c = isPeak ? new THREE.Color("#9a7235") : up ? UP : DOWN;
+      const peak = dark ? (accent === "ice" ? "#89b9f6" : accent === "violet" ? "#c7adf2" : "#e3bf83") : "#9a7235";
+      const c = isPeak ? new THREE.Color(peak) : up !== international ? (dark ? UP : LIGHT_UP) : (dark ? DOWN : LIGHT_DOWN);
       const bright = isPeak ? 1.3 : 1;
       color[k * 3] = c.r * bright;
       color[k * 3 + 1] = c.g * bright;
@@ -124,7 +128,9 @@ function buildGeometry(width: number, height: number, perBar: number) {
 
 function Field({ perBar, interactive, onReady, onStart }: { perBar: number; interactive: boolean; onReady: () => void; onStart: () => void }) {
   const { size, viewport, pointer, gl } = useThree();
-  const geo = useMemo(() => buildGeometry(size.width, size.height, perBar), [size.width, size.height, perBar]);
+  const { updown, accent, skin } = useResolved();
+  const dark = skin === "pan";
+  const geo = useMemo(() => buildGeometry(size.width, size.height, perBar, updown === "intl", accent, dark), [size.width, size.height, perBar, updown, accent, dark]);
   const mat = useRef<THREE.ShaderMaterial>(null);
   // Callbacks are read through a ref so a new closure from the parent never restarts the fly-in.
   const cb = useRef({ onReady, onStart });
@@ -171,7 +177,7 @@ function Field({ perBar, interactive, onReady, onStart }: { perBar: number; inte
         fragmentShader={FRAG}
         transparent
         depthWrite={false}
-        blending={THREE.NormalBlending}
+        blending={dark ? THREE.AdditiveBlending : THREE.NormalBlending}
         uniforms={{
           uProgress: { value: 0 },
           uPlay: { value: 0 },

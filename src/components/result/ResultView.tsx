@@ -22,7 +22,7 @@ import { challengeHref } from "@/game/link";
 import { highlightSegments } from "@/music/compose";
 import { nextMystery } from "@/lib/blind";
 import { FirstScreen, DecisionReplay } from "./Overview";
-import { pct, pp, upDownColor } from "@/lib/format";
+import { themeTone, pct, pp, upDownColor } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
@@ -272,7 +272,7 @@ function Result({
         </h1>
         <motion.span
           className="rank-stamp mb-1 rounded-full border-2 px-4 py-1 text-base font-bold md:mb-2"
-          style={{ borderColor: r.rank.color, color: r.rank.color }}
+          style={{ borderColor: themeTone(r.rank.color), color: themeTone(r.rank.color) }}
           initial={reduce ? false : { opacity: 0, scale: 1.3, rotate: 8, x: 40 }}
           animate={stamped ? { opacity: 1, scale: 1, rotate: 0, x: 0 } : undefined}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
@@ -420,7 +420,7 @@ function Result({
             animate={{ x: window.innerWidth - 80, y: window.innerHeight - 100, scale: 0.35, opacity: 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
             className="pointer-events-none fixed left-0 top-0 z-[80] h-[76px] w-[60px] rounded-md border border-line"
-            style={{ background: `linear-gradient(160deg, ${r.persona.color}66, #eaf0f5)` }}
+            style={{ background: `linear-gradient(160deg, ${r.persona.color}66, var(--color-bg))` }}
           />
         )}
       </AnimatePresence>

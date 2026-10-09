@@ -55,7 +55,7 @@ export interface SkinMeta {
 }
 
 export const SKINS: SkinMeta[] = [
-  { id: "pan", name: "盘口", who: "专业玩家", traits: ["雾蓝档案馆：珍珠玻璃、等宽数字、柔和圆角", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
+  { id: "pan", name: "专业盘口", who: "专业玩家", traits: ["深海蓝与石墨灰：分层玻璃、等宽数字、柔和圆角", "专业工作台：仓位风险 + 真实宏观", "研报体复盘"], font: "sans", voice: "pro", leading: "compact", density: "full" },
   { id: "paper", name: "纸面", who: "一般玩家", traits: ["纸面档案：暖纸圆角、宋体标题、朱红印章段位", "头条像剪报、小道消息像读者来信", "标准复盘"], font: "sans", voice: "standard", leading: "normal", density: "full" },
   { id: "plain", name: "简约", who: "轻松玩", traits: ["轻松留白：大圆角、无边框、圆润数字", "霞鹜文楷；头条、走势和仓位在前，其余折叠", "白话复盘"], font: "kai", voice: "plain", leading: "airy", density: "compact" },
 ];
@@ -89,9 +89,9 @@ export const GLASSES: { id: Glass; name: string; note: string }[] = [
 
 /** Accent for the 盘口 skin (buttons, focus rings, highlights); the light skins bring their own. */
 export const ACCENTS: { id: Accent; name: string; color: string }[] = [
-  { id: "gold", name: "琥珀金", color: "#876329" },
-  { id: "ice", name: "冰川蓝", color: "#345f9b" },
-  { id: "violet", name: "暮光紫", color: "#7555a4" },
+  { id: "gold", name: "琥珀金", color: "#e3bf83" },
+  { id: "ice", name: "冰川蓝", color: "#89b9f6" },
+  { id: "violet", name: "暮光紫", color: "#c7adf2" },
 ];
 
 export function sanitize(raw: unknown): Prefs {
@@ -192,6 +192,6 @@ export function applyPrefs(r: Resolved) {
   el.dataset.loupe = r.loupe ? "on" : "off";
   el.style.setProperty("--fs", String(r.scale));
   el.style.setProperty("--lh", String(LEADINGS.find((l) => l.id === r.leading)!.value));
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", r.skin === "pan" ? "#eaf0f5" : r.skin === "paper" ? "#F6F4EF" : "#FAFAF7");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", r.skin === "pan" ? "#101b2b" : r.skin === "paper" ? "#F6F4EF" : "#FAFAF7");
 }
 
