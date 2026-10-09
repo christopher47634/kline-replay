@@ -201,7 +201,7 @@ export function MusicModal({
       transition={{ duration: 0.2 }}
     >
       <div ref={glow} aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }} />
-      <div className="flex items-center justify-between pl-4 pr-14 py-3 border-b border-line">
+      <div className="flex items-center justify-between gap-2 pl-4 pr-24 py-3 border-b border-line">
         <h2 className="font-bold">
           听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
         </h2>
