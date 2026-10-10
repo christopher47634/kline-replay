@@ -49,7 +49,7 @@ const VERT = /* glsl */ `
     vec2 d = pos.xy - uMouse;
     float dist = length(d);
     float push = smoothstep(uRadius, 0.0, dist);
-    pos.xy += normalize(d + 0.0001) * push * push * uRadius * 0.55;
+    pos.xy += normalize(d + 0.0001) * push * push * uRadius * 0.1 * uProgress;
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mv;
     gl_PointSize = aSize * uPx;
@@ -132,12 +132,38 @@ function Field({ perBar, interactive, onReady, onStart }: { perBar: number; inte
   const dark = skin === "pan";
   const geo = useMemo(() => buildGeometry(size.width, size.height, perBar, updown === "intl", accent, dark), [size.width, size.height, perBar, updown, accent, dark]);
   const mat = useRef<THREE.ShaderMaterial>(null);
+  // Keep the initial props stable; GSAP animates the material's live uniforms.
+  // Recreating these props on a preferences render writes zero back into the
+  // live uniforms after the intro tween has already completed.
+  const uniforms = useMemo(() => ({
+    uProgress: { value: 0 },
+    uPlay: { value: 0 },
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(9999, 9999) },
+    uRadius: { value: 64 },
+    uPx: { value: 1 },
+    uBreath: { value: 0 },
+  }), []);
   // Callbacks are read through a ref so a new closure from the parent never restarts the fly-in.
   const cb = useRef({ onReady, onStart });
   cb.current = { onReady, onStart };
   const idle = useRef(0);
   const mouse = useRef(new THREE.Vector2(9999, 9999));
   const lastMove = useRef(0);
+  const pointerInside = useRef(false);
+  const lastPointer = useRef(new THREE.Vector2(9999, 9999));
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const enter = () => { pointerInside.current = true; };
+    const leave = () => { pointerInside.current = false; };
+    canvas.addEventListener("pointermove", enter);
+    canvas.addEventListener("pointerleave", leave);
+    return () => {
+      canvas.removeEventListener("pointermove", enter);
+      canvas.removeEventListener("pointerleave", leave);
+    };
+  }, [gl]);
 
   useEffect(() => {
     const u = mat.current!.uniforms;
@@ -150,17 +176,24 @@ function Field({ perBar, interactive, onReady, onStart }: { perBar: number; inte
       t1.kill();
       t2.kill();
     };
-  }, [geo]);
+  }, [uniforms]);
+
+  useEffect(() => () => geo.dispose(), [geo]);
 
   useFrame((state) => {
     const u = mat.current!.uniforms;
     u.uTime.value = state.clock.elapsedTime;
     u.uPx.value = gl.getPixelRatio();
-    if (interactive) {
+    if (interactive && pointerInside.current) {
       // pointer is in NDC; the orthographic camera maps 1 NDC unit to half the viewport size in pixels
       mouse.current.set((pointer.x * size.width) / 2, (pointer.y * size.height) / 2);
-      if (Math.abs(pointer.x) + Math.abs(pointer.y) > 0) lastMove.current = state.clock.elapsedTime;
+      if (!lastPointer.current.equals(pointer)) {
+        lastMove.current = state.clock.elapsedTime;
+        lastPointer.current.copy(pointer);
+      }
       u.uMouse.value.copy(mouse.current);
+    } else {
+      u.uMouse.value.set(9999, 9999);
     }
     // after 8 s without pointer input the field starts to breathe (±2px)
     const breathing = state.clock.elapsedTime - lastMove.current > 8 || !interactive;
@@ -178,15 +211,7 @@ function Field({ perBar, interactive, onReady, onStart }: { perBar: number; inte
         transparent
         depthWrite={false}
         blending={dark ? THREE.AdditiveBlending : THREE.NormalBlending}
-        uniforms={{
-          uProgress: { value: 0 },
-          uPlay: { value: 0 },
-          uTime: { value: 0 },
-          uMouse: { value: new THREE.Vector2(9999, 9999) },
-          uRadius: { value: 120 },
-          uPx: { value: 1 },
-          uBreath: { value: 0 },
-        }}
+        uniforms={uniforms}
       />
     </points>
   );
