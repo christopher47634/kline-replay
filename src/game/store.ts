@@ -3,6 +3,7 @@
 import { create, type StoreApi, type UseBoundStore } from "zustand";
 import type { PersistOptions } from "zustand/middleware";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { isAllocation, sameAlloc } from "./alloc";
 import { allCash, settle } from "./engine";
 import type { Allocation, GameState, MonthNote, RoundRecord, Script, SettleResult, TaskId } from "./types";
 
@@ -32,7 +33,6 @@ export interface GameStore extends GameState {
   reset: () => void;
 }
 
-const sameAlloc = (a: Allocation, b: Allocation) => (Object.keys(a) as (keyof Allocation)[]).every((k) => a[k] === b[k]);
 
 export const storageKey = (scriptId: string) => `kline-replay:${scriptId}`;
 
@@ -56,6 +56,21 @@ export type GameStoreHook = UseBoundStore<StoreApi<GameStore>> & PersistApi;
 export type GamePersistOptions = PersistOptions<GameStore>;
 
 const stores = new Map<string, GameStoreHook>();
+
+/** 存档深校验：脏数据（缺 alloc、月数越界、剧本不符）直接丢弃，从新局开始，不让 GameView 渲染时崩。 */
+export function validSave(state: unknown, script: Script): boolean {
+  if (typeof state !== "object" || state === null) return false;
+  const s = state as Partial<GameStore>;
+  if (s.scriptId !== undefined && s.scriptId !== script.id) return false;
+  if (!Array.isArray(s.history) || s.history.length > script.months.length) return false;
+  if (s.month !== undefined && (typeof s.month !== "number" || !Number.isInteger(s.month) || s.month < 0 || s.month >= script.months.length)) return false;
+  if (s.cash !== undefined && (typeof s.cash !== "number" || !Number.isFinite(s.cash))) return false;
+  if (s.draft !== undefined && !isAllocation(s.draft)) return false;
+  return s.history.every((h: unknown) => {
+    const r = h as Partial<RoundRecord> | null;
+    return !!r && isAllocation(r.alloc) && typeof r.month === "number" && Number.isInteger(r.month) && r.month >= 0 && r.month < script.months.length;
+  });
+}
 
 /** One persisted store per script, key `kline-replay:{scriptId}`. */
 export function gameStore(script: Script) {
@@ -120,7 +135,7 @@ export function gameStore(script: Script) {
               const raw = localStorage.getItem(key);
               if (!raw) return null;
               const saved = JSON.parse(raw);
-              return saved?.state && Array.isArray(saved.state.history) ? raw : null;
+              return validSave(saved?.state, script) ? raw : null;
             } catch { return null; }
           },
           setItem: (key, value) => { try { localStorage.setItem(key, value); } catch { /* session still works */ } },

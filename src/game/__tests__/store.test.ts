@@ -61,6 +61,14 @@ describe("game saves", () => {
     expect(() => game.getState().start()).not.toThrow();
   });
 
+  it("drops a save whose history entries are missing alloc", async () => {
+    localStorage.setItem("kline-replay:2015", JSON.stringify({ version: 2, state: { started: true, month: 1, cash: 100000, history: [{ month: 0 }], draft: allCash() } }));
+    const { gameStore } = await import("../store");
+    const game = gameStore(script);
+    expect(game.getState().history).toEqual([]);
+    expect(game.getState().started).toBe(false);
+  });
+
   it("migrates old saves and resets per-game notes without touching the public-year save", async () => {
     localStorage.setItem("kline-replay:2015", JSON.stringify({ version: 1, state: { started: true, history: [], draft: allCash() } }));
     const { gameStore } = await import("../store");

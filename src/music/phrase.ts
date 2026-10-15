@@ -17,6 +17,8 @@ export class PhrasePlayer {
   private volume: import("tone").Volume | null = null;
   private unsub: (() => void) | null = null;
   private timers: number[] = [];
+  /** 当前 play() 的 resolve；cancel() 时要调用，否则 await play() 永不返回 */
+  private pending: (() => void) | null = null;
 
   /** Call from a user gesture the first time (the guess button click). */
   async prime(): Promise<boolean> {
@@ -44,7 +46,13 @@ export class PhrasePlayer {
     const audio = await this.prime();
     const Tone = audio ? await import("tone") : null;
     const start = Tone ? Tone.now() + 0.05 : 0;
+    this.cancel(); // 上一段还在响的话先收掉，不叠音
     return new Promise((resolve) => {
+      const done = () => {
+        if (this.pending === done) this.pending = null;
+        resolve();
+      };
+      this.pending = done;
       phrase.notes.forEach((n, i) => {
         if (Tone && this.synth) {
           try {
@@ -55,13 +63,21 @@ export class PhrasePlayer {
         }
         this.timers.push(window.setTimeout(() => onStep(n, i), 50 + i * NOTE_SEC * 1000));
       });
-      this.timers.push(window.setTimeout(resolve, 50 + phrase.notes.length * NOTE_SEC * 1000 + 150));
+      this.timers.push(window.setTimeout(done, 50 + phrase.notes.length * NOTE_SEC * 1000 + 150));
     });
   }
 
   cancel() {
     this.timers.forEach((t) => clearTimeout(t));
     this.timers = [];
+    try {
+      this.synth?.releaseAll(); // 已预排的音符一并取消并释放，下一张卡不会叠残音
+    } catch {
+      /* 合成器已被释放 */
+    }
+    const p = this.pending;
+    this.pending = null;
+    p?.();
   }
 
   dispose() {

@@ -1,7 +1,8 @@
+import { sameAlloc } from "./alloc";
 import { allCash, settle } from "./engine";
 import { allocSummary, keyMoves } from "./persona";
 import { reasonLabel } from "./notes";
-import type { Allocation, MonthNote, RoundRecord, Script } from "./types";
+import type { MonthNote, RoundRecord, Script } from "./types";
 
 /*
  * 三次关键决定回放：当时看到的事 → 你留下的理由 → 最终提交的仓位 → 真实结果 → 单步反事实。
@@ -32,7 +33,6 @@ export interface ReplayItem {
   cf: { label: string; pnl: number; gain: number; same: boolean };
 }
 
-const sameAlloc = (a: Allocation, b: Allocation) => (Object.keys(a) as (keyof Allocation)[]).every((k) => a[k] === b[k]);
 
 export function decisionReplay(script: Script, history: RoundRecord[], notes: Record<number, MonthNote> = {}): ReplayItem[] {
   const picked: { m: number; kind: ReplayItem["kind"] }[] = [];

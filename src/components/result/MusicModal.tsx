@@ -44,11 +44,14 @@ export function MusicModal({
   const player = useRef<DuetPlayer | null>(null);
   const visual = useRef<DuetVisual | null>(null);
   // Note energy drives a slow radial glow behind the canvas (red on up days, green on down days), capped at 15% brightness.
-  const energy = useRef({ e: 0, up: true });
+  const energy = useRef<{ e: number; up: boolean; idle?: boolean }>({ e: 0, up: true });
   const glow = useRef<HTMLDivElement>(null);
   useFrameLoop((_t, dt) => {
     const g = energy.current;
+    // 空闲（能量已衰减到 0 且上一帧已写过 0）时不再每帧写 style
+    if (g.e === 0 && g.idle) return;
     g.e = Math.max(0, g.e - dt / 700);
+    g.idle = g.e === 0;
     if (glow.current) {
       glow.current.style.opacity = String(0.15 * g.e);
       glow.current.style.background = `radial-gradient(60% 55% at 50% 50%, ${g.up ? "#FF4D4F" : "#3FB950"}, transparent 70%)`;

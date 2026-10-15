@@ -85,6 +85,10 @@ def main():
             print(f"  [fill] {a}: {len(gaps)} day(s) carried forward: {', '.join(gaps[:6])}")
         closes[a] = filled
     common = sorted(set.intersection(*(set(c) for c in closes.values())))
+    # 资产起点晚于大盘时，交集会悄悄丢掉那些交易日：大声报出来，不静默
+    dropped = sorted(set(closes["market"]) - set(common))
+    if dropped:
+        print(f"  [WARN] {len(dropped)} market trading day(s) dropped (some asset has no close yet): {', '.join(dropped[:6])}{' …' if len(dropped) > 6 else ''}")
     prev_year = [d for d in common if d < f"{year}-01-01"]
     in_year = [d for d in common if d.startswith(str(year))]
     if not prev_year:
@@ -102,10 +106,13 @@ def main():
         for d in days:
             daily.append({"date": d, "r": {a: r4(closes[a][d] / closes[a][pd] - 1) for a in TRADED}})
             pd = d
+        if not days:
+            raise SystemExit(f"{prefix}: no trading days for every asset in this month; check the price CSVs")
         end_day = days[-1]
         rets = {a: r4(closes[a][end_day] / closes[a][base_day] - 1) for a in TRADED}
         returns = {a: rets[a] for a in ["sh50", "cyb", "bank", "baijiu"]}
         returns["cash"] = params["cashMonthly"]
+        # 仅供人看：引擎用 marginReturn() 按 params 重算，不读这个字段
         returns["margin"] = r4(params["marginLeverage"] * rets["sh50"] - params["marginCostMonthly"])
         c = content["months"][m]
         months.append({

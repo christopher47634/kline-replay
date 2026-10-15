@@ -18,8 +18,18 @@ function tick(t: number) {
   if (document.hidden || subs.size === 0) return;
   const dt = last ? Math.min(64, t - last) : 16;
   last = t;
-  subs.forEach((f) => f(t, dt));
-  raf = requestAnimationFrame(tick);
+  try {
+    // 一个订阅者抛错不能带走整个循环：逐个 try/catch，最后无论如何都重新排下一帧
+    subs.forEach((f) => {
+      try {
+        f(t, dt);
+      } catch (e) {
+        console.error("[frameLoop] subscriber threw", e);
+      }
+    });
+  } finally {
+    if (!raf && subs.size && !document.hidden) raf = requestAnimationFrame(tick);
+  }
 }
 
 function start() {
@@ -46,20 +56,24 @@ if (typeof document !== "undefined") {
   };
 }
 
+/** 不依赖 React 的订阅入口（useFrameLoop 和测试都用它）；返回取消函数。 */
+export function subscribeFrame(f: Frame): () => void {
+  subs.add(f);
+  start();
+  return () => {
+    subs.delete(f);
+    if (!subs.size) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+  };
+}
+
 export function useFrameLoop(cb: Frame, active = true) {
   const ref = useRef(cb);
   ref.current = cb;
   useEffect(() => {
     if (!active) return;
-    const f: Frame = (t, d) => ref.current(t, d);
-    subs.add(f);
-    start();
-    return () => {
-      subs.delete(f);
-      if (!subs.size) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
-    };
+    return subscribeFrame((t, d) => ref.current(t, d));
   }, [active]);
 }

@@ -33,7 +33,9 @@ export function applyEffect(alloc: Allocation, effect: MomentEffect | null): All
   const a = { ...alloc };
   if (effect.scale !== undefined) {
     for (const id of RISKY) {
-      const kept = Math.floor((a[id] * effect.scale) / STEP) * STEP;
+      // scale 只能缩仓：>1 会让 cash 变负而合计仍是 100，到 settle() 才炸
+      const scale = Math.min(1, Math.max(0, effect.scale));
+      const kept = Math.floor((a[id] * scale) / STEP) * STEP;
       a.cash += a[id] - kept;
       a[id] = kept;
     }

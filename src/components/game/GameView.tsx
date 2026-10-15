@@ -75,7 +75,10 @@ export function GameView({ script }: { script: Script }) {
   const rule = taskViolation(st.task, st.draft);
   const valid = isValidAlloc(st.draft) && !rule;
   // 盲盒: the result page first asks which year it was, then reveals it
-  const resultHref = buildResultHref(script.id, st.history, { task: st.task, notes: st.notes, blind: script.blind });
+  const resultHref = useMemo(
+    () => buildResultHref(script.id, st.history, { task: st.task, notes: st.notes, blind: script.blind }),
+    [script.id, script.blind, st.history, st.task, st.notes],
+  );
 
   // Next month: the button says "结算中…" for ~0.5 s, then the page turns to the new month (status flip, chart segment)
   // and only then does the settle dialog rise from the button. A liquidation plays its full screen effect first.
@@ -121,7 +124,9 @@ export function GameView({ script }: { script: Script }) {
       if (dialogOpen || challengePending || !st.started || st.finished || document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) return;
       const t = e.target as HTMLElement;
       const typing = t.tagName === "INPUT" && (t as HTMLInputElement).type === "number";
-      if (e.key === "Enter" && !typing && t.tagName !== "BUTTON" && t.tagName !== "A") {
+      // 焦点在可交互元素上（按钮、链接、<summary>、表单控件、可编辑区）时 Enter 交给它自己，不结算
+      const interactive = /^(BUTTON|A|SUMMARY|INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable;
+      if (e.key === "Enter" && !typing && !interactive) {
         e.preventDefault();
         goNext();
       } else if (/^[1-6]$/.test(e.key) && !typing) {

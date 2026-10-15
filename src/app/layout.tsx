@@ -13,7 +13,7 @@ import { PREFS_BOOT } from "@/lib/prefsBoot";
 const jb = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-jb", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://kline-replay.vercel.app"),
   title: "穿越 K 线",
   description: "回到 2007、2008、2015、2018、2020、2024 年，用真实行情玩 12 个月，结算出投资人格，再把这一年演奏成一段音乐。",
 };

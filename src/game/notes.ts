@@ -1,3 +1,4 @@
+import { ALPHABET } from "./encode";
 import type { MonthNote, ReasonId } from "./types";
 
 /*
@@ -17,7 +18,6 @@ export const REASONS: { id: ReasonId; label: string }[] = [
 ];
 export const reasonLabel = (id: ReasonId | undefined) => REASONS.find((r) => r.id === id)?.label ?? null;
 
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const MONTHS = 12;
 
 function pack(n: MonthNote | undefined): number {

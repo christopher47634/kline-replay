@@ -7,7 +7,7 @@ import { allocSum } from "./engine";
  * Format: `{scriptId}.{payload}`.
  */
 const MONTHS = 12;
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+export const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 export function checksum(bytes: Uint8Array, scriptId: string): number {
   let c = 0x5a;

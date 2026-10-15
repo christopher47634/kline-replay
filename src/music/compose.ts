@@ -1,3 +1,4 @@
+import { sameAlloc } from "@/game/alloc";
 import type { DailyPoint, RoundRecord } from "@/game/types";
 
 export const MAJOR = ["C3", "D3", "E3", "G3", "A3", "C4", "D4", "E4", "G4", "A4", "C5", "D5", "E5", "G5", "A5"];
@@ -57,7 +58,6 @@ export function shiftOctave(pitch: string, by: number): string {
   return `${m[1]}${Number(m[2]) + by}`;
 }
 
-const sameAlloc = (a: RoundRecord["alloc"], b: RoundRecord["alloc"]) => (Object.keys(a) as (keyof typeof a)[]).every((k) => a[k] === b[k]);
 
 export function compose(daily: DailyPoint[], history: RoundRecord[], startCash: number): Composition {
   const final = daily.at(-1)?.value ?? startCash;

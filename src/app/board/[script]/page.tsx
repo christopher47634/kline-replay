@@ -61,7 +61,7 @@ export default async function Board({ params }: { params: Promise<{ script: stri
                 <td className="py-2.5">{r.nickname}</td>
                 <td className={`py-2.5 num text-right font-bold ${upDownColor(Number(r.ret))}`}>{pct(Number(r.ret))}</td>
                 <td className="py-2.5 pl-4">{PERSONAS[r.persona as PersonaId]?.title ?? r.persona}</td>
-                <td className="py-2.5 num text-right text-sub hidden sm:table-cell">{new Date(r.created_at).toLocaleDateString("zh-CN")}</td>
+                <td className="py-2.5 num text-right text-sub hidden sm:table-cell">{new Date(r.created_at).toLocaleDateString("zh-CN", { timeZone: "Asia/Shanghai" })}</td>
               </tr>
             ))}
           </tbody>
