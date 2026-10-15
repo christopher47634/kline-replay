@@ -1,0 +1,81 @@
+{
+  "script": "2015",
+  "play": "APPENDIX_B",
+  "startCash": 100000,
+  "finalValue": 174293.31,
+  "totalReturn": 0.742933,
+  "months": [
+    {
+      "month": 1,
+      "cashBefore": 100000,
+      "cashAfter": 99587.95,
+      "liquidated": false
+    },
+    {
+      "month": 2,
+      "cashBefore": 99587.95,
+      "cashAfter": 105965.38,
+      "liquidated": false
+    },
+    {
+      "month": 3,
+      "cashBefore": 105965.38,
+      "cashAfter": 119958.4,
+      "liquidated": false
+    },
+    {
+      "month": 4,
+      "cashBefore": 119958.4,
+      "cashAfter": 141434.45,
+      "liquidated": false
+    },
+    {
+      "month": 5,
+      "cashBefore": 141434.45,
+      "cashAfter": 147196.83,
+      "liquidated": false
+    },
+    {
+      "month": 6,
+      "cashBefore": 147196.83,
+      "cashAfter": 141886.68,
+      "liquidated": false
+    },
+    {
+      "month": 7,
+      "cashBefore": 141886.68,
+      "cashAfter": 142312.34,
+      "liquidated": false
+    },
+    {
+      "month": 8,
+      "cashBefore": 142312.34,
+      "cashAfter": 142739.27,
+      "liquidated": false
+    },
+    {
+      "month": 9,
+      "cashBefore": 142739.27,
+      "cashAfter": 143167.49,
+      "liquidated": false
+    },
+    {
+      "month": 10,
+      "cashBefore": 143167.49,
+      "cashAfter": 161747.58,
+      "liquidated": false
+    },
+    {
+      "month": 11,
+      "cashBefore": 161747.58,
+      "cashAfter": 166160.92,
+      "liquidated": false
+    },
+    {
+      "month": 12,
+      "cashBefore": 166160.92,
+      "cashAfter": 174293.31,
+      "liquidated": false
+    }
+  ]
+}

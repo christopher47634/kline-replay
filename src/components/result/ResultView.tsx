@@ -26,6 +26,7 @@ import { themeTone, pct, pp, upDownColor } from "@/lib/format";
 import { haptic, play } from "@/lib/sfx";
 import { copyText, exportPng, shareText } from "@/lib/share";
 import { BlockGrid } from "./BlockGrid";
+import { GameReview } from "./GameReview";
 import { BoardSubmit } from "./BoardSubmit";
 import { YearVoice } from "./YearVoice";
 import dynamic from "next/dynamic";
@@ -316,6 +317,8 @@ function Result({
       <YearVoice script={script} history={r.history} daily={r.daily} marketRet={r.marketRet} cashRet={r.cashRet} />
 
       <DecisionReplay items={r.replay} />
+
+      <GameReview script={script} history={r.history} code={code} justPlayedBlind={wasBlind} />
 
       <div className="mt-6 grid items-stretch gap-6 md:grid-cols-[1.4fr_1fr]">
         <PersonaCard persona={r.persona} quote={r.quote} moves={r.moves} evidence={r.evidence} />

@@ -14,5 +14,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: python3 scripts/reference_case.py --check
       - run: npm test
       - run: npm run build

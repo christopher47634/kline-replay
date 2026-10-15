@@ -48,6 +48,9 @@ test("plays a full 2015 game, shares it, and plays the music", async ({ page, co
   const ret = page.getByTestId("final-return");
   await expect(ret).toHaveText(odo.value);
   await expect(ret).toHaveText(/^[+−]?\d+\.\d%$/);
+  // 复盘报告 + 累计战绩：刚在本机打完的一局记 1 局
+  await expect(page.getByTestId("game-review")).toBeVisible();
+  await expect(page.getByTestId("stats-total")).toContainText("局数");
   const retText = await ret.textContent();
   await expect(page.getByTestId("persona-card")).toBeVisible();
   await expect(page.getByTestId("block")).toHaveCount(12);
