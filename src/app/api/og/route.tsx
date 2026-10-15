@@ -96,6 +96,12 @@ export async function GET(request: Request) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630, fonts, headers: { "cache-control": "public, max-age=86400, immutable" } },
+    {
+      width: 1200,
+      height: 630,
+      fonts,
+      // 只有合法的 s 才值得长缓存；非法的 s 每个都不同，别让 CDN 把它们存一天
+      headers: { "cache-control": script ? "public, max-age=86400, immutable" : "public, max-age=60" },
+    },
   );
 }

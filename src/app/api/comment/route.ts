@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { allocText, templateComment, type CommentRequest } from "@/lib/comment";
+import { parseCommentRequest } from "@/lib/commentGuard";
 import { getScript } from "@/lib/scripts";
 import { pct } from "@/lib/format";
+import { LruCache } from "@/lib/lruCache";
+import { clientIp, createRateLimiter } from "@/lib/rateLimit";
+import { ASSET_IDS } from "@/game/types";
 
-const cache = new Map<string, { text: string; at: number }>();
 const TTL = 60_000;
+// 缓存有上限（避免被不同仓位撑爆内存）；限流按 IP，每分钟 30 次（正常玩一局只会点评 12 次）
+const CACHE_MAX = 500;
+const cache = new LruCache<{ text: string; source: string }>(CACHE_MAX, TTL);
+const allow = createRateLimiter(30, 60_000);
 
 function prompt(req: CommentRequest, marketSummary: string) {
   return `你是一个炒股二十年、嘴碎但不刻薄的老股民。
@@ -34,26 +41,29 @@ async function askLLM(text: string, key: string): Promise<string | null> {
 }
 
 export async function POST(request: Request) {
-  let req: CommentRequest;
+  if (!allow(clientIp(request))) return NextResponse.json({ error: "too many requests" }, { status: 429 });
+  let body: unknown;
   try {
-    req = await request.json();
+    body = await request.json();
   } catch {
     return NextResponse.json({ error: "bad json" }, { status: 400 });
   }
-  const script = getScript(String(req.scriptId));
-  const month = script?.months[req.month];
-  if (!script || !month || !req.allocAfter) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  const req: CommentRequest | null = parseCommentRequest(body);
+  const script = req ? getScript(req.scriptId) : null;
+  const month = req && script ? script.months[req.month] : null;
+  if (!req || !script || !month) return NextResponse.json({ error: "bad request" }, { status: 400 });
 
-  const key = `${req.scriptId}:${req.month}:${JSON.stringify(req.allocAfter)}`;
+  // 键里的仓位按固定顺序展开，不受 JSON 字段顺序影响
+  const key = `${req.scriptId}:${req.month}:${ASSET_IDS.map((id) => req.allocAfter[id]).join(",")}`;
   const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < TTL) return NextResponse.json({ text: hit.text, cached: true });
+  if (hit) return NextResponse.json({ text: hit.text, cached: true });
 
   let text: string | null = null;
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (apiKey) {
-    const r = month.returns;
-    const summary = `大盘${pct(month.marketReturn)}，上证50 ${pct(r.sh50)}，创业板 ${pct(r.cyb)}，银行 ${pct(r.bank)}，白酒 ${pct(r.baijiu)}`;
     try {
+      const r = month.returns;
+      const summary = `大盘${pct(month.marketReturn)}，上证50 ${pct(r.sh50)}，创业板 ${pct(r.cyb)}，银行 ${pct(r.bank)}，白酒 ${pct(r.baijiu)}`;
       text = await askLLM(prompt(req, summary), apiKey);
     } catch {
       text = null; // timeout or network error: fall through to the template
@@ -61,6 +71,6 @@ export async function POST(request: Request) {
   }
   const source = text ? "llm" : "template";
   text ??= templateComment(req);
-  cache.set(key, { text, at: Date.now() });
+  cache.set(key, { text, source });
   return NextResponse.json({ text, source });
 }
