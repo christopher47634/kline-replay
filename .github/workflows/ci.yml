@@ -24,3 +24,24 @@ jobs:
       - run: python scripts/validate_events.py
       - run: python -m unittest scripts/test_validate_events.py
       - run: npm run build
+
+  # 真实浏览器冒烟：ubuntu-latest 自带 Chrome，playwright.config 用 channel: "chrome"，不需要 playwright install
+  e2e:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright test
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7

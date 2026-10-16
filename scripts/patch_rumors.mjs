@@ -118,7 +118,7 @@ for (const [year, rows] of Object.entries(PLAN)) {
     if (/^\{\r?\n  "/.test(raw)) {
       // hand-formatted source: edit the text in place so the layout survives
       let i = 0;
-      let out = raw.replace(/( *)"rumor": ("(?:[^"\\]|\\.)*"),(\r?\n\s*)"rumorIsSignal": (true|false),/g, (_m, ind, oldText, nl, sig) => {
+      const out = raw.replace(/( *)"rumor": ("(?:[^"\\]|\\.)*"),(\r?\n\s*)"rumorIsSignal": (true|false),/g, (_m, ind, oldText, nl, sig) => {
         const [text, signal, call] = rows[i++];
         if (text && text.length > 40) throw new Error(`${year}: rumor over 40 chars`);
         const t = text ? JSON.stringify(text) : oldText;

@@ -12,6 +12,23 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    rules: {
+      // 调试输出不进生产；error/warn 用于真实异常（frameLoop、API 路由）
+      "no-console": ["error", { allow: ["error", "warn"] }],
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "prefer-const": "error",
+      "no-var": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "react-hooks/exhaustive-deps": "error",
+    },
+  },
+  {
+    // 命令行工具和脚本本来就靠 console 输出
+    files: ["scripts/**", "e2e/**"],
+    rules: { "no-console": "off" },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".logs/**",
