@@ -11,6 +11,18 @@ import { lensFilter } from "./lens";
  *  - illumination: pressing lights the glass up from the touch point, and the glow spills into nearby glass.
  * The CSS is in skins.css; this layer keeps the maps, the light direction and the press state, plus the data loupe.
  */
+/** 新增或移除的节点里是否带玻璃（.lg）。文本更新（Odometer、图表 tooltip）不算。 */
+function hasGlass(n: Node): boolean {
+  return n instanceof Element && (n.classList.contains("lg") || !!n.querySelector(".lg"));
+}
+
+function glassChanged(records: MutationRecord[], kind: "added" | "removed" | "both"): boolean {
+  return records.some(
+    (r) =>
+      (kind !== "removed" && [...r.addedNodes].some(hasGlass)) || (kind !== "added" && [...r.removedNodes].some(hasGlass)),
+  );
+}
+
 export function GlassLayer() {
   const prefs = usePrefs();
   const defs = useRef<SVGDefsElement>(null);
@@ -68,7 +80,18 @@ export function GlassLayer() {
         );
     };
     later();
-    const mo = new MutationObserver(later);
+    // 只关心玻璃元素的增删：任意子树变化都排一次全文档 .lg 扫描太浪费（数字滚动每帧都在改文本）
+    const mo = new MutationObserver((records) => {
+      if (glassChanged(records, "added")) later();
+      if (glassChanged(records, "removed")) {
+        // 已离开文档的元素停止观察，免得 tracked 集合越积越多
+        tracked.forEach((el) => {
+          if (el.isConnected) return;
+          ro.unobserve(el);
+          tracked.delete(el);
+        });
+      }
+    });
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {
       mo.disconnect();
@@ -157,9 +180,8 @@ export function GlassLayer() {
     window.addEventListener("resize", invalidate);
     // glass added or removed (drawers, the loupe, the sound hint). Only those: the chart tooltip rewrites its DOM on
     // every mouse move, and dropping the cache for that meant a forced layout per frame.
-    const hasGlass = (n: Node) => n instanceof Element && (n.classList.contains("lg") || !!n.querySelector(".lg"));
     const mo = new MutationObserver((records) => {
-      if (records.some((r) => [...r.addedNodes, ...r.removedNodes].some(hasGlass))) invalidate();
+      if (glassChanged(records, "both")) invalidate();
     });
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {

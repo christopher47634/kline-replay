@@ -1,6 +1,7 @@
 import type { Composition, Note } from "./compose";
 
 import { palette } from "./palette";
+import { subscribeFrame } from "@/lib/frameLoop";
 
 // colours follow the current skin (music/palette.ts); dark defaults until the first draw
 let GOLD = "#876329";
@@ -34,7 +35,8 @@ export class DuetVisual {
   private ripples: Ripple[] = [];
   private current = -1;
   private flashUntil = 0;
-  private raf = 0;
+  /** 挂在全局帧循环上（标签页隐藏时自动暂停）；null = 未在播放 */
+  private unsubscribe: (() => void) | null = null;
   private done = false;
   private lo: number;
   private hi: number;
@@ -119,16 +121,13 @@ export class DuetVisual {
   }
 
   start() {
-    const loop = (t: number) => {
-      this.draw(t);
-      this.raf = requestAnimationFrame(loop);
-    };
-    cancelAnimationFrame(this.raf);
-    this.raf = requestAnimationFrame(loop);
+    this.unsubscribe?.();
+    this.unsubscribe = subscribeFrame((t) => this.draw(t));
   }
 
   stopLoop() {
-    cancelAnimationFrame(this.raf);
+    this.unsubscribe?.();
+    this.unsubscribe = null;
     this.draw(performance.now());
   }
 
@@ -296,6 +295,7 @@ export class DuetVisual {
   }
 
   dispose() {
-    cancelAnimationFrame(this.raf);
+    this.unsubscribe?.();
+    this.unsubscribe = null;
   }
 }
