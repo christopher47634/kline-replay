@@ -155,3 +155,7 @@ html body { background: transparent; }
 :root[data-perf="2"] :is(.beam, .sb-sweep) { display: none; }
 :root[data-perf="2"] .shine::after, :root[data-perf="2"] .sb-ticks i.now::after,
 :root[data-perf="2"] :is(.tfx > span, .stagger > *, .drawer-body > *, .mystery-float) { animation: none !important; }
+
+/* Reveal (components/motion/Reveal.tsx): hidden text shows itself after 1.4 s even if the animation never loads */
+@keyframes reveal-fallback { to { visibility: visible; } }
+.reveal-pending { animation: reveal-fallback 0s linear 1.4s forwards; }

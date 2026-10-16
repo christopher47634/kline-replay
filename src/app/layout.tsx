@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
 import { MuteButton } from "@/components/ui/MuteButton";
 import { SettingsButton } from "@/components/ui/SettingsButton";
+import { HomeButton } from "@/components/ui/HomeButton";
 import "./globals.css";
 import "./skins.css";
 import "./themes.css";
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AppShell>
           <MuteButton />
           <SettingsButton />
+          <HomeButton />
           <div className="flex-1">{children}</div>
           <footer className="py-4 px-4 text-center text-xs text-sub border-t border-line">
             虚拟资金 · 历史数据不代表未来 · 不构成任何投资建议

@@ -1,9 +1,11 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 
-const SettingsDrawer = dynamic(() => import("./SettingsDrawer"), { ssr: false });
+const SettingsDrawer = dynamic(() => retryImport(() => import("./SettingsDrawer")), { ssr: false });
 
 /** 阅读设置 (fixed top-right, next to the sound switch). Level 1: skin, size, leading, glass; level 2: font and voice samples. */
 export function SettingsButton() {

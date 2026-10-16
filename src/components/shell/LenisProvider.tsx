@@ -1,5 +1,7 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import { useEffect } from "react";
 import { useMotionPref } from "./MotionPref";
 
@@ -15,7 +17,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     if (!enabled) return;
     let stop: (() => void) | null = null;
     let cancelled = false;
-    Promise.all([import("lenis"), import("gsap"), import("gsap/ScrollTrigger")]).then(([L, g, s]) => {
+    Promise.all([retryImport(() => import("lenis")), retryImport(() => import("gsap")), retryImport(() => import("gsap/ScrollTrigger"))]).then(([L, g, s]) => {
       if (cancelled) return;
       const gsap = g.default;
       gsap.registerPlugin(s.ScrollTrigger);
@@ -28,6 +30,8 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
         gsap.ticker.remove(raf);
         lenis.destroy();
       };
+    }).catch(() => {
+      /* smooth scrolling is a nicety: native scrolling stays */
     });
     return () => {
       cancelled = true;

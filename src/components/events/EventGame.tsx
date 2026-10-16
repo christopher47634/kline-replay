@@ -166,7 +166,7 @@ export function EventGame({ deck, deckNo }: { deck: PreparedDeck; deckNo: number
 
   return (
     <main className="mx-auto max-w-[760px] px-4 pb-16">
-      <div className="sticky top-0 z-20 -mx-4 px-4 pr-14 h-11 flex items-center justify-between gap-2 bg-bg/90 backdrop-blur border-b border-line text-sm whitespace-nowrap">
+      <div className="sticky top-[3.25rem] sm:top-0 z-20 -mx-4 px-4 sm:pr-[8.5rem] h-11 flex items-center justify-between gap-2 bg-bg/90 backdrop-blur border-b border-line text-sm whitespace-nowrap">
         <span className="flex items-center gap-2">
           <span>
             第 <b className="num">{i + 1}</b> / {picks.length} 张

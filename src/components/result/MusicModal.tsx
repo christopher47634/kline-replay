@@ -204,11 +204,11 @@ export function MusicModal({
       transition={{ duration: 0.2 }}
     >
       <div ref={glow} aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }} />
-      <div className="flex items-center justify-between gap-2 pl-4 pr-24 py-3 border-b border-line">
-        <h2 className="font-bold">
-          听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
+      <div className="flex items-center justify-between gap-2 pl-4 pr-[8.5rem] py-3 border-b border-line">
+        <h2 className="whitespace-nowrap font-bold">
+          听听你的 {script.id} <span className="text-sub font-normal text-sm ml-2 max-sm:hidden">{comp.major ? "C 大调五声" : "A 小调五声"}</span>
         </h2>
-        <button type="button" onClick={onClose} className="h-9 px-3 rounded-md text-sub hover:text-ink hover:bg-card" aria-label="关闭">
+        <button type="button" onClick={onClose} className="h-9 shrink-0 whitespace-nowrap px-3 rounded-md text-sub hover:text-ink hover:bg-card" aria-label="关闭">
           <span className="inline-flex items-center gap-1">
             关闭 <X size={16} strokeWidth={2} aria-hidden />
           </span>

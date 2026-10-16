@@ -1,5 +1,7 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import { LazyMotion } from "motion/react";
 import { Cursor } from "./Cursor";
 import { LenisProvider } from "./LenisProvider";
@@ -8,16 +10,18 @@ import { SoundGate } from "./SoundGate";
 import { GlassLayer } from "./GlassLayer";
 import { Interact } from "./Interact";
 import { PerfGuard } from "./PerfGuard";
+import { ChunkGuard } from "./ChunkGuard";
 
 /** Providers and always-on layers: motion preferences, smooth scroll, grain, cursor, sound prompt. */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <ReducedMotionProvider>
-      <LazyMotion features={() => import("./motionFeatures").then((m) => m.default)} strict>
+      <LazyMotion features={() => retryImport(() => import("./motionFeatures")).then((m) => m.default)} strict>
       <LenisProvider>
         <div aria-hidden className="grain" />
         <Interact />
         <PerfGuard />
+        <ChunkGuard />
         {children}
         <Cursor />
         <GlassLayer />

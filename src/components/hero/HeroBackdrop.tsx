@@ -1,12 +1,14 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { useResolved } from "@/lib/prefs";
 import k2015 from "./kline2015.json";
 
-const KlineField = dynamic(() => import("./KlineField"), { ssr: false });
+const KlineField = dynamic(() => retryImport(() => import("./KlineField")), { ssr: false });
 
 function hasWebGL(): boolean {
   try {

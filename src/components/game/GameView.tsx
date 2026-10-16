@@ -1,5 +1,7 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import { m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,8 +32,8 @@ import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 
 // recharts stays out of the first-load bundle; the skeleton holds the space so nothing shifts
 // the workbench and the macro drawer (with their data) load after the board is interactive
-const Workbench = dynamic(() => import("./Macro").then((m) => m.Workbench), { ssr: false });
-const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
+const Workbench = dynamic(() => retryImport(() => import("./Macro")).then((m) => m.Workbench), { ssr: false });
+const TrendChart = dynamic(() => retryImport(() => import("./TrendChart")).then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
 import { useSettleFlow } from "./useSettleFlow";
 import { useGameHotkeys } from "./useGameHotkeys";
 
@@ -76,7 +78,7 @@ export function GameView({ script }: { script: Script }) {
 
   // Warm the text-reveal library while the player reads round 1, so the first settle dialog does not pay for parsing it.
   useEffect(() => {
-    const warm = () => void Promise.all([import("gsap"), import("gsap/SplitText"), import("gsap/ScrollTrigger")]);
+    const warm = () => void Promise.all([import("gsap"), import("gsap/SplitText"), import("gsap/ScrollTrigger")]).catch(() => {}); // a prefetch: failing is fine
     const id = setTimeout(warm, 1500);
     return () => clearTimeout(id);
   }, []);

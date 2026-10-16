@@ -1,12 +1,14 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import dynamic from "next/dynamic";
 import { Reveal } from "@/components/motion/Reveal";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { BARS, COPY, HEADLINES, linePath } from "./storyData";
 
 // GSAP ScrollTrigger only loads for the pinned desktop version.
-const StoryPinned = dynamic(() => import("./StoryPinned"), { ssr: false });
+const StoryPinned = dynamic(() => retryImport(() => import("./StoryPinned")), { ssr: false });
 
 export function Story() {
   const { reduce, small, ready } = useMotionPref();

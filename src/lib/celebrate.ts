@@ -1,3 +1,7 @@
+import { retryImport } from "@/lib/retry";
+
+const loadConfetti = () => retryImport(() => import("canvas-confetti")).then((m) => m.default);
+
 /*
  * Confetti for the moments worth it (after Magic UI's Confetti, which wraps canvas-confetti, ISC):
  *  - "month": a strong month (+6% or more) — one short burst from the big number, in the up colour and gold.
@@ -10,7 +14,12 @@ export async function celebrate(kind: "month" | "year", from?: Element | null) {
   if (root.dataset.reduceMotion === "1" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const css = getComputedStyle(root);
   const colors = [css.getPropertyValue("--color-up").trim(), css.getPropertyValue("--color-gold").trim(), "#ffffff"].filter(Boolean);
-  const { default: confetti } = await import("canvas-confetti");
+  let confetti: Awaited<ReturnType<typeof loadConfetti>>;
+  try {
+    confetti = await loadConfetti();
+  } catch {
+    return; // confetti is a bonus: never break the settle dialog over it
+  }
   // A modal <dialog> sits in the browser's top layer: draw into a canvas inside it, or the confetti falls behind it.
   const host = from?.closest("dialog") ?? document.body;
   let canvas = host.querySelector<HTMLCanvasElement>(":scope > canvas.confetti");

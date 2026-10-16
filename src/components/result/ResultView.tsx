@@ -1,5 +1,7 @@
 "use client";
 
+import { retryImport } from "@/lib/retry";
+
 import { AnimatePresence, m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,11 +34,11 @@ import { YearVoice } from "./YearVoice";
 import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 
-const MusicModal = dynamic(() => import("./MusicModal").then((m) => m.MusicModal), { ssr: false });
+const MusicModal = dynamic(() => retryImport(() => import("./MusicModal")).then((m) => m.MusicModal), { ssr: false });
 import { PersonaCard, PersonaPoster } from "./PersonaCard";
 import { Check } from "lucide-react";
 import { Emoji } from "@/components/ui/Emoji";
-const ReturnChart = dynamic(() => import("./ReturnChart").then((m) => m.ReturnChart), { ssr: false, loading: () => <ChartSkeleton height={320} /> });
+const ReturnChart = dynamic(() => retryImport(() => import("./ReturnChart")).then((m) => m.ReturnChart), { ssr: false, loading: () => <ChartSkeleton height={320} /> });
 
 const signedPct = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(1)}%`;
 
