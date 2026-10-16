@@ -3,18 +3,19 @@
 import { m as motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { btn, Button } from "@/components/ui/Button";
 import { resultHref as buildResultHref } from "@/game/link";
-import { gameStore } from "@/game/store";
+import { gameStore, type GameStoreHook } from "@/game/store";
 import { isTask, TASKS, taskViolation } from "@/game/tasks";
-import type { MonthNote, Script, TaskId } from "@/game/types";
+import type { Allocation, MonthNote, Script, TaskId } from "@/game/types";
 import { AllocationPanel, isValidAlloc, type AllocationPanelHandle } from "./AllocationPanel";
 import { allocSum } from "@/game/engine";
 import { HeadlineCard, RumorCard } from "./HeadlineCard";
 import { Intro } from "./Intro";
 import { MagneticButton } from "@/components/motion/Magnetic";
-import { BustVignette, runBustFx } from "./BustFx";
+import { BustVignette } from "./BustFx";
 import { Enter } from "@/components/motion/Enter";
 import { useMotionPref } from "@/components/shell/MotionPref";
 import { MomentCard } from "./MomentCard";
@@ -31,14 +32,32 @@ import { ChartSkeleton } from "@/components/ui/ChartSkeleton";
 // the workbench and the macro drawer (with their data) load after the board is interactive
 const Workbench = dynamic(() => import("./Macro").then((m) => m.Workbench), { ssr: false });
 const TrendChart = dynamic(() => import("./TrendChart").then((m) => m.TrendChart), { ssr: false, loading: () => <ChartSkeleton height={340} /> });
-import { tick } from "@/lib/sfx";
+import { useSettleFlow } from "./useSettleFlow";
+import { useGameHotkeys } from "./useGameHotkeys";
 
 /** Starting opacity for the columns that re-enter when the month turns (see the Enter comment). */
 const TURN_FROM = 0.6;
 
 export function GameView({ script }: { script: Script }) {
   const useGame = useMemo(() => gameStore(script), [script]);
-  const st = useGame();
+  // 只订阅牌桌主体用到的字段。draft（拖滑块时每一格都变）由 DecisionColumn / LiveWorkbench 各自订阅，
+  // 拖动仓位时头条列和走势图不会跟着重渲染。
+  const st = useGame(
+    useShallow((s) => ({
+      started: s.started,
+      finished: s.finished,
+      history: s.history,
+      notes: s.notes,
+      task: s.task,
+      cash: s.cash,
+      last: s.last,
+      start: s.start,
+      reset: s.reset,
+      setAlloc: s.setAlloc,
+      setNote: s.setNote,
+      chooseMoment: s.chooseMoment,
+    })),
+  );
   const [hydrated, setHydrated] = useState(false);
   const { reduce } = useMotionPref();
   const { density, autofill } = useResolved();
@@ -52,7 +71,6 @@ export function GameView({ script }: { script: Script }) {
       setChallengePending(useGame.getState().started);
     }
   }, [useGame]);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [flipIn, setFlipIn] = useState(false); // came from the paper Intro: the game page flips in from the other side
   const panel = useRef<AllocationPanelHandle>(null);
 
@@ -72,8 +90,6 @@ export function GameView({ script }: { script: Script }) {
   // Historical-moment card: shown once per round, before the allocation panel. The answer lives in the game's own
   // notes, so it resets with the game (a new game shows the cards again) and survives reloads.
   const seen = (m: number) => st.notes[m]?.moment !== undefined;
-  const rule = taskViolation(st.task, st.draft);
-  const valid = isValidAlloc(st.draft) && !rule;
   // 盲盒: the result page first asks which year it was, then reveals it
   const resultHref = useMemo(
     () => buildResultHref(script.id, st.history, { task: st.task, notes: st.notes, blind: script.blind }),
@@ -82,35 +98,7 @@ export function GameView({ script }: { script: Script }) {
 
   // Next month: the button says "结算中…" for ~0.5 s, then the page turns to the new month (status flip, chart segment)
   // and only then does the settle dialog rise from the button. A liquidation plays its full screen effect first.
-  const [settling, setSettling] = useState(false);
-  const [chartLen, setChartLen] = useState<number | null>(null);
-  const [bustRun, setBustRun] = useState(0);
-  const shakeRef = useRef<HTMLDivElement>(null);
-  const settleTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => () => settleTimers.current.forEach(clearTimeout), []);
-  const goNext = () => {
-    if (!valid || dialogOpen || st.finished || settling) return;
-    tick();
-    if (reduce) {
-      setChartLen(st.history.length);
-      st.next();
-      if (useGame.getState().last?.liquidated) runBustFx(null); // sound and buzz only
-      setDialogOpen(true);
-      return;
-    }
-    setSettling(true);
-    setChartLen(st.history.length);
-    settleTimers.current.push(setTimeout(() => {
-      st.next();
-      setSettling(false);
-      const bust = useGame.getState().last?.liquidated;
-      if (bust) {
-        runBustFx(shakeRef.current);
-        setBustRun((n) => n + 1);
-      }
-      settleTimers.current.push(setTimeout(() => setDialogOpen(true), bust ? 700 : 480));
-    }, 520));
-  };
+  const { dialogOpen, setDialogOpen, settling, chartLen, bustRun, shakeRef, goNext } = useSettleFlow(useGame, reduce);
 
   const closeDialog = () => {
     setDialogOpen(false);
@@ -119,23 +107,22 @@ export function GameView({ script }: { script: Script }) {
   };
 
   // Enter = next month, 1-6 = focus a slider.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (dialogOpen || challengePending || !st.started || st.finished || document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) return;
-      const t = e.target as HTMLElement;
-      const typing = t.tagName === "INPUT" && (t as HTMLInputElement).type === "number";
-      // 焦点在可交互元素上（按钮、链接、<summary>、表单控件、可编辑区）时 Enter 交给它自己，不结算
-      const interactive = /^(BUTTON|A|SUMMARY|INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable;
-      if (e.key === "Enter" && !typing && !interactive) {
-        e.preventDefault();
-        goNext();
-      } else if (/^[1-6]$/.test(e.key) && !typing) {
-        panel.current?.focusRow(Number(e.key) - 1);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+  useGameHotkeys({
+    enabled: !dialogOpen && !challengePending && st.started && !st.finished,
+    onNext: goNext,
+    onFocusRow: (row) => panel.current?.focusRow(row),
   });
+
+  // 页面在弹窗后面已经显示新月份；只有走完一局才停在第 12 个月
+  const shownMonth = st.finished && st.last ? st.last.month : st.history.length;
+  // 拖滑块只改 draft，不会让这两个数组换引用，TrendChart 的 memo 才有意义
+  const shownHistory = useMemo(() => st.history.slice(0, shownMonth), [st.history, shownMonth]);
+  // The chart redraw waits until the settle dialog is closed: drawing the new segment while the dialog rises was the
+  // main source of long frames (see DECISIONS). While a dialog is open the chart keeps showing the previous round.
+  const chartHistory = useMemo(
+    () => (chartLen === null || (!dialogOpen && !settling) ? shownHistory : st.history.slice(0, Math.min(chartLen, shownMonth))),
+    [chartLen, dialogOpen, settling, shownHistory, st.history, shownMonth],
+  );
 
   if (!hydrated) return <GameSkeleton />;
 
@@ -185,17 +172,11 @@ export function GameView({ script }: { script: Script }) {
 
   const activeMoment = !dialogOpen && !st.finished ? script.months[st.history.length]?.moment : undefined;
   const chooseMoment = (o: MomentOption, index: number, reason: MonthNote["reason"] | null) => {
-    st.chooseMoment(st.history.length, index, o.effect ? applyEffect(st.draft, o.effect) : null, reason ?? undefined);
+    const draft = useGame.getState().draft;
+    st.chooseMoment(st.history.length, index, o.effect ? applyEffect(draft, o.effect) : null, reason ?? undefined);
   };
 
-  // the page behind the dialog already shows the new month; only a finished game keeps showing month 12
-  const shownMonth = st.finished && st.last ? st.last.month : st.history.length;
   const month = script.months[shownMonth];
-  const shownHistory = st.history.slice(0, shownMonth);
-  // The chart redraw waits until the settle dialog is closed: drawing the new segment while the dialog rises was the
-  // main source of long frames (see DECISIONS). While a dialog is open the chart keeps showing the previous round.
-  const chartHistory = chartLen === null || (!dialogOpen && !settling) ? shownHistory : st.history.slice(0, Math.min(chartLen, shownMonth));
-  const previous = st.history.at(-1)?.alloc ?? null;
   const prevMonthNo = shownMonth === 0 ? 12 : shownMonth;
   const lastPnl = shownHistory.at(-1)?.pnl ?? null;
 
@@ -234,7 +215,7 @@ export function GameView({ script }: { script: Script }) {
             {density === "full" ? (
               <>
                 <KnownInfo script={script} round={shownMonth} />
-                <Workbench script={script} round={shownMonth} draft={st.draft} />
+                <LiveWorkbench useGame={useGame} script={script} round={shownMonth} />
               </>
             ) : (
               // 精简密度：数据折叠起来，不是删掉——三套主题能看到的信息一样多
@@ -246,7 +227,7 @@ export function GameView({ script }: { script: Script }) {
                 <div className="mt-4 space-y-4">
                   <Thermometer ret={shownMonth === 0 ? script.preMonths.at(-1)?.marketReturn ?? 0 : script.months[shownMonth - 1].marketReturn} monthNo={prevMonthNo} />
                   <KnownInfo script={script} round={shownMonth} />
-                  <Workbench script={script} round={shownMonth} draft={st.draft} />
+                  <LiveWorkbench useGame={useGame} script={script} round={shownMonth} />
                 </div>
               </details>
             )}
@@ -254,62 +235,15 @@ export function GameView({ script }: { script: Script }) {
         </Enter>
         <Enter key={`alloc-${shownMonth}`} delay={0.08} from={TURN_FROM} y={10}>
           <Step n={3}>做决定</Step>
-          <div id="board-alloc" className="scroll-mt-28 space-y-4">
-            <AllocationPanel
-              ref={panel}
-              assets={script.assets}
-              value={st.draft}
-              onChange={st.setAlloc}
-              previous={previous}
-              onSubmit={goNext}
-              params={script.params}
-              task={st.task}
-              autofill={autofill}
-              onAutofill={(on) => setPrefs({ autofill: on })}
-            />
-            {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}
-            <div className="sticky bottom-0 z-30 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-4 pt-8 md:static md:mx-0 md:bg-none md:p-0">
-            <p className="mb-2 flex justify-between text-xs text-sub md:hidden">
-              <span>
-                风险资产 <b className="num text-ink">{100 - st.draft.cash}%</b> · 合计 <b className={`num ${isValidAlloc(st.draft) ? "text-ink" : "text-up"}`}>{allocSum(st.draft)}%</b>
-              </span>
-              <a href="#board-alloc" className="underline underline-offset-2" onClick={(e) => { e.preventDefault(); document.getElementById("board-alloc")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
-                去调仓位 ↑
-              </a>
-            </p>
-            <MagneticButton
-              data-testid="next-month"
-              className="btn-primary shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
-              disabled={!valid || settling}
-              onClick={goNext}
-              sound={false}
-            >
-              {/* Border Beam: a light runs round the button while it is the next thing to do */}
-              {valid && !settling && <span aria-hidden className="beam" style={{ "--beam": "#ffffff" } as React.CSSProperties} />}
-              {settling ? (
-                <span className="inline-flex items-center gap-1">
-                  <span className="shimmer-text">结算中</span>
-                  <span className="dots" aria-hidden>
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                </span>
-              ) : !isValidAlloc(st.draft) ? (
-                "合计需为 100%"
-              ) : rule ? (
-                rule
-              ) : shownMonth === script.months.length - 1 ? (
-                "结算最后一个月 →"
-              ) : (
-                "进入下个月 →"
-              )}
-            </MagneticButton>
-            </div>
-            <p className="hidden md:block text-center text-xs text-sub">
-              <kbd className="num">Enter</kbd> 进入下个月 · <kbd className="num">1–6</kbd> 选中对应资产
-            </p>
-          </div>
+          <DecisionColumn
+            useGame={useGame}
+            script={script}
+            panelRef={panel}
+            settling={settling}
+            isLastMonth={shownMonth === script.months.length - 1}
+            autofill={autofill}
+            onNext={goNext}
+          />
         </Enter>
       </div>
       </div>
@@ -388,4 +322,98 @@ function GameSkeleton() {
       </div>
     </main>
   );
+}
+
+/**
+ * 第三列「做决定」：仓位面板 + 进入下个月按钮。只有这一列订阅 draft，
+ * 拖滑块时牌桌其余部分不重渲染。
+ */
+function DecisionColumn({
+  useGame,
+  script,
+  panelRef,
+  settling,
+  isLastMonth,
+  autofill,
+  onNext,
+}: {
+  useGame: GameStoreHook;
+  script: Script;
+  panelRef: RefObject<AllocationPanelHandle | null>;
+  settling: boolean;
+  isLastMonth: boolean;
+  autofill: boolean;
+  onNext: () => void;
+}) {
+  const { draft, task, previous, setAlloc } = useGame(
+    useShallow((s) => ({ draft: s.draft, task: s.task, previous: s.history.at(-1)?.alloc ?? null, setAlloc: s.setAlloc })),
+  );
+  const rule = taskViolation(task, draft);
+  const sumOk = isValidAlloc(draft);
+  const valid = sumOk && !rule;
+
+  return (
+    <div id="board-alloc" className="scroll-mt-28 space-y-4">
+      <AllocationPanel
+        ref={panelRef}
+        assets={script.assets}
+        value={draft}
+        onChange={setAlloc}
+        previous={previous}
+        onSubmit={onNext}
+        params={script.params}
+        task={task}
+        autofill={autofill}
+        onAutofill={(on) => setPrefs({ autofill: on })}
+      />
+      {/* phone: pinned to the bottom of the screen with a fade above it; desktop: normal flow */}
+      <div className="sticky bottom-0 z-30 -mx-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-4 pt-8 md:static md:mx-0 md:bg-none md:p-0">
+        <p className="mb-2 flex justify-between text-xs text-sub md:hidden">
+          <span>
+            风险资产 <b className="num text-ink">{100 - draft.cash}%</b> · 合计 <b className={`num ${sumOk ? "text-ink" : "text-up"}`}>{allocSum(draft)}%</b>
+          </span>
+          <a href="#board-alloc" className="underline underline-offset-2" onClick={(e) => { e.preventDefault(); document.getElementById("board-alloc")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+            去调仓位 ↑
+          </a>
+        </p>
+        <MagneticButton
+          data-testid="next-month"
+          className="btn-primary shine relative h-12 w-full rounded-lg bg-gold text-base font-medium text-bg hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:bg-line disabled:text-sub"
+          disabled={!valid || settling}
+          onClick={onNext}
+          sound={false}
+        >
+          {/* Border Beam: a light runs round the button while it is the next thing to do */}
+          {valid && !settling && <span aria-hidden className="beam" style={{ "--beam": "#ffffff" } as React.CSSProperties} />}
+          {settling ? (
+            <span className="inline-flex items-center gap-1">
+              <span className="shimmer-text">结算中</span>
+              <span className="dots" aria-hidden>
+                <i />
+                <i />
+                <i />
+              </span>
+            </span>
+          ) : !sumOk ? (
+            "合计需为 100%"
+          ) : rule ? (
+            rule
+          ) : isLastMonth ? (
+            "结算最后一个月 →"
+          ) : (
+            "进入下个月 →"
+          )}
+        </MagneticButton>
+      </div>
+      <p className="hidden md:block text-center text-xs text-sub">
+        <kbd className="num">Enter</kbd> 进入下个月 · <kbd className="num">1–6</kbd> 选中对应资产
+      </p>
+    </div>
+  );
+}
+
+/** 工作台要显示当前草稿的试算，单独订阅 draft */
+function LiveWorkbench({ useGame, script, round }: { useGame: GameStoreHook; script: Script; round: number }) {
+  const draft: Allocation = useGame((s) => s.draft);
+  return <Workbench script={script} round={round} draft={draft} />;
 }
