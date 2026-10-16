@@ -5,6 +5,7 @@ import global from "../../content/events/global-black-swans.json";
 import marketLong from "../../content/data/prices/market_long.json";
 import spxLong from "../../content/data/prices/spx_long.json";
 import type { EventDeck, PreparedDeck, PreparedEvent } from "./types";
+import { EVENT_AFTER, EVENT_BEFORE } from "./window";
 
 /** Deck order matters: the position is the deck number stored in share links. Only append. */
 const RAW = [aShare, global] as unknown as EventDeck[];
@@ -15,8 +16,8 @@ const SERIES = {
   spx: { name: "标普 500", rows: spxLong.rows as [string, number][] },
 } as const;
 
-const BEFORE = 60;
-const AFTER = 20;
+const BEFORE = EVENT_BEFORE;
+const AFTER = EVENT_AFTER;
 
 export function deckNumber(id: string): number {
   return DECK_IDS.indexOf(id);

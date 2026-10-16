@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PRICES = ROOT / "content" / "data" / "prices"
 OUT_DIR = ROOT / "content" / "scripts"
 TRADED = ["sh50", "cyb", "bank", "baijiu", "market"]
+# 每局起始资金。引擎、结算页、基准线都从剧本 JSON 的 startCash 读取，改这里会同步到所有年份
+START_CASH = 100_000
 
 
 def load_closes(asset, year):
@@ -165,7 +167,7 @@ def main():
         "title": content["title"],
         "subtitle": content["subtitle"],
         "intro": content["intro"],
-        "startCash": 100000,
+        "startCash": START_CASH,
         # SSE Composite close on the last trading day before the year: blind mode rescales point levels to 起点 = 100
         "baseClose": round(closes["market"][prev_year[-1]], 2),
         "peakMonth": peak,

@@ -1,4 +1,5 @@
 import { palette } from "./palette";
+import { EVENT_POINTS } from "@/events/window";
 
 // colours follow the current skin (music/palette.ts); these are the dark defaults until the first draw
 let HATCH_BG = "#e2eaf1";
@@ -70,9 +71,9 @@ export class LineCanvas {
   }
 
   private x(k: number) {
-    // 60 history points (k 0..59), then 20 future points (k 60..79 = after[0..19])
+    // EVENT_BEFORE history points (k 0..59), then EVENT_AFTER future points (k 60..79 = after[0..19])
     const p = this.plot();
-    return p.left + ((p.right - p.left) * k) / 79;
+    return p.left + ((p.right - p.left) * k) / (EVENT_POINTS - 1);
   }
 
   private y(v: number) {

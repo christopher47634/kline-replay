@@ -164,8 +164,10 @@ function Result({
     const liquidated = everLiquidated(history);
     const personaId = judgePersona(history, script);
     const b = benchmarks(script, history);
-    const marketRet = b.market[12] / script.startCash - 1;
-    const cashRet = b.cash[12] / script.startCash - 1;
+    // 序列首项是开局，末项是最后一个月月末；不写死 12，剧本月数变了也对
+    const end = script.months.length;
+    const marketRet = b.market[end] / script.startCash - 1;
+    const cashRet = b.cash[end] / script.startCash - 1;
     const daily = simulateDaily(history, script);
     const busted = isBusted(history);
     return {
