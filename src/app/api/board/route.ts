@@ -10,6 +10,7 @@ const allowPost = createRateLimiter(10, 60_000);
 
 export async function GET(request: Request) {
   const script = new URL(request.url).searchParams.get("script") ?? "2015";
+  if (!getScript(script)) return NextResponse.json({ error: "无效剧本" }, { status: 400 });
   const db = supabase();
   if (!db) return NextResponse.json({ enabled: false, rows: [], count: 0 });
   const [{ data, error }, { count }] = await Promise.all([

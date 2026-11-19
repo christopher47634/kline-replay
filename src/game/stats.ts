@@ -72,6 +72,74 @@ export function reportLines(r: GameReport, monthLabel: (month: number) => string
   return lines;
 }
 
+/** 量化风险诊断指标（最大回撤、月度波动率、收益波动比、卡玛比率、最长连胜/连亏）。 */
+export interface RiskMetrics {
+  /** 最大回撤（0 ~ 1，例如 0.25 表示 -25%） */
+  maxDrawdown: number;
+  /** 月度收益率标准差 */
+  monthlyVolatility: number;
+  /** 简化收益波动比（平均月收益 / 月波动率；无波动时为 null） */
+  returnToVolRatio: number | null;
+  /** 总收益 / 最大回撤（无回撤时为 null） */
+  calmarRatio: number | null;
+  maxWinStreak: number;
+  maxLoseStreak: number;
+}
+
+export function computeRiskMetrics(script: Script, history: RoundRecord[]): RiskMetrics {
+  let peak = script.startCash;
+  let maxDrawdown = 0;
+  let winStreak = 0;
+  let loseStreak = 0;
+  let maxWinStreak = 0;
+  let maxLoseStreak = 0;
+
+  for (const h of history) {
+    if (h.cashAfter > peak) peak = h.cashAfter;
+    if (peak > 0) {
+      const dd = (peak - h.cashAfter) / peak;
+      if (dd > maxDrawdown) maxDrawdown = dd;
+    }
+    if (h.pnl > 0) {
+      winStreak += 1;
+      loseStreak = 0;
+      if (winStreak > maxWinStreak) maxWinStreak = winStreak;
+    } else if (h.pnl < 0) {
+      loseStreak += 1;
+      winStreak = 0;
+      if (loseStreak > maxLoseStreak) maxLoseStreak = loseStreak;
+    } else {
+      winStreak = 0;
+      loseStreak = 0;
+    }
+  }
+
+  const pnls = history.map((h) => h.pnl);
+  const mean = pnls.length > 0 ? pnls.reduce((s, x) => s + x, 0) / pnls.length : 0;
+  const variance =
+    pnls.length > 1
+      ? pnls.reduce((s, x) => s + (x - mean) ** 2, 0) / (pnls.length - 1)
+      : 0;
+  const monthlyVolatility = Math.sqrt(variance);
+  const ret = totalReturn(script, history);
+
+  return {
+    maxDrawdown,
+    monthlyVolatility,
+    returnToVolRatio: monthlyVolatility > 1e-9 ? mean / monthlyVolatility : null,
+    calmarRatio: maxDrawdown > 1e-9 ? ret / maxDrawdown : null,
+    maxWinStreak,
+    maxLoseStreak,
+  };
+}
+
+export function riskSummaryLine(m: RiskMetrics): string {
+  const dd = `${(m.maxDrawdown * 100).toFixed(1)}%`;
+  const vol = `${(m.monthlyVolatility * 100).toFixed(1)}%`;
+  const calmar = m.calmarRatio === null ? "无回撤" : m.calmarRatio.toFixed(2);
+  return `最大回撤 ${dd}，月度波动率 ${vol}，卡玛比 ${calmar}，最长连胜 ${m.maxWinStreak} 月 / 连亏 ${m.maxLoseStreak} 月。`;
+}
+
 /** 累计战绩里存的一条：只留聚合需要的字段，用结果码去重。 */
 export interface StatsRecord {
   code: string;

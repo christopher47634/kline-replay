@@ -87,3 +87,11 @@ describe("POST /api/board", () => {
     expect((await post(good)).status).toBe(409);
   });
 });
+
+describe("GET /api/board", () => {
+  it("rejects unknown script id with 400", async () => {
+    const { GET } = await import("../board/route");
+    const res = await GET(new Request("http://x/api/board?script=1999"));
+    expect(res.status).toBe(400);
+  });
+});
